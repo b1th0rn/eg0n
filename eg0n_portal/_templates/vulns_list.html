@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>eg0n :: VulnList</title>
+        <style>
+            body {
+                background-color: #121212;
+                color: #ffffff;
+                font-family: Arial, sans-serif;
+            }
+        </style>
+    </head>
+    <body bg>
+        <h1>VulnList</h1>
+
+        {% for object in object_list %}
+            <h2><a href="#">{{ object.cve }}</a> [{{ object.cvss }}]</h2>
+            <p>{{ object.description }}</p>
+        {% endfor %}
+
+    </body>
+</html>
