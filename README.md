@@ -1,2 +1,1 @@
-# eg0n
-IoC management project
+# eg0n :: IoC management project
