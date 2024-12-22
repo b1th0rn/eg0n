@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Vuln, VulnReview, ipadd, hash
+import random
 
 # Vulnerabilities: custom admin
 class VulnsAdmin(admin.ModelAdmin):
@@ -19,15 +20,16 @@ class VulnsAdmin(admin.ModelAdmin):
 
 class VulnReviewAdmin(admin.ModelAdmin):
     # admin view
-    list_display = ["cve", "publish_date", "author", "author"]
+    list_display = ["review_name", "cve_name", "publish_date", "author"]
     list_filter = ["publish_date"]
-    search_fields = ["cve", "author"]
+    search_fields = ["cve_name", "author"]
     # author field
-    readonly_fields = ("author", "lastchange_author")
+    readonly_fields = ("author", "lastchange_author", "review_name")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
         obj.lastchange_author = request.user.username
+        obj.review_name = "REVIEW_{}_{}_{}".format(obj.cve_name , request.user.username, random.randint(100, 999))
         return super().save_model(request, obj, form, change)
     class Meta:
         model = VulnReview

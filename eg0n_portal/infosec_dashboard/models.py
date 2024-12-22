@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from info_gathering.models import OrganizationInfo, PersonInfo
-from ioc_management.models import VulnReview
+from ioc_management.models import Vuln
 from datetime import datetime, timezone
 
 # Asset Models
@@ -23,9 +23,9 @@ class Asset(models.Model):
     description = models.TextField()
     
     def __str__(self):
-        return self.cve
+        return self.hostname
 
 class CriticalVuln(models.Model):
     asset = models.ForeignKey(Asset, to_field="hostname", on_delete=models.CASCADE, db_column="hostname")
-    cve = models.ForeignKey(VulnReview, to_field="cve", on_delete=models.CASCADE, db_column="cve")
+    cve_critical = models.OneToOneField(Vuln, to_field="cve", on_delete=models.CASCADE, db_column="cve", related_name="cve_critical", default="none")
     owner = models.ForeignKey(PersonInfo, to_field="name", on_delete=models.CASCADE, db_column="name")
