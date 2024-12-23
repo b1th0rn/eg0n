@@ -4,3 +4,4 @@ lib
 bin
 pyvenv.cfg
 __pycache__
+eg0n_portal/eg0n_frontend/node_modules

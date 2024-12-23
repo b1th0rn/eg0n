@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>eg0n :: VulnList</title>
-        <style>
-            body {
-                background-color: #121212;
-                color: #ffffff;
-                font-family: Arial, sans-serif;
-            }
-        </style>
-    </head>
-    <body bg>
-        <h1>VulnList</h1>
-
-        {% for object in object_list %}
+<html lang="en" data-bs-theme="dark">
+    {% csrf_token %}
+  <head>
+    <meta charset="UTF-8">
+    <title>eg0n :: VulnList</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div id="eg0n-app"
+    data-contextName="vulnList"
+    data-csrfToken ={% csrf_token %}></div>
+    <script type="module" crossorigin src="http://localhost:5173/src/main.js"></script>
+    
+  </body>
+    <!-- <body bg>
+    {% for object in object_list %}
             <h2><a href="#">{{ object.cve }}</a> [{{ object.cvss }}]</h2>
             <p>{{ object.description }}</p>
-        {% endfor %}
+        {% endfor %}    
 
-    </body>
+    </body> -->
 </html>
