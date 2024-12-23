@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from info_gathering.models import OrganizationInfo, PersonInfo
 from ioc_management.models import Vuln
-from datetime import datetime, timezone
+from django.utils import timezone
 
 # Asset Models
 class Asset(models.Model):
@@ -19,7 +19,7 @@ class Asset(models.Model):
     soc_scope = models.CharField(max_length=16, choices=YES_NO)
     sensitive_data = models.CharField(max_length=16, choices=YES_NO)
     business_impact = models.CharField(max_length=16, choices=IMPACT_LEVEL)
-    end_of_life = models.DateField(default=datetime.now(timezone.utc))
+    end_of_life = models.DateField(default=timezone.now)
     description = models.TextField()
     
     def __str__(self):

@@ -33,7 +33,7 @@ class VulnReview(models.Model):
 
 # IP Address Models
 CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
-class ipadd(models.Model):
+class IpAdd(models.Model):
     ip_address = models.GenericIPAddressField(unique=True, unpack_ipv4=True)
     url = models.CharField(max_length=32, blank=True, default='none')
     fqdn = models.CharField(max_length=32, blank=True, default='none')
@@ -41,7 +41,7 @@ class ipadd(models.Model):
     description = models.TextField()
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
-    expire_date = models.DateField(default=timezone.now())
+    expire_date = models.DateField(default=timezone.now)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 
@@ -51,7 +51,7 @@ class ipadd(models.Model):
 # Hashes Models
 CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
 PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'),('macOS', 'macOS'),]
-class hash(models.Model):
+class Hash(models.Model):
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
     sha256 = models.TextField()
@@ -62,7 +62,7 @@ class hash(models.Model):
     description = models.TextField()
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
-    expire_date = models.DateField(default=timezone.now())
+    expire_date = models.DateField(default=timezone.now)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 

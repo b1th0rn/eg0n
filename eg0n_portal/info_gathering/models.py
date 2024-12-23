@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import datetime, timezone
+from django.utils import timezone
+
 
 # Organizations
 class OrganizationInfo(models.Model):
@@ -41,9 +42,9 @@ class DomainName(models.Model):
     name_server_2 = models.CharField(max_length=64, blank=True, default='none')
     name_server_3 = models.CharField(max_length=64, blank=True, default='none')
     description = models.TextField()
-    create_date = models.DateField(default=datetime.now(timezone.utc))
-    update_date = models.DateField(default=datetime.now(timezone.utc))
-    expire_date = models.DateField(default=datetime.now(timezone.utc))
+    create_date = models.DateField(default=timezone.now)
+    update_date = models.DateField(default=timezone.now)
+    expire_date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.domain_name
