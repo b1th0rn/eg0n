@@ -65,7 +65,7 @@ PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'),('macOS', 'macOS'),]
 class Hash(models.Model):
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
-    sha256 = models.TextField()
+    sha256 = models.TextField(unique=True)
     sha1 = models.TextField()
     md5 = models.TextField()
     website = models.URLField(max_length=50, blank=True, default='none')
@@ -78,4 +78,14 @@ class Hash(models.Model):
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 
     def __str__(self):
-        return self.filename
+        return "[{}] {}".format(self.filename, self.sha256)
+
+# HashReview model: analysis and docs.
+class HashReview(models.Model):
+    review_name = models.CharField(max_length=64, default="none", unique=True)
+    hash = models.ForeignKey(Hash, to_field="sha256", on_delete=models.CASCADE, default="none", related_name="hash")
+    review = models.TextField(null=True, blank=True)
+    publish_date = models.DateField(auto_now=False, auto_now_add=True)
+    update_date = models.DateField(auto_now=True, auto_now_add=False)
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
