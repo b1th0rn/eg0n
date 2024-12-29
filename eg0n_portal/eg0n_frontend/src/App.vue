@@ -33,22 +33,17 @@ export default{
 mounted()
   {
     this.configuration = useConfigurationStore();
-    console.log("dentro mounted app.vue");
     let contextName = this.$el.parentElement.getAttribute("data-contextName") 
     let csrf_token = this.$el.parentElement.getAttribute("data-csrfToken")
     
     if(contextName)
     {
       this.configuration.setContextName(contextName);
-      console.log("contextName: ", contextName);
-      console.log("configuration.contextName: ", this.configuration.contextName);
     }
 
     if(csrf_token)
     {
       this.configuration.setCsrfToken(csrf_token);
-      console.log("csrf_token",csrf_token)
-      console.log("configuration.csrfToken",this.configuration.csrfToken)
     }
     
   }

@@ -1,13 +1,19 @@
 <template>
-<BInputGroup class="mt-3" >
-  <template #append>
-    <BInputGroupText ><span class="material-icons">search</span></BInputGroupText>
-  </template>
-  <BFormInput v-model="text"/>
-</BInputGroup>
-<div class="mt-2">Value: {{ text }}</div>
+  <BContainer>
+    <BRow>
+      <BInputGroup class="mt-3" >
+        <template #append>
+          <BButton variant="outline-secondary" @click="emitSearch"><span class="material-icons">search</span></BButton>
+          <!-- <BInputGroupText><span class="material-icons">search</span></BInputGroupText> -->
+        </template>
+        <BFormInput v-model="text"/>
+      </BInputGroup>
+    </BRow>
+  </BContainer> 
 </template>
+
 <script>
+
 export default {
   name: "VulnsSearhc",
   data() {
@@ -19,27 +25,29 @@ export default {
   },
 
   methods: {
-    callSearch()
+    emitChangeText()
     {
-      this.$emit("search",this.searchText);
+      this.$emit("changeText",this.searchText);
+    },
+    emitSearch()
+    {
+      this.$emit("emitSearch");
     }
   },
 
   computed:{
     text: {
       get(){
-        console.log("dentro la get computed text");
         return this.searchText;
       },
       set(newValue) {
-        console.log("dentro la set computed text new value: ", newValue);        
         this.searchText = newValue;
         if(this.searchTimer)
         {
           clearTimeout(this.searchTimer);
         }
         this.searchTimer = setTimeout(() => {
-          this.callSearch()},this.searchDelay
+          this.emitChangeText()},this.searchDelay
         );
       }
     }

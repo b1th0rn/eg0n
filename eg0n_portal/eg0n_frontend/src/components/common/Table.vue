@@ -34,11 +34,14 @@
     </BRow>
     <BRow>      
     </BRow>
+    <!-- :current-page="curPage" -->
     <BTable 
-    :items="items" 
+    :items="vulnsList" 
     :fields="fieldsConfiguration"
+    :sort-by="defaultSort"
+    multisort="false"
+    no-local-sorting="true"
     :per-page="perPage"
-    :current-page="curPage"
     :sorted="sort"
     @row-dblclicked="
       (row, index, e) => {
@@ -59,24 +62,18 @@ export default {
     currentPage: Number,
     totalVulns: Number,
     perPageValue: 25,
-  },
-
-  data() {
-    return {
-    
-    }
+    defaultSort: Array,
   },
 
   mounted()
   {
-    console.log("dentro table.vue");
-    if(!this.fieldsConfiguration || this.fieldsConfiguration.length == 0){
-      /* manage base configuration */
-    }
+    /* if(!this.fieldsConfiguration || this.fieldsConfiguration.length == 0){
+       manage base configuration 
+    } */
   },
+
   methods: {
-    sort(event,value) {
-      console.log("change sorting",value,event);
+    sort(event) {
       this.$emit('changeSort',event);
     },
 
@@ -103,23 +100,25 @@ export default {
         return this.perPageValue;
       },
       set(newValue) {
-        console.log("in table.vue set perpage",newValue);
-        //this.perPageValue = newValue;
         this.$emit('changePerPage',newValue);
       }
     },
 
     curPage: {
     get() {
-      if(this.currentPage && this.currentPage == 0)
-      {
+      if(this.currentPage && this.currentPage == 0) {
         return 1; 
       }
       return this.currentPage;
       },
       set(newValue){
-        console.log("in table.vue set curPage", newValue);
         this.$emit('changePage',newValue);
+      }
+    },
+
+    vulnsList: {
+      get() {
+        return this.items;
       }
     }
   },

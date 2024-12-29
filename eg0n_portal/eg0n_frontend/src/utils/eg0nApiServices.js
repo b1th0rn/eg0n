@@ -3,12 +3,10 @@ import axios from "axios";
 class eg0nApiService {
   static GetVulns(filter)
   {
-
     const csrftoken = this.getCookie('csrftoken');
-    console.log("csrftoken", csrftoken);
     return axios.post('./Vulns',filter,{
       headers: {
-        'csrftoken':csrftoken
+        'X-CSRFToken':csrftoken
       }
     });
   }
