@@ -1,5 +1,5 @@
 #!/bin/bash
 
 rm -rf venv
-virtualenv venv #creo il virtual env
-./venv/bin/pip install -r ./requirements.txt #richiamando il pip all'interno del veinv, non è necessario attvarlo
+virtualenv venv #create the virtual environment
+./venv/bin/pip install -r ./requirements.txt #recall the venv folder to install the requirements
