@@ -65,9 +65,9 @@ PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'),('macOS', 'macOS'),]
 class Hash(models.Model):
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
-    sha256 = models.TextField(unique=True)
-    sha1 = models.TextField()
-    md5 = models.TextField()
+    sha256 = models.CharField(max_length=64, blank=True, default='none', unique=True)
+    sha1 = models.CharField(max_length=40, blank=True, default='none')
+    md5 = models.CharField(max_length=32, blank=True, default='none')
     website = models.URLField(max_length=50, blank=True, default='none')
     confidence = models.CharField(max_length=16, choices=CONFIDENCE_CHOICES, default='low')
     description = models.TextField()
