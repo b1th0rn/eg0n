@@ -1,6 +1,4 @@
-
 <template>
-  <h1>Vue 3 template home page</h1>
+  <h1>Welcome on eg0n IOC management project</h1>
 </template>
-<script setup>
-</script>
+<script setup></script>

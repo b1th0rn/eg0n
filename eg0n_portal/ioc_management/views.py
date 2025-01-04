@@ -8,14 +8,11 @@ from .models import Vuln
 import json
 
 # Create your views here.
+
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+@ensure_csrf_cookie
 def index(request):
-  # object_list = Vuln.objects.all().order_by("update_date") 
-  # context= {'object_list': object_list}
-  # return render(request,"vulns_list.html",context)
-  print("-------------------------------------")
-  print("request ",request)
-  print("request.method ",request.method)
-  print("-------------------------------------")
   if request.method == "GET":
     template=loader.get_template("vulns_list.html")
     return HttpResponse(template.render())

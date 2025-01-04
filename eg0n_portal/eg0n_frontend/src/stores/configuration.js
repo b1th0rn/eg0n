@@ -1,22 +1,21 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-export const useConfigurationStore = defineStore('configuration', 
-  {
+export const useConfigurationStore = defineStore("configuration", {
   state: () => {
-    return 
-      {
-        contextName : "";
-        csrfToken : ""  
-      }  
+    return;
+    {
+      ("");
+      ("");
+    }
   },
-  
+
   actions: {
     setContextName(value) {
       this.contextName = value;
     },
 
-    setCsrfToken (value) {
+    setCsrfToken(value) {
       this.csrfToken = value;
-    }
+    },
   },
-})
+});

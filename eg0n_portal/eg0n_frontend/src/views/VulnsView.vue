@@ -1,31 +1,35 @@
 <template>
   <BContainer>
     <h1>Welcome on vulns page</h1>
-    </br>
-    <span class="mb-2 mt-2">This page show a list of vuls find by our validtor anc contributor, 
-      you can use a search bar to filter result by desciption</span>
-    <VulnSearch 
-      @changeText="changeSearchText($event)"
-      @emitSearch="search()"
+    <span class="mb-2 mt-2"
+      >This page show a list of vuls find by our validtor anc contributor, you
+      can use a search bar to filter result by desciption</span
+    >
+    <VulnSearch @changeText="changeSearchText($event)" @emitSearch="search()" />
+    <Table
+      :items="vulns"
+      :fieldsConfiguration="fieldsConfiguration"
+      :currentPage="currentPage"
+      :perPageValue="perPage"
+      :totalVulns="total"
+      :defaultSort="defaultSortBy"
+      @changePage="changePage($event)"
+      @changePerPage="changePerPage($event)"
+      @changeSort="changeSort($event)"
+      @rowDblClicked="openVulnDetails($event)"
     />
-    <Table 
-    :items="vulns"
-    :fieldsConfiguration="fieldsConfiguration"
-    :currentPage="currentPage"
-    :perPageValue="perPage"
-    :totalVulns="total"
-    :defaultSort="defaultSortBy"
-    @changePage="changePage($event)"
-    @changePerPage="changePerPage($event)"
-    @changeSort="changeSort($event)"
-    @rowDblClicked="openVulnDetail($event)"
-      />
+    <VulnDetails
+      :showDetails="showDetails"
+      :vuln="vulnSelected"
+      @closeDescription="closeVulnDetails($event)"
+    />
   </BContainer>
 </template>
-<script>  
+<script>
 import VulnSearch from "@/components/Vulns/VulnSearch.vue";
 import Table from "@/components/common/Table.vue";
-import {eg0nApiService} from "@/utils/eg0nApiServices";
+import VulnDetails from "@/components/Vulns/VulnDetails.vue";
+import { eg0nApiService } from "@/utils/eg0nApiServices";
 
 export default {
   name: "VulnView",
@@ -36,41 +40,49 @@ export default {
         text: "",
         pageNumber: 1,
         perPage: 25,
-        sortBy:"publish_date",
-        sortOrder: "asc",        
+        sortBy: "publish_date",
+        sortOrder: "asc",
       },
       items: [],
       totalVulns: 0,
       fieldsConfiguration: [],
-    }
+      showDetails: false,
+      vulnSelected: {},
+    };
   },
 
   mounted() {
     this.fieldsConfiguration = [
-      {key: "cve", sortable:false},
-      {key: "name", sortable:false},
-      {key: "description", sortable:false},
-      {key: "publish_date", sortable:true},
-      {key: "author", sortable:true},
+      { key: "cve", sortable: false },
+      { key: "name", sortable: false },
+      { key: "cvss", sortable: true },
+      { key: "publish_date", sortable: true },
+      { key: "author", sortable: true },
     ];
     this.search();
   },
 
-  methods:  {
+  methods: {
     async search() {
-      var response = await eg0nApiService.GetVulns(this.vulnSearch);  
+      var response = await eg0nApiService.GetVulns(this.vulnSearch);
       this.currentPage = response.data.current_page;
       this.totalVulns = response.data.total_items;
       this.items = response.data.vulnerabilities;
     },
 
-    changeSort(newValue) {   
-      this.sort= newValue; 
+    changeSort(newValue) {
+      this.sort = newValue;
       this.changePage(1);
     },
 
-    openVulnDetail(payload) {
-      console.log("doppio click su una riga della tabella",payload);
+    openVulnDetails(payload) {
+      this.vulnSelected = payload.item;
+      this.showDetails = true;
+      console.log("doppio click su una riga della tabella", payload);
+    },
+
+    closeVulnDetails() {
+      this.showDetails = false;
     },
 
     changePerPage(newValue) {
@@ -86,18 +98,18 @@ export default {
     changeSearchText(newValue) {
       this.searchText = newValue;
       this.changePage(1);
-    }  
+    },
   },
 
-  computed:{
+  computed: {
     searchText: {
       get() {
         return this.vulnSearch.text;
       },
-      set(newValue){
+      set(newValue) {
         this.vulnSearch.text = newValue;
         //this.search();
-      }
+      },
     },
 
     currentPage: {
@@ -106,7 +118,7 @@ export default {
       },
       set(newValue) {
         this.vulnSearch.pageNumber = newValue;
-      }
+      },
     },
 
     sort: {
@@ -116,41 +128,43 @@ export default {
       set(newValue) {
         this.vulnSearch.sortBy = newValue.key;
         this.vulnSearch.sortOrder = newValue.order ? newValue.order : "asc";
-      }
+      },
     },
 
     defaultSortBy: {
       get() {
-        let keyValue = this.vulnSearch.sortBy ? this.vulnSearch.sortBy : "publish_date";
-        let orderValue = this.vulnSearch.sortOrder ? this.vulnSearch.sortOrder : "asc";  
-        return [{key: keyValue, order: orderValue}] 
-      }
+        let keyValue = this.vulnSearch.sortBy
+          ? this.vulnSearch.sortBy
+          : "publish_date";
+        let orderValue = this.vulnSearch.sortOrder
+          ? this.vulnSearch.sortOrder
+          : "asc";
+        return [{ key: keyValue, order: orderValue }];
+      },
     },
 
     perPage: {
       get() {
         return this.vulnSearch.perPage;
       },
-      set(newValue)
-      {
+      set(newValue) {
         this.vulnSearch.perPage = newValue;
         //this.search();
-      }
+      },
     },
 
     vulns: {
-      get(){
-        return this.items
-      }
+      get() {
+        return this.items;
+      },
     },
 
     total: {
       get() {
         return this.totalVulns;
-      }
-    }
+      },
+    },
   },
-}
+};
 </script>
-<style>
-</style>
+<style></style>

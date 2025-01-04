@@ -1,54 +1,56 @@
 <template>
   <header>
-      <BNavbar class="nav" v-b-color-mode="'dark'" :toggleable="true" variant="secondary" >
-        <img src="./assets/bitHorn.jpg" class="logo">
-        <BNavbarBrand href="#" tag="h1" class="mb-0">eg0n Portal</BNavbarBrand>
-        <BNavbarToggle target="nav-offcanvas" />
-        <BOffcanvas id="nav-offcanvas" title="eg0n Portal" placement="end" is-nav>
-          <BNavbarNav>
-            <BNavItem href="/admin">Login</BNavItem>
-          </BNavbarNav>
-          <BNavbarNav>
-            <BNavItem href="/">Home</BNavItem>
-            <BNavItem href="/Vulns">Vulns</BNavItem>
-          </BNavbarNav>
-        </BOffcanvas>
-      </BNavbar>
+    <BNavbar
+      class="nav"
+      v-b-color-mode="'dark'"
+      :toggleable="true"
+      variant="secondary"
+    >
+      <img :src="logoPath" class="logo" />
+      <BNavbarBrand href="/" tag="h1" class="mb-0">eg0n Portal</BNavbarBrand>
+      <BNavbarToggle target="nav-offcanvas" />
+      <BOffcanvas id="nav-offcanvas" title="eg0n Portal" placement="end" is-nav>
+        <BNavbarNav>
+          <BNavItem href="/admin">Login</BNavItem>
+        </BNavbarNav>
+        <BNavbarNav>
+          <BNavItem href="/">Home</BNavItem>
+          <BNavItem href="/Vulns">Vulns</BNavItem>
+        </BNavbarNav>
+      </BOffcanvas>
+    </BNavbar>
   </header>
   <RouterView />
 </template>
 
-<script >
-import {RouterView } from 'vue-router'
-import {useConfigurationStore} from '@/stores/configuration'
+<script>
+import { RouterView } from "vue-router";
+import { useConfigurationStore } from "@/stores/configuration";
 
-export default{
-  data() {
-  return 
-  {
-    configuration: null
-  } 
-},   
-
-mounted()
-  {
+export default {
+  mounted() {
     this.configuration = useConfigurationStore();
-    let contextName = this.$el.parentElement.getAttribute("data-contextName") 
-    let csrf_token = this.$el.parentElement.getAttribute("data-csrfToken")
-    
-    if(contextName)
-    {
+    let contextName = this.$el.parentElement.getAttribute("data-contextName");
+    let csrf_token = this.$el.parentElement.getAttribute("data-csrfToken");
+
+    if (contextName) {
       this.configuration.setContextName(contextName);
     }
 
-    if(csrf_token)
-    {
+    if (csrf_token) {
       this.configuration.setCsrfToken(csrf_token);
     }
-    
-  }
-}
+  },
 
+  computed: {
+    logoPath: {
+      get() {
+        let baseUri = document.baseURI;
+        return new URL("/static/images/bitHorn.jpg", baseUri);
+      },
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -63,7 +65,6 @@ header {
   z-index: 999;
   /* padding-right: calc(var(--section-gap) / 2); */
 }
-
 
 nav {
   width: 100%;
@@ -94,11 +95,9 @@ nav a:first-of-type {
 .logo {
   margin: 0 2rem 0 0;
   background-repeat: no-repeat;
-    background-position: 50%;
-    border-radius: 50%;
-    width: 75px;
-    height: 75px;
+  background-position: 50%;
+  border-radius: 50%;
+  width: 75px;
+  height: 75px;
 }
-
-
 </style>

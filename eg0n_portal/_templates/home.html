@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+  {% load static %}
   <head>
     <title>eg0n :: Home</title>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
-
+    <link rel="stylesheet" href="{% static 'bundle/style.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <div id="eg0n-app"></div>
-    <script type="module" crossorigin src="http://localhost:5173/src/main.js"></script>
+    <!-- <script type="module" crossorigin src="http://localhost:5173/src/main.js"></script> -->
+    <script type="module" src="{% static 'bundle/eg0nPortal.js' %}"></script> 
   </body>
 </html>

@@ -1,4 +1,4 @@
-@import './base.css';
+@import "./base.css";
 
 #eg0n-app {
   max-width: 1280px;
@@ -26,6 +26,4 @@
 }
 
 @media (min-width: 1024px) {
-
-
 }
