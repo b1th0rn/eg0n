@@ -7,7 +7,7 @@
     >
     <SearchBar @changeText="changeSearchText($event)" @emitSearch="search()" />
     <Table
-      :items="vulns"
+      :items="ipAddress"
       :fieldsConfiguration="fieldsConfiguration"
       :currentPage="currentPage"
       :perPageValue="perPage"
@@ -16,11 +16,11 @@
       @changePage="changePage($event)"
       @changePerPage="changePerPage($event)"
       @changeSort="changeSort($event)"
-      @rowDblClicked="openVulnDetails($event)"
+      @rowDblClicked="openIPDetails($event)"
     />
     <Details
       :showDetails="showDetails"
-      :vuln="vulnSelected"
+      :vuln="ipSelected"
       @closeDescription="closeVulnDetails($event)"
     />
   </BContainer>
@@ -32,11 +32,11 @@ import Details from "@/components/common/Details.vue";
 import { eg0nApiService } from "@/utils/eg0nApiServices";
 
 export default {
-  name: "VulnView",
+  name: "IpAddrView",
 
   data() {
     return {
-      vulnSearch: {
+      ipAddSearch: {
         text: "",
         pageNumber: 1,
         perPage: 25,
@@ -47,15 +47,15 @@ export default {
       totalVulns: 0,
       fieldsConfiguration: [],
       showDetails: false,
-      vulnSelected: {},
+      ipSelected: {},
     };
   },
 
   mounted() {
     this.fieldsConfiguration = [
-      { key: "cve", sortable: false },
-      { key: "name", sortable: false },
-      { key: "cvss", sortable: true },
+      { key: "ip_address", sortable: false },
+      { key: "url", sortable: false },
+      { key: "fqdn", sortable: true },
       { key: "publish_date", sortable: true },
       { key: "author", sortable: true },
     ];
@@ -64,10 +64,10 @@ export default {
 
   methods: {
     async search() {
-      var response = await eg0nApiService.GetVulns(this.vulnSearch);
+      var response = await eg0nApiService.GetIPAddr(this.ipAddSearch);
       this.currentPage = response.data.current_page;
       this.totalVulns = response.data.total_items;
-      this.items = response.data.vulnerabilities;
+      this.items = response.data.ip_address_list;
     },
 
     changeSort(newValue) {
@@ -75,8 +75,8 @@ export default {
       this.changePage(1);
     },
 
-    openVulnDetails(payload) {
-      this.vulnSelected = payload.item;
+    openIPDetails(payload) {
+      this.ipSelected = payload.item;
       this.showDetails = true;
       console.log("doppio click su una riga della tabella", payload);
     },
@@ -104,40 +104,40 @@ export default {
   computed: {
     searchText: {
       get() {
-        return this.vulnSearch.text;
+        return this.ipAddSearch.text;
       },
       set(newValue) {
-        this.vulnSearch.text = newValue;
+        this.ipAddSearch.text = newValue;
         //this.search();
       },
     },
 
     currentPage: {
       get() {
-        return this.vulnSearch.pageNumber;
+        return this.ipAddSearch.pageNumber;
       },
       set(newValue) {
-        this.vulnSearch.pageNumber = newValue;
+        this.ipAddSearch.pageNumber = newValue;
       },
     },
 
     sort: {
       get() {
-        return this.VulnSearch.sortBy;
+        return this.ipAddSearch.sortBy;
       },
       set(newValue) {
-        this.vulnSearch.sortBy = newValue.key;
-        this.vulnSearch.sortOrder = newValue.order ? newValue.order : "asc";
+        this.ipAddSearch.sortBy = newValue.key;
+        this.ipAddSearch.sortOrder = newValue.order ? newValue.order : "asc";
       },
     },
 
     defaultSortBy: {
       get() {
-        let keyValue = this.vulnSearch.sortBy
-          ? this.vulnSearch.sortBy
+        let keyValue = this.ipAddSearch.sortBy
+          ? this.ipAddSearch.sortBy
           : "publish_date";
-        let orderValue = this.vulnSearch.sortOrder
-          ? this.vulnSearch.sortOrder
+        let orderValue = this.ipAddSearch.sortOrder
+          ? this.ipAddSearch.sortOrder
           : "asc";
         return [{ key: keyValue, order: orderValue }];
       },
@@ -145,15 +145,15 @@ export default {
 
     perPage: {
       get() {
-        return this.vulnSearch.perPage;
+        return this.ipAddSearch.perPage;
       },
       set(newValue) {
-        this.vulnSearch.perPage = newValue;
+        this.ipAddSearch.perPage = newValue;
         //this.search();
       },
     },
 
-    vulns: {
+    ipAddress: {
       get() {
         return this.items;
       },

@@ -13,9 +13,12 @@
         <BNavbarNav>
           <BNavItem href="/admin">Login</BNavItem>
         </BNavbarNav>
+        <hr class="hr" />
         <BNavbarNav>
           <BNavItem href="/">Home</BNavItem>
           <BNavItem href="/Vulns">Vulns</BNavItem>
+          <BNavItem href="/Hash">Hash</BNavItem>
+          <BNavItem href="/IpAdd">IP Address</BNavItem>
         </BNavbarNav>
       </BOffcanvas>
     </BNavbar>

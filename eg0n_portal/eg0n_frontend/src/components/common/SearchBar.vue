@@ -1,7 +1,7 @@
 <template>
   <BContainer>
     <BRow>
-      <BInputGroup class="mt-3">
+      <BInputGroup class="mt-3 mb-3">
         <template #append>
           <BButton variant="outline-secondary" @click="emitSearch"
             ><span class="material-icons">search</span></BButton
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: "VulnsSearhc",
+  name: "SearchBar",
   data() {
     return {
       searchText: "",

@@ -1,13 +1,13 @@
 <template>
   <BContainer>
-    <h1>Welcome on vulns page</h1>
+    <h1>Welcome on Hash page</h1>
     <span class="mb-2 mt-2"
-      >This page show a list of vuls find by our validtor anc contributor, you
-      can use a search bar to filter result by desciption</span
+      >This page show a list of hash find by our validtor and contributor, you
+      can use a search bar to filter result</span
     >
     <SearchBar @changeText="changeSearchText($event)" @emitSearch="search()" />
     <Table
-      :items="vulns"
+      :items="hashs"
       :fieldsConfiguration="fieldsConfiguration"
       :currentPage="currentPage"
       :perPageValue="perPage"
@@ -16,11 +16,11 @@
       @changePage="changePage($event)"
       @changePerPage="changePerPage($event)"
       @changeSort="changeSort($event)"
-      @rowDblClicked="openVulnDetails($event)"
+      @rowDblClicked="openHashDetails($event)"
     />
     <Details
       :showDetails="showDetails"
-      :vuln="vulnSelected"
+      :vuln="hashSelected"
       @closeDescription="closeVulnDetails($event)"
     />
   </BContainer>
@@ -36,7 +36,7 @@ export default {
 
   data() {
     return {
-      vulnSearch: {
+      hashSearch: {
         text: "",
         pageNumber: 1,
         perPage: 25,
@@ -44,18 +44,18 @@ export default {
         sortOrder: "asc",
       },
       items: [],
-      totalVulns: 0,
+      totalHashs: 0,
       fieldsConfiguration: [],
       showDetails: false,
-      vulnSelected: {},
+      hashSelected: {},
     };
   },
 
   mounted() {
     this.fieldsConfiguration = [
-      { key: "cve", sortable: false },
-      { key: "name", sortable: false },
-      { key: "cvss", sortable: true },
+      { key: "filename", sortable: true },
+      { key: "platform", sortable: false },
+      { key: "md5", sortable: false },
       { key: "publish_date", sortable: true },
       { key: "author", sortable: true },
     ];
@@ -64,10 +64,10 @@ export default {
 
   methods: {
     async search() {
-      var response = await eg0nApiService.GetVulns(this.vulnSearch);
+      var response = await eg0nApiService.GetHashs(this.hashSearch);
       this.currentPage = response.data.current_page;
-      this.totalVulns = response.data.total_items;
-      this.items = response.data.vulnerabilities;
+      this.totalHashs = response.data.total_items;
+      this.items = response.data.hash_list;
     },
 
     changeSort(newValue) {
@@ -75,8 +75,8 @@ export default {
       this.changePage(1);
     },
 
-    openVulnDetails(payload) {
-      this.vulnSelected = payload.item;
+    openHashDetails(payload) {
+      this.hashSelected = payload.item;
       this.showDetails = true;
       console.log("doppio click su una riga della tabella", payload);
     },
@@ -104,40 +104,40 @@ export default {
   computed: {
     searchText: {
       get() {
-        return this.vulnSearch.text;
+        return this.hashSearch.text;
       },
       set(newValue) {
-        this.vulnSearch.text = newValue;
+        this.hashSearch.text = newValue;
         //this.search();
       },
     },
 
     currentPage: {
       get() {
-        return this.vulnSearch.pageNumber;
+        return this.hashSearch.pageNumber;
       },
       set(newValue) {
-        this.vulnSearch.pageNumber = newValue;
+        this.hashSearch.pageNumber = newValue;
       },
     },
 
     sort: {
       get() {
-        return this.VulnSearch.sortBy;
+        return this.hashSearch.sortBy;
       },
       set(newValue) {
-        this.vulnSearch.sortBy = newValue.key;
-        this.vulnSearch.sortOrder = newValue.order ? newValue.order : "asc";
+        this.hashSearch.sortBy = newValue.key;
+        this.hashSearch.sortOrder = newValue.order ? newValue.order : "asc";
       },
     },
 
     defaultSortBy: {
       get() {
-        let keyValue = this.vulnSearch.sortBy
-          ? this.vulnSearch.sortBy
+        let keyValue = this.hashSearch.sortBy
+          ? this.hashSearch.sortBy
           : "publish_date";
-        let orderValue = this.vulnSearch.sortOrder
-          ? this.vulnSearch.sortOrder
+        let orderValue = this.hashSearch.sortOrder
+          ? this.hashSearch.sortOrder
           : "asc";
         return [{ key: keyValue, order: orderValue }];
       },
@@ -145,15 +145,15 @@ export default {
 
     perPage: {
       get() {
-        return this.vulnSearch.perPage;
+        return this.hashSearch.perPage;
       },
       set(newValue) {
-        this.vulnSearch.perPage = newValue;
+        this.hashSearch.perPage = newValue;
         //this.search();
       },
     },
 
-    vulns: {
+    hashs: {
       get() {
         return this.items;
       },
@@ -161,7 +161,7 @@ export default {
 
     total: {
       get() {
-        return this.totalVulns;
+        return this.totalHashs;
       },
     },
   },

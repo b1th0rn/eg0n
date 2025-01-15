@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    {% csrf_token %}
+    {% load static %}
+  <head>
+    <meta charset="UTF-8">
+    <title>eg0n :: VulnList</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'bundle/style.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <script>
+  </script>
+  <body>
+    <div id="eg0n-app"
+    data-contextName="hashList"
+    data-csrfToken ="{% csrf_token %}"></div>
+    <!-- <script type="module" crossorigin src="http://localhost:5173/src/main.js"></script> -->
+    <script type="module" src="{% static 'bundle/eg0nPortal.js' %}"></script> 
+  </body>
+</html>

@@ -7,7 +7,7 @@
   >
     <BNavbarNav>
       <BRow class="my-1" v-for="[key, value] of Object.entries(vuln)">
-        <BCol cols="4">{{ key }}:</BCol>
+        <BCol cols="4">{{ capitalizeKey(key) }}:</BCol>
         <BCol cols="8">{{ value }}</BCol>
         <hr class="hr" />
       </BRow>
@@ -17,7 +17,7 @@
 
 <script>
 export default {
-  name: "VulnDetails",
+  name: "Details",
 
   props: {
     showDetails: Boolean,
@@ -26,6 +26,14 @@ export default {
 
   mounted() {
     console.log("mounted vulnDetails");
+  },
+
+  methods: {
+    capitalizeKey(string)
+    {
+      string = string[0].toUpperCase() + string.slice(1);
+      return string.replace('_',' ');
+    }
   },
 
   computed: {

@@ -17,6 +17,22 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import("../views/VulnsView.vue"),
     },
+    {
+      path: "/hash",
+      name: "hahs",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/HashView.vue"),
+    },
+    {
+      path: "/ipadd",
+      name: "ipadd",
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import("../views/IpAddressView.vue"),
+    },
   ],
 });
 
