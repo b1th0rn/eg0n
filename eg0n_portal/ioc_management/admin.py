@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Vuln, VulnReview, IpAdd, Hash
+from .models import Vuln, VulnReview, IpAdd, IpAddReview, Hash, HashReview
 import random
 
 # Vulnerabilities: custom admin
@@ -49,6 +49,22 @@ class IpAdmin(admin.ModelAdmin):
     class Meta:
         model = IpAdd
 
+class IpAddReviewAdmin(admin.ModelAdmin):
+    # admin view
+    list_display = ["review_name", "ip", "publish_date", "author"]
+    list_filter = ["publish_date"]
+    search_fields = ["ip", "author"]
+    # author field
+    readonly_fields = ("author", "lastchange_author", "review_name")
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user.username
+            obj.review_name = "{}_Rev{}".format(obj.ip, random.randint(100, 999))
+        obj.lastchange_author = request.user.username
+        return super().save_model(request, obj, form, change)
+    class Meta:
+        model = IpAddReview
+
 # Hashes: custom admin 
 class HashAdmin(admin.ModelAdmin):
     list_display = ["filename", "platform", "website", "sha256", "sha1", "md5", "publish_date", "expire_date", "lastchange_author"]
@@ -64,9 +80,28 @@ class HashAdmin(admin.ModelAdmin):
     class Meta:
         model = Hash
 
+class HashReviewAdmin(admin.ModelAdmin):
+    # admin view
+    list_display = ["review_name", "hash", "publish_date", "author"]
+    list_filter = ["publish_date"]
+    search_fields = ["hash", "author"]
+    # author field
+    readonly_fields = ("author", "lastchange_author", "review_name")
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user.username
+            obj.review_name = "{}_Rev{}".format(obj.hash, random.randint(100, 999))
+        obj.lastchange_author = request.user.username
+        return super().save_model(request, obj, form, change)
+    class Meta:
+        model = HashReview
 
 # Register
 admin.site.register(Vuln, VulnsAdmin)
 admin.site.register(VulnReview, VulnReviewAdmin)
+
 admin.site.register(IpAdd, IpAdmin)
+admin.site.register(IpAddReview, IpAddReviewAdmin)
+
 admin.site.register(Hash, HashAdmin)
+admin.site.register(HashReview, HashReviewAdmin)
