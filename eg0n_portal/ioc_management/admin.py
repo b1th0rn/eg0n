@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Vuln, VulnReview, IpAdd, IpAddReview, Hash, HashReview
+from .models import Vuln, VulnReview, IpAdd, IpAddReview, Hash, HashReview, CodeSnippet, CodeReview
 import random
 
 # Vulnerabilities: custom admin
@@ -33,6 +33,37 @@ class VulnReviewAdmin(admin.ModelAdmin):
         return super().save_model(request, obj, form, change)
     class Meta:
         model = VulnReview
+
+# CodeSnippet: custom admin
+class CodeAdmin(admin.ModelAdmin):
+    list_display = ["name", "language", "publish_date", "lastchange_author"]
+    list_filter = ["publish_date"]
+    search_fields = ["name", "language"]
+    # author field
+    readonly_fields = ("author", "lastchange_author")
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user.username
+        obj.lastchange_author = request.user.username
+        return super().save_model(request, obj, form, change)
+    class Meta:
+        model = CodeSnippet
+
+class CodeReviewAdmin(admin.ModelAdmin):
+    # admin view
+    list_display = ["review_name", "code_review", "publish_date", "author"]
+    list_filter = ["publish_date"]
+    search_fields = ["review_name", "author"]
+    # author field
+    readonly_fields = ("author", "lastchange_author", "review_name")
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user.username
+            obj.review_name = "{}_Rev{}".format(obj.code_review, random.randint(100, 999))
+        obj.lastchange_author = request.user.username
+        return super().save_model(request, obj, form, change)
+    class Meta:
+        model = CodeReview
 
 # IP Address: custom admin
 class IpAdmin(admin.ModelAdmin):
@@ -105,3 +136,6 @@ admin.site.register(IpAddReview, IpAddReviewAdmin)
 
 admin.site.register(Hash, HashAdmin)
 admin.site.register(HashReview, HashReviewAdmin)
+
+admin.site.register(CodeSnippet, CodeAdmin )
+admin.site.register(CodeReview, CodeReviewAdmin)
