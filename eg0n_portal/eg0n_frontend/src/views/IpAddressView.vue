@@ -39,7 +39,7 @@ export default {
       ipAddSearch: {
         text: "",
         pageNumber: 1,
-        perPage: 25,
+        perPage: 10,
         sortBy: "publish_date",
         sortOrder: "asc",
       },

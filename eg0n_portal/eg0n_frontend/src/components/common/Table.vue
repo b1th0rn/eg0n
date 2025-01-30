@@ -1,6 +1,6 @@
 <template>
   <BContainer>
-    <BRow>
+<!--     <BRow>
       <BCol md="4"> </BCol>
       <BCol sm="5" md="4" class="my-1">
         <BFormGroup
@@ -32,7 +32,7 @@
         >
         </BPagination>
       </BCol>
-    </BRow>
+    </BRow> -->
     <BRow> </BRow>
     <!-- :current-page="curPage" -->
     <BTable
@@ -61,7 +61,7 @@ export default {
     fieldsConfiguration: Array,
     currentPage: Number,
     totalVulns: Number,
-    perPageValue: 25,
+    perPageValue: 10,
     defaultSort: Array,
   },
 
@@ -69,6 +69,7 @@ export default {
     /* if(!this.fieldsConfiguration || this.fieldsConfiguration.length == 0){
        manage base configuration 
     } */
+   
   },
 
   methods: {

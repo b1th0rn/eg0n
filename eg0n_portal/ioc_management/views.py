@@ -21,13 +21,40 @@ def vulns(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '')
-        page_number = int(data.get('pageNumber', 1))
-        per_page = int(data.get('perPage', 25))
+        # page_number = int(data.get('pageNumber', 1))
+        # per_page = int(data.get('perPage', 25))
+        page_number = 1
+        per_page = 10
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
+        
+        # Get the last 10 vulnerabilities by publish_date
+        last_10_vulns = Vuln.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
+        queryset = Vuln.objects.filter(id__in=last_10_vulns)
 
-        queryset = Vuln.objects.all()
+        # Apply filters on the subset of 10 vulnerabilities
         if text:
+            queryset = queryset.filter(
+                Q(description__icontains=text) |
+                Q(name__icontains=text) |
+                Q(cve__icontains=text)
+            )
+
+        # Apply sorting on the filtered subset
+        if sort_order == 'desc':
+            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
+        else:
+            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
+
+        paginator = Paginator(queryset, per_page)
+        page_obj = paginator.get_page(page_number)
+
+        """ this code return all the data filtered by text and ordered by sort_by and sort_order
+            for the first versione we decide to return only the last 10 vuln added in DB to increse the 
+            authors and reviewers work inside platform.
+
+            queryset = Vuln.objects.all()
+            if text:
             queryset = queryset.filter(
                 Q(description__icontains=text) |
                 Q(name__icontains=text) |
@@ -41,7 +68,7 @@ def vulns(request):
             queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
 
         paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
+        page_obj = paginator.get_page(page_number) """
 
         # Serializzazione dei dati per la risposta JSON
         vulnerabilities_data = []
@@ -85,12 +112,33 @@ def hash(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '')
-        page_number = int(data.get('pageNumber', 1))
-        per_page = int(data.get('perPage', 25))
+        # page_number = int(data.get('pageNumber', 1))
+        # per_page = int(data.get('perPage', 25))
+        page_number = 1
+        per_page = 10
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
 
-        queryset = Hash.objects.all()
+        last_10_vulns = Hash.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
+        queryset = Hash.objects.filter(id__in=last_10_vulns)
+
+        # Apply filters on the subset of 10 vulnerabilities
+        if text:
+            queryset = queryset.filter(
+                Q(filename__icontains=text) |
+                Q(description__icontains=text)
+            )
+
+        # Apply sorting on the filtered subset
+        if sort_order == 'desc':
+            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
+        else:
+            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
+
+        paginator = Paginator(queryset, per_page)
+        page_obj = paginator.get_page(page_number)
+
+        """ queryset = Hash.objects.all()
         if text:
             queryset = queryset.filter(
                 Q(filename__icontains=text) |
@@ -104,7 +152,7 @@ def hash(request):
             queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
 
         paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
+        page_obj = paginator.get_page(page_number) """
 
         # Serializzazione dei dati per la risposta JSON
         hash_data = []
@@ -152,12 +200,35 @@ def ipadd(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '')
-        page_number = int(data.get('pageNumber', 1))
-        per_page = int(data.get('perPage', 25))
+        # page_number = int(data.get('pageNumber', 1))
+        # per_page = int(data.get('perPage', 25))
+        page_number = 1
+        per_page = 10
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
+        
+        last_10_vulns = IpAdd.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
+        queryset = IpAdd.objects.filter(id__in=last_10_vulns)
 
-        queryset = IpAdd.objects.all()
+        # Apply filters on the subset of 10 vulnerabilities
+        if text:
+            queryset = queryset.filter(
+                Q(ip_address__icontains=text) |
+                Q(url__icontains=text) |
+                Q(fqdn__icontains=text) |
+                Q(description__icontains=text)
+            )
+
+        # Apply sorting on the filtered subset
+        if sort_order == 'desc':
+            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
+        else:
+            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
+
+        paginator = Paginator(queryset, per_page)
+        page_obj = paginator.get_page(page_number)
+
+        """ queryset = IpAdd.objects.all()
         if text:
             queryset = queryset.filter(
                 Q(ip_address__icontains=text) |
@@ -173,7 +244,7 @@ def ipadd(request):
             queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
 
         paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
+        page_obj = paginator.get_page(page_number) """
 
         # Serializzazione dei dati per la risposta JSON
         ip_address_data = []
