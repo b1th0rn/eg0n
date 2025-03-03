@@ -34,6 +34,7 @@ class VulnReview(models.Model):
 
 # Code Models: suspicious code
 CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
+VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
 Language = [('cmd', 'cmd'), ('powershell', 'powershell'),('bash', 'bash'),('python','python')]
 class CodeSnippet(models.Model):
     name = models.CharField(max_length=56, blank=True, default='none', unique=True)
@@ -44,6 +45,7 @@ class CodeSnippet(models.Model):
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     expire_date = models.DateField(default=timezone.now)
+    validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 
@@ -65,11 +67,9 @@ class CodeReview(models.Model):
     def __str__(self):
         return "Review of {self.review_name} by {self.lastchange_author}"
 
-
-###IOC Models
-
 # IpAdd model: suspicious IP address list 
 CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
+VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
 class IpAdd(models.Model):
     ip_address = models.GenericIPAddressField(unique=True, unpack_ipv4=True)
     url = models.CharField(max_length=32, blank=True, default='none')
@@ -79,6 +79,7 @@ class IpAdd(models.Model):
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     expire_date = models.DateField(default=timezone.now)
+    validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 
@@ -98,6 +99,7 @@ class IpAddReview(models.Model):
 # Hash model: suspicious file hash
 CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
 PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'),('macOS', 'macOS'),]
+VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
 class Hash(models.Model):
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
@@ -110,6 +112,7 @@ class Hash(models.Model):
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     expire_date = models.DateField(default=timezone.now)
+    validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
 
@@ -125,4 +128,3 @@ class HashReview(models.Model):
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-
