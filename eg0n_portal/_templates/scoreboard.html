@@ -1,20 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-    {% csrf_token %}
-    {% load static %}
+  {% load static %}
   <head>
+    <title>eg0n :: Top Contributors</title>
     <meta charset="UTF-8">
-    <title>eg0n :: VulnList</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <link rel="stylesheet" href="{% static 'bundle/style.css' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
-  <script>
-  </script>
   <body>
-    <div id="eg0n-app"
-    data-contextName="vulnList"
-    data-csrfToken ="{% csrf_token %}"></div>    
+    <div id="eg0n-app"></div>    
     <script type="module" src="{% static 'bundle/eg0nPortal.js' %}"></script>
   </body>
 </html>

@@ -13,6 +13,10 @@ class eg0nApiService {
     return eg0nApiService.postRequest("./IpAdd",filter);
   }
 
+  static GetScoreBoard(){
+    return eg0nApiService.postRequest("./ScoreBoard");
+  }
+
   static postRequest(url,filter) {
     const csrftoken = this.getCookie("csrftoken");
     return axios.post(url, filter, {

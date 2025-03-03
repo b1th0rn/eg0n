@@ -4,13 +4,14 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template import loader
-from .models import Vuln, Hash, IpAdd
+from .models import Vuln, Hash, IpAdd, VulnReview, CodeReview, HashReview, IpAddReview, CodeSnippet
 
 import json
 
 # Create your views here.
 
 from django.views.decorators.csrf import ensure_csrf_cookie
+from collections import Counter
 
 @ensure_csrf_cookie
 def vulns(request):    
@@ -270,6 +271,75 @@ def ipadd(request):
 
         return JsonResponse(response_data)
 
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except ValueError:
+        return JsonResponse({'error': 'Invalid parameter type'}, status=400) #gestione di parametri non validi come stringhe al posto di interi
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error': 'An error occurred'}, status=500)
+  else:
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@ensure_csrf_cookie
+def scoreboard(request):    
+  if request.method == "GET":
+    template=loader.get_template("scoreboard.html")
+    return HttpResponse(template.render())
+  elif request.method == "POST":
+    try:
+        # retrive all the authors and reviewers from the DB
+        vuln_queryset = Vuln.objects.values('author')
+        hash_queryset = Hash.objects.values('author')
+        ipadd_queryset = IpAdd.objects.values('author')
+        codesnippet_queryset = CodeSnippet.objects.values('author')
+        vuln_review_queryset = VulnReview.objects.values('author')
+        hash_review_queryset = HashReview.objects.values('author')  
+        ipadd_review_queryset = IpAddReview.objects.values('author')
+        codesnippet_review_queryset = CodeReview.objects.values('author')
+        
+        # Combine all the authors and reviewers
+        combined_authors = list(vuln_queryset) + list(hash_queryset) + list(ipadd_queryset) + list(codesnippet_queryset)
+        combined_reviewers = list(vuln_review_queryset) + list(hash_review_queryset) + list(ipadd_review_queryset) + list(codesnippet_review_queryset)
+
+        # Count the number of contributions by each author and reviewer
+        author_counter = Counter([item['author'] for item in combined_authors])
+        reviewer_counter = Counter([item['author'] for item in combined_reviewers])
+        contributor_counter = author_counter + reviewer_counter
+
+        # Sort authors by count in descending order
+        sorted_authors = author_counter.most_common()
+        sorted_reviewers = reviewer_counter.most_common()        
+        contributor_counter = contributor_counter.most_common()
+        
+        # Prepare the response data
+        top_authors = {}
+        for i in range(3):
+            if i < len(sorted_authors):
+                top_authors[f'author{i+1}'] = sorted_authors[i][0]
+            else:
+                top_authors[f'author{i+1}'] = ''
+
+        top_reviewers = {}
+        for i in range(3):
+            if i < len(sorted_reviewers):
+                top_reviewers[f'reviewer{i+1}'] = sorted_reviewers[i][0]
+            else:
+                top_reviewers[f'reviewer{i+1}'] = ''
+
+        top_contributors = {}
+        for i in range(3):
+            if i < len(contributor_counter):
+                top_contributors[f'contributor{i+1}'] = contributor_counter[i][0]
+            else:
+                top_contributors[f'contributor{i+1}'] = ''
+
+        response_data = {
+            'top_authors': top_authors,
+            'top_reviewers': top_reviewers,
+            'top_contributors': top_contributors,
+        }
+        return JsonResponse(response_data)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except ValueError:

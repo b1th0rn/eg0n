@@ -33,6 +33,11 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import("../views/IpAddressView.vue"),
     },
+    {
+      path: "/scoreboard",
+      name: "scoreboard",
+      component: () => import("../views/ScoreboardView.vue"),
+    }
   ],
 });
 
