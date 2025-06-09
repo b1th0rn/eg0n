@@ -86,7 +86,7 @@ class IpAdd(models.Model):
     def __str__(self):
         return self.ip_address
 
-# IpAddReview model: analysis and docs.
+# IpAdd Review model: analysis and docs.
 class IpAddReview(models.Model):
     review_name = models.CharField(max_length=64, default="none", unique=True)
     ip = models.ForeignKey(IpAdd, to_field="ip_address", on_delete=models.CASCADE, default="none", related_name="ip")
