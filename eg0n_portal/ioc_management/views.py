@@ -1,17 +1,20 @@
-from django.core.paginator import Paginator
-from django.db.models import Q, F
+from django.db.models import F
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.template import loader
 from .models import Vuln, Hash, IpAdd, VulnReview, CodeReview, HashReview, IpAddReview, CodeSnippet
+from django.core.cache import cache
+from django.views.decorators.csrf import ensure_csrf_cookie
+from collections import Counter
 
 import json
 
-# Create your views here.
-
-from django.views.decorators.csrf import ensure_csrf_cookie
-from collections import Counter
+def get_sort_value(obj, key, sort_order):
+            value = getattr(obj, key, None)
+            if key in ['publish_date', 'update_date'] and value is None:
+                return (None,) if sort_order == 'asc' else ('ZZZ',) 
+            return value if value is not None else ""
 
 @ensure_csrf_cookie
 def vulns(request):    
@@ -22,64 +25,41 @@ def vulns(request):
     try:
         data = json.loads(request.body)
         text = data.get('text', '')
-        # page_number = int(data.get('pageNumber', 1))
-        # per_page = int(data.get('perPage', 25))
-        page_number = 1
-        per_page = 10
+        page_number = 1 # page_number = int(data.get('pageNumber', 1))
+        per_page = 10 # per_page = int(data.get('perPage', 25))
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
-        
-        # Get the last 10 vulnerabilities by publish_date
-        last_10_vulns = Vuln.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
-        queryset = Vuln.objects.filter(id__in=last_10_vulns)
+
+        # Check cache
+        cache_key = 'last_10_vulns'
+        vulns_data = cache.get(cache_key)
+        if not vulns_data:
+            # If not in cache, retrieve the last 10 vulnerabilities by publish_date
+            last_10_vulns = Vuln.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
+            vulns_data = list(last_10_vulns)
+            # Store in cache for 5 minutes
+            cache.set(cache_key, vulns_data, timeout=86400)
 
         # Apply filters on the subset of 10 vulnerabilities
         if text:
-            queryset = queryset.filter(
-                Q(description__icontains=text) |
-                Q(name__icontains=text) |
-                Q(cve__icontains=text)
-            )
-
-        # Apply sorting on the filtered subset
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
-
-        """ this code return all the data filtered by text and ordered by sort_by and sort_order
-            for the first versione we decide to return only the last 10 vuln added in DB to increse the 
-            authors and reviewers work inside platform.
-
-            queryset = Vuln.objects.all()
-            if text:
-            queryset = queryset.filter(
-                Q(description__icontains=text) |
-                Q(name__icontains=text) |
-                Q(cve__icontains=text)
-            )
-
-        # Gestione dell'ordinamento
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True)) #gestione dei valori nulli
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number) """
-
-        # Serializzazione dei dati per la risposta JSON
+           text_lower = text.lower()
+           vulns_data = [
+              vuln for vuln in vulns_data
+              if text_lower in vuln.description.lower() or \
+                text_lower in vuln.name.lower() or \
+                    text_lower in vuln.name.lower()]
+           
+        sorted_vulns = sorted(vulns_data,key= lambda vuln: get_sort_value(vuln, sort_by, sort_order), reverse=(sort_order=='desc'))
+                
+        # Serializzation date in iso 8601 format
         vulnerabilities_data = []
-        for vuln in page_obj.object_list:
+        for vuln in sorted_vulns:
             vulnerabilities_data.append({
                 'cve': vuln.cve,
                 'name': vuln.name,
                 'cvss': vuln.cvss,
                 'description': vuln.description,
-                'publish_date': vuln.publish_date.isoformat(),  # Formatta la data in ISO 8601
+                'publish_date': vuln.publish_date.isoformat(),
                 'update_date': vuln.update_date.isoformat(),
                 'slug': vuln.slug,
                 'author': vuln.author,
@@ -87,9 +67,9 @@ def vulns(request):
             })
         response_data = {
             'vulnerabilities': vulnerabilities_data,
-            'total_pages': paginator.num_pages,
-            'current_page': page_obj.number,
-            'total_items': paginator.count
+            'total_pages': 1,
+            'current_page': page_number,
+            'total_items': len(vulns_data)
         }
 
         return JsonResponse(response_data)
@@ -97,7 +77,7 @@ def vulns(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except ValueError:
-        return JsonResponse({'error': 'Invalid parameter type'}, status=400) #gestione di parametri non validi come stringhe al posto di interi
+        return JsonResponse({'error': 'Invalid parameter type'}, status=400)
     except Exception as e:
         print(e)
         return JsonResponse({'error': 'An error occurred'}, status=500)
@@ -112,53 +92,33 @@ def hash(request):
   elif request.method == "POST":
     try:
         data = json.loads(request.body)
-        text = data.get('text', '')
-        # page_number = int(data.get('pageNumber', 1))
-        # per_page = int(data.get('perPage', 25))
-        page_number = 1
-        per_page = 10
+        text = data.get('text', '')        
+        page_number = 1 # page_number = int(data.get('pageNumber', 1))
+        per_page = 10 # per_page = int(data.get('perPage', 25))
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
 
-        last_10_vulns = Hash.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
-        queryset = Hash.objects.filter(id__in=last_10_vulns)
+        cache_key = 'last_10_hash'
+        hash_data = cache.get(cache_key)
+        if not hash_data:
+            last_10_hash = Hash.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
+            hash_data = list(last_10_hash)
+            cache.set(cache_key, hash_data, timeout=86400)
 
         # Apply filters on the subset of 10 vulnerabilities
         if text:
-            queryset = queryset.filter(
-                Q(filename__icontains=text) |
-                Q(description__icontains=text)
-            )
+            text_lower = text.lower()
+            hash_data = [
+                hash for hash in hash_data 
+                if text_lower in hash.filename or \
+                    text_lower in hash.description ]
 
-        # Apply sorting on the filtered subset
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
-
-        """ queryset = Hash.objects.all()
-        if text:
-            queryset = queryset.filter(
-                Q(filename__icontains=text) |
-                Q(description__icontains=text)
-            )
-
-        # Gestione dell'ordinamento
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True)) #gestione dei valori nulli
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number) """
-
+        hash_data = sorted(hash_data, key=lambda hash: get_sort_value(hash, sort_by, sort_order), reverse=(sort_order=='desc'))
+    
         # Serializzazione dei dati per la risposta JSON
-        hash_data = []
-        for hash in page_obj.object_list:
-            hash_data.append({
+        response_hash_data = []
+        for hash in hash_data:
+            response_hash_data.append({
                 'filename': hash.filename,
                 'platform': hash.platform,
                 'sha256': hash.sha256,
@@ -174,10 +134,10 @@ def hash(request):
                 'lastchange_author': hash.lastchange_author,
             })
         response_data = {
-            'hash_list': hash_data,
-            'total_pages': paginator.num_pages,
-            'current_page': page_obj.number,
-            'total_items': paginator.count
+            'hash_list': response_hash_data,
+            'total_pages': 1,
+            'current_page': page_number,
+            'total_items': len(hash_data)
         }
 
         return JsonResponse(response_data)
@@ -200,56 +160,35 @@ def ipadd(request):
   elif request.method == "POST":
     try:
         data = json.loads(request.body)
-        text = data.get('text', '')
-        # page_number = int(data.get('pageNumber', 1))
-        # per_page = int(data.get('perPage', 25))
-        page_number = 1
-        per_page = 10
+        text = data.get('text', '')       
+        page_number = 1 # page_number = int(data.get('pageNumber', 1))
+        per_page = 10 # per_page = int(data.get('perPage', 25))
         sort_by = data.get('sortBy', 'publish_date')
         sort_order = data.get('sortOrder', 'asc')
         
-        last_10_vulns = IpAdd.objects.order_by(F('publish_date').desc(nulls_last=True))[:10].values_list('id', flat=True)
-        queryset = IpAdd.objects.filter(id__in=last_10_vulns)
+        cache_key = 'last_10_ip'
+        ip_data = cache.get(cache_key)
+        if not ip_data:
+            last_10_ip = IpAdd.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
+            ip_data = list(last_10_ip)
+            cache.set(cache_key, ip_data, timeout=86400)
 
         # Apply filters on the subset of 10 vulnerabilities
         if text:
-            queryset = queryset.filter(
-                Q(ip_address__icontains=text) |
-                Q(url__icontains=text) |
-                Q(fqdn__icontains=text) |
-                Q(description__icontains=text)
-            )
+            text_lower= text.lower()
+            ip_data = [
+                ip for ip in ip_data 
+                if text_lower in ip.ip_address or \
+                text_lower in ip.url or \
+                text_lower in ip.fqdn or \
+                text_lower in ip.description
+            ]
 
         # Apply sorting on the filtered subset
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True))
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number)
-
-        """ queryset = IpAdd.objects.all()
-        if text:
-            queryset = queryset.filter(
-                Q(ip_address__icontains=text) |
-                Q(url__icontains=text) |
-                Q(fqdn__icontains=text) |
-                Q(description__icontains=text)
-            )
-
-        # Gestione dell'ordinamento
-        if sort_order == 'desc':
-            queryset = queryset.order_by(F(sort_by).desc(nulls_last=True)) #gestione dei valori nulli
-        else:
-            queryset = queryset.order_by(F(sort_by).asc(nulls_last=True))#gestione dei valori nulli
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page_number) """
-
+        ip_data = sorted(ip_data, key=lambda ip : get_sort_value(ip,sort_by,sort_order),reverse=(sort_by=='desc'))
         # Serializzazione dei dati per la risposta JSON
         ip_address_data = []
-        for ipadd in page_obj.object_list:
+        for ipadd in ip_data:
             ip_address_data.append({
                 'ip_address': ipadd.ip_address,
                 'url': ipadd.url,
@@ -264,9 +203,9 @@ def ipadd(request):
             })
         response_data = {
             'ip_address_list': ip_address_data,
-            'total_pages': paginator.num_pages,
-            'current_page': page_obj.number,
-            'total_items': paginator.count
+            'total_pages': 1,
+            'current_page': page_number,
+            'total_items': len(ip_data)
         }
 
         return JsonResponse(response_data)
@@ -288,6 +227,12 @@ def scoreboard(request):
     return HttpResponse(template.render())
   elif request.method == "POST":
     try:
+        cache_key = 'scoreboard_cache_key'
+        cache_response = cache.get(cache_key)
+        if cache_response:
+            return JsonResponse(cache_response)
+        
+        # implicit else, if object is not in cache calculate new scoreboard save in cache and return it 
         # retrive all the authors and reviewers from the DB
         vuln_queryset = Vuln.objects.values('author')
         hash_queryset = Hash.objects.values('author')
@@ -334,11 +279,13 @@ def scoreboard(request):
             else:
                 top_contributors[f'contributor{i+1}'] = ''
 
+
         response_data = {
             'top_authors': top_authors,
             'top_reviewers': top_reviewers,
             'top_contributors': top_contributors,
         }
+        cache.set(cache_key, response_data, timeout=86400)
         return JsonResponse(response_data)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
