@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-# Vuln model: vulnerabilities list 
+# Vuln model: vulnerabilities list
 class Vuln(models.Model):
     cve = models.CharField(max_length=32, unique=True)
     name = models.CharField(max_length=32, unique=True)
@@ -17,10 +17,10 @@ class Vuln(models.Model):
     def __str__(self):
         return self.cve
 
-# VulnReview model: analysis and docs. 
+# VulnReview model: analysis and docs.
 class VulnReview(models.Model):
     review_name = models.CharField(max_length=64, default="none", unique=True)
-    cve_name = models.ForeignKey(Vuln, to_field="name", on_delete=models.CASCADE, default="none", related_name="cve_name")
+    cve_name = models.ForeignKey(Vuln, to_field="name", on_delete=models.CASCADE, default="none",related_name="cve_name")
     review = models.TextField(null=True, blank=True)
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
@@ -28,14 +28,13 @@ class VulnReview(models.Model):
     exploit_url = models.CharField(max_length=256, null=True, blank=True)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-    
     def __str__(self):
         return f"Review of {self.cve_name} by {self.lastchange_author}"
 
 # Code Models: suspicious code
-CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
-VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
-Language = [('cmd', 'cmd'), ('powershell', 'powershell'),('bash', 'bash'),('python','python')]
+CONFIDENCE_CHOICES = [('low', 'low'), ('medium', 'medium'), ('high', 'high')]
+VALIDATION_CHOICES = [('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended')]
+Language = [('cmd', 'cmd'), ('powershell', 'powershell'), ('bash', 'bash'), ('python', 'python')]
 class CodeSnippet(models.Model):
     name = models.CharField(max_length=56, blank=True, default='none', unique=True)
     language = models.CharField(max_length=16, choices=Language, default='python')
@@ -48,14 +47,13 @@ class CodeSnippet(models.Model):
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-
     def __str__(self):
         return self.name
 
 # CodeReview model: analysis and docs.
 class CodeReview(models.Model):
     review_name = models.CharField(max_length=64, default="none", unique=True)
-    code_review = models.ForeignKey(CodeSnippet, to_field="name", on_delete=models.CASCADE, default="none", related_name="code_review")
+    code_review = models.ForeignKey(CodeSnippet, to_field="name", on_delete=models.CASCADE, default="none",related_name="code_review")
     review = models.TextField(null=True, blank=True)
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
@@ -63,13 +61,12 @@ class CodeReview(models.Model):
     exploit_url = models.CharField(max_length=256, null=True, blank=True)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-
     def __str__(self):
-        return "Review of {self.review_name} by {self.lastchange_author}"
+        return self.review_name
 
-# IpAdd model: suspicious IP address list 
-CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
-VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
+# IpAdd model: suspicious IP address list
+CONFIDENCE_CHOICES = [('low', 'low'), ('medium', 'medium'), ('high', 'high')]
+VALIDATION_CHOICES = [('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended')]
 class IpAdd(models.Model):
     ip_address = models.GenericIPAddressField(unique=True, unpack_ipv4=True)
     url = models.CharField(max_length=32, blank=True, default='none')
@@ -82,7 +79,6 @@ class IpAdd(models.Model):
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-
     def __str__(self):
         return self.ip_address
 
@@ -95,11 +91,42 @@ class IpAddReview(models.Model):
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    def __str__(self):
+        return self.review_name
+
+# FQDN model: suspicious fqdn lists
+CONFIDENCE_CHOICES = [('low', 'low'), ('medium', 'medium'), ('high', 'high')]
+VALIDATION_CHOICES = [('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended')]
+class FQDNAdd(models.Model):
+    fqdn = models.CharField(max_length=32, unique=True)
+    ip_address = models.GenericIPAddressField(default="0.0.0.0", unpack_ipv4=True)
+    confidence = models.CharField(max_length=16, choices=CONFIDENCE_CHOICES, default='low')
+    description = models.TextField()
+    publish_date = models.DateField(auto_now=False, auto_now_add=True)
+    update_date = models.DateField(auto_now=True, auto_now_add=False)
+    expire_date = models.DateField(default=timezone.now)
+    validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    def __str__(self):
+        return self.fqdn
+
+# FQDN Review model: analysis and docs.
+class FQDNReview(models.Model):
+    review_name = models.CharField(max_length=64, default="none", unique=True)
+    fqdnrw = models.ForeignKey(FQDNAdd, to_field="fqdn", on_delete=models.CASCADE, default="none.com",related_name="fqdnrw")
+    review = models.TextField(null=True, blank=True)
+    publish_date = models.DateField(auto_now=False, auto_now_add=True)
+    update_date = models.DateField(auto_now=True, auto_now_add=False)
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    def __str__(self):
+        return self.review_name
 
 # Hash model: suspicious file hash
-CONFIDENCE_CHOICES = [ ('low', 'low'), ('medium', 'medium'), ('high', 'high') ]
-PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'),('macOS', 'macOS'),]
-VALIDATION_CHOICES = [ ('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended') ]
+CONFIDENCE_CHOICES = [('low', 'low'), ('medium', 'medium'), ('high', 'high')]
+PLATFORM = [('Linux', 'Linux'), ('Windows', 'Windows'), ('macOS', 'macOS'), ]
+VALIDATION_CHOICES = [('new', 'new'), ('approved', 'approved'), ('sospended', 'sospended')]
 class Hash(models.Model):
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
@@ -115,7 +142,6 @@ class Hash(models.Model):
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
-
     def __str__(self):
         return "[{}] {}".format(self.filename, self.sha256)
 
@@ -128,3 +154,5 @@ class HashReview(models.Model):
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    def __str__(self):
+        return self.review_name
