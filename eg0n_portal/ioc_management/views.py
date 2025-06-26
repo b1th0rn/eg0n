@@ -1,298 +1,423 @@
 from django.db.models import F
-from django.http import HttpResponse
-from django.http import JsonResponse
-from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
-from .models import Vuln, Hash, IpAdd, VulnReview, CodeReview, HashReview, IpAddReview, CodeSnippet
+from .models import (
+    Vuln,
+    Hash,
+    IpAdd,
+    VulnReview,
+    CodeReview,
+    HashReview,
+    IpAddReview,
+    CodeSnippet,
+)
 from django.core.cache import cache
 from django.views.decorators.csrf import ensure_csrf_cookie
 from collections import Counter
+from .viewsHelper import get_cached_filterd_data_async
+from asgiref.sync import sync_to_async
 
 import json
 
-def get_sort_value(obj, key, sort_order):
-            value = getattr(obj, key, None)
-            if key in ['publish_date', 'update_date'] and value is None:
-                return (None,) if sort_order == 'asc' else ('ZZZ',) 
-            return value if value is not None else ""
 
 @ensure_csrf_cookie
-def vulns(request):    
-  if request.method == "GET":
-    template=loader.get_template("vulns_list.html")
-    return HttpResponse(template.render())
-  elif request.method == "POST":
-    try:
-        data = json.loads(request.body)
-        text = data.get('text', '')
-        page_number = 1 # page_number = int(data.get('pageNumber', 1))
-        per_page = 10 # per_page = int(data.get('perPage', 25))
-        sort_by = data.get('sortBy', 'publish_date')
-        sort_order = data.get('sortOrder', 'asc')
+async def vulns(request):
+    """
+    Summary:
+        Handles GET and POST requests for vulnerabilities.
+        - GET: Renders the vulnerabilities list template.
+        - POST: Returns the last 10 vulnerabilities (cached for 24h), filtered and sorted by user parameters.
+    """
+    if request.method == "GET":
+        # Render the vulnerabilities list page using the template system
+        template = loader.get_template("vulns_list.html")
+        return HttpResponse(template.render())
+    elif request.method == "POST":
+        try:
+            # Parse the incoming JSON request body
+            data = json.loads(request.body)
+            text = data.get("text", "")  # Text filter for searching
+            page_number = 1  # Pagination is fixed to 1 page of 10 items
+            per_page = 10  # Only the last 10 vulnerabilities are shown
+            sort_by = data.get("sortBy", "publish_date")  # Field to sort by
+            sort_order = data.get("sortOrder", "asc")  # Sort order (asc/desc)
 
-        # Check cache
-        cache_key = 'last_10_vulns'
-        vulns_data = cache.get(cache_key)
-        if not vulns_data:
-            # If not in cache, retrieve the last 10 vulnerabilities by publish_date
-            last_10_vulns = Vuln.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
-            vulns_data = list(last_10_vulns)
-            # Store in cache for 5 minutes
-            cache.set(cache_key, vulns_data, timeout=86400)
+            # Prepare cache key and query for last 10 vulns (ordered by publish_date)
+            cache_key = "last_10_vulns"
+            last_10_vulns = Vuln.objects.order_by(
+                F("publish_date").desc(nulls_last=True)
+            )[:per_page]
 
-        # Apply filters on the subset of 10 vulnerabilities
-        if text:
-           text_lower = text.lower()
-           vulns_data = [
-              vuln for vuln in vulns_data
-              if text_lower in vuln.description.lower() or \
-                text_lower in vuln.name.lower() or \
-                    text_lower in vuln.name.lower()]
-           
-        sorted_vulns = sorted(vulns_data,key= lambda vuln: get_sort_value(vuln, sort_by, sort_order), reverse=(sort_order=='desc'))
-                
-        # Serializzation date in iso 8601 format
-        vulnerabilities_data = []
-        for vuln in sorted_vulns:
-            vulnerabilities_data.append({
-                'cve': vuln.cve,
-                'name': vuln.name,
-                'cvss': vuln.cvss,
-                'description': vuln.description,
-                'publish_date': vuln.publish_date.isoformat(),
-                'update_date': vuln.update_date.isoformat(),
-                'slug': vuln.slug,
-                'author': vuln.author,
-                'lastchange_author': vuln.lastchange_author,
-            })
-        response_data = {
-            'vulnerabilities': vulnerabilities_data,
-            'total_pages': 1,
-            'current_page': page_number,
-            'total_items': len(vulns_data)
-        }
+            # Define filter function for vulnerabilities
+            # This function will be used to filter the cached/queryset data
+            def filter_vuln(text_filter, value):
+                # Check if the filter text is present in description or name (case-insensitive)
+                return (
+                    text_filter in (value.description or "").lower()
+                    or text_filter in (value.name or "").lower()
+                )
 
-        return JsonResponse(response_data)
+            # Retrieve, cache, filter, and sort vulnerabilities
+            # - If not cached, fetch from DB and cache for 24h
+            # - Apply filter and sorting on the cached/queryset data
+            values_data = await get_cached_filterd_data_async(
+                text.lower(), last_10_vulns, cache_key, filter_vuln, sort_by, sort_order
+            )
 
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid parameter type'}, status=400)
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': 'An error occurred'}, status=500)
-  else:
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-  
-@ensure_csrf_cookie
-def hash(request):    
-  if request.method == "GET":
-    template=loader.get_template("hash_list.html")
-    return HttpResponse(template.render())
-  elif request.method == "POST":
-    try:
-        data = json.loads(request.body)
-        text = data.get('text', '')        
-        page_number = 1 # page_number = int(data.get('pageNumber', 1))
-        per_page = 10 # per_page = int(data.get('perPage', 25))
-        sort_by = data.get('sortBy', 'publish_date')
-        sort_order = data.get('sortOrder', 'asc')
+            # Serialize vulnerabilities for JSON response
+            vulnerabilities_data = []
+            for vuln in values_data:
+                # Convert each Vuln object to a dictionary, formatting dates as ISO 8601
+                vulnerabilities_data.append(
+                    {
+                        "cve": vuln.cve,
+                        "name": vuln.name,
+                        "cvss": vuln.cvss,
+                        "description": vuln.description,
+                        "publish_date": (
+                            vuln.publish_date.isoformat() if vuln.publish_date else None
+                        ),
+                        "update_date": (
+                            vuln.update_date.isoformat() if vuln.update_date else None
+                        ),
+                        "slug": vuln.slug,
+                        "author": vuln.author,
+                        "lastchange_author": vuln.lastchange_author,
+                    }
+                )
+            # Prepare the response with pagination info (always 1 page of 10 items)
+            response_data = {
+                "vulnerabilities": vulnerabilities_data,
+                "total_pages": 1,
+                "current_page": page_number,
+                "total_items": len(vulnerabilities_data),
+            }
 
-        cache_key = 'last_10_hash'
-        hash_data = cache.get(cache_key)
-        if not hash_data:
-            last_10_hash = Hash.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
-            hash_data = list(last_10_hash)
-            cache.set(cache_key, hash_data, timeout=86400)
+            return JsonResponse(response_data)
 
-        # Apply filters on the subset of 10 vulnerabilities
-        if text:
-            text_lower = text.lower()
-            hash_data = [
-                hash for hash in hash_data 
-                if text_lower in hash.filename or \
-                    text_lower in hash.description ]
+        except json.JSONDecodeError:
+            # Handle invalid JSON in request
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except ValueError:
+            # Handle invalid parameter types
+            return JsonResponse({"error": "Invalid parameter type"}, status=400)
+        except Exception as e:
+            # Catch-all for unexpected errors
+            print(e)
+            return JsonResponse({"error": "An error occurred"}, status=500)
+    else:
+        # Only GET and POST are allowed
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
-        hash_data = sorted(hash_data, key=lambda hash: get_sort_value(hash, sort_by, sort_order), reverse=(sort_order=='desc'))
-    
-        # Serializzazione dei dati per la risposta JSON
-        response_hash_data = []
-        for hash in hash_data:
-            response_hash_data.append({
-                'filename': hash.filename,
-                'platform': hash.platform,
-                'sha256': hash.sha256,
-                'sha1': hash.sha1,
-                'md5': hash.md5,
-                'website': hash.website,
-                'confidence': hash.confidence,
-                'description': hash.description,
-                'publish_date': hash.publish_date.isoformat(),  # Formatta la data in ISO 8601
-                'update_date': hash.update_date.isoformat(),
-                'expire_date': hash.expire_date.isoformat(),
-                'author': hash.author,
-                'lastchange_author': hash.lastchange_author,
-            })
-        response_data = {
-            'hash_list': response_hash_data,
-            'total_pages': 1,
-            'current_page': page_number,
-            'total_items': len(hash_data)
-        }
-
-        return JsonResponse(response_data)
-
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid parameter type'}, status=400) #gestione di parametri non validi come stringhe al posto di interi
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': 'An error occurred'}, status=500)
-  else:
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @ensure_csrf_cookie
-def ipadd(request):    
-  if request.method == "GET":
-    template=loader.get_template("ipadd_list.html")
-    return HttpResponse(template.render())
-  elif request.method == "POST":
-    try:
-        data = json.loads(request.body)
-        text = data.get('text', '')       
-        page_number = 1 # page_number = int(data.get('pageNumber', 1))
-        per_page = 10 # per_page = int(data.get('perPage', 25))
-        sort_by = data.get('sortBy', 'publish_date')
-        sort_order = data.get('sortOrder', 'asc')
-        
-        cache_key = 'last_10_ip'
-        ip_data = cache.get(cache_key)
-        if not ip_data:
-            last_10_ip = IpAdd.objects.order_by(F('publish_date').desc(nulls_last=True))[:10]
-            ip_data = list(last_10_ip)
-            cache.set(cache_key, ip_data, timeout=86400)
+async def hash(request):
+    """
+    Summary:
+        Handles GET and POST requests for hashes.
+        - GET: Renders the hash list template.
+        - POST: Returns the last 10 hashes (cached for 24h), filtered and sorted by user parameters.
+    """
+    if request.method == "GET":
+        # Render the hash list page using the template system
+        template = loader.get_template("hash_list.html")
+        return HttpResponse(template.render())
+    elif request.method == "POST":
+        try:
+            # Parse the incoming JSON request body
+            data = json.loads(request.body)
+            text = data.get("text", "")  # Text filter for searching
+            page_number = 1
+            per_page = 10
+            sort_by = data.get("sortBy", "publish_date")
+            sort_order = data.get("sortOrder", "asc")
 
-        # Apply filters on the subset of 10 vulnerabilities
-        if text:
-            text_lower= text.lower()
-            ip_data = [
-                ip for ip in ip_data 
-                if text_lower in ip.ip_address or \
-                text_lower in ip.url or \
-                text_lower in ip.fqdn or \
-                text_lower in ip.description
-            ]
+            # Prepare cache key and query for last 10 hashes (ordered by publish_date)
+            cache_key = "last_10_hash"
+            last_10_hash = Hash.objects.order_by(
+                F("publish_date").desc(nulls_last=True)
+            )[:per_page]
 
-        # Apply sorting on the filtered subset
-        ip_data = sorted(ip_data, key=lambda ip : get_sort_value(ip,sort_by,sort_order),reverse=(sort_by=='desc'))
-        # Serializzazione dei dati per la risposta JSON
-        ip_address_data = []
-        for ipadd in ip_data:
-            ip_address_data.append({
-                'ip_address': ipadd.ip_address,
-                'url': ipadd.url,
-                'fqdn': ipadd.fqdn,
-                'confidence': ipadd.confidence,
-                'description': ipadd.description,
-                'publish_date': ipadd.publish_date.isoformat(),  # Formatta la data in ISO 8601
-                'update_date': ipadd.update_date.isoformat(),
-                'expire_date': ipadd.expire_date.isoformat(),
-                'author': ipadd.author,
-                'lastchange_author': ipadd.lastchange_author,
-            })
-        response_data = {
-            'ip_address_list': ip_address_data,
-            'total_pages': 1,
-            'current_page': page_number,
-            'total_items': len(ip_data)
-        }
+            # Define filter function for hashes
+            # Checks if the filter text is present in filename or description
+            def filter_hash_text(text_filter, value):
+                return (
+                    text_filter in (value.filename or "").lower()
+                    or text_filter in (value.description or "").lower()
+                    or text_filter in (value.md5 or "").lower()
+                    or text_filter in (value.sha1 or "").lower()
+                    or text_filter in (value.sha256 or "").lower()
+                )
 
-        return JsonResponse(response_data)
+            # Retrieve, cache, filter, and sort hashes
+            values_data = await get_cached_filterd_data_async(
+                text.lower(),
+                last_10_hash,
+                cache_key,
+                filter_hash_text,
+                sort_by,
+                sort_order,
+            )
 
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid parameter type'}, status=400) #gestione di parametri non validi come stringhe al posto di interi
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': 'An error occurred'}, status=500)
-  else:
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+            # Serialize hashes for JSON response
+            response_hash_data = []
+            for hash in values_data:
+                response_hash_data.append(
+                    {
+                        "filename": hash.filename,
+                        "platform": hash.platform,
+                        "sha256": hash.sha256,
+                        "sha1": hash.sha1,
+                        "md5": hash.md5,
+                        "website": hash.website,
+                        "confidence": hash.confidence,
+                        "description": hash.description,
+                        "publish_date": (
+                            hash.publish_date.isoformat() if hash.publish_date else None
+                        ),
+                        "update_date": (
+                            hash.update_date.isoformat() if hash.update_date else None
+                        ),
+                        "expire_date": (
+                            hash.expire_date.isoformat() if hash.expire_date else None
+                        ),
+                        "author": hash.author,
+                        "lastchange_author": hash.lastchange_author,
+                    }
+                )
+
+            # Prepare the response with pagination info (always 1 page of 10 items)
+            response_data = {
+                "hash_list": response_hash_data,
+                "total_pages": 1,
+                "current_page": page_number,
+                "total_items": len(response_hash_data),
+            }
+
+            return JsonResponse(response_data)
+
+        except json.JSONDecodeError:
+            # Handle invalid JSON in request
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except ValueError:
+            # Handle invalid parameter types
+            return JsonResponse({"error": "Invalid parameter type"}, status=400)
+        except Exception as e:
+            # Catch-all for unexpected errors
+            print(e)
+            return JsonResponse({"error": "An error occurred"}, status=500)
+    else:
+        # Only GET and POST are allowed
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @ensure_csrf_cookie
-def scoreboard(request):    
-  if request.method == "GET":
-    template=loader.get_template("scoreboard.html")
-    return HttpResponse(template.render())
-  elif request.method == "POST":
-    try:
-        cache_key = 'scoreboard_cache_key'
-        cache_response = cache.get(cache_key)
-        if cache_response:
-            return JsonResponse(cache_response)
-        
-        # implicit else, if object is not in cache calculate new scoreboard save in cache and return it 
-        # retrive all the authors and reviewers from the DB
-        vuln_queryset = Vuln.objects.values('author')
-        hash_queryset = Hash.objects.values('author')
-        ipadd_queryset = IpAdd.objects.values('author')
-        codesnippet_queryset = CodeSnippet.objects.values('author')
-        vuln_review_queryset = VulnReview.objects.values('author')
-        hash_review_queryset = HashReview.objects.values('author')  
-        ipadd_review_queryset = IpAddReview.objects.values('author')
-        codesnippet_review_queryset = CodeReview.objects.values('author')
-        
-        # Combine all the authors and reviewers
-        combined_authors = list(vuln_queryset) + list(hash_queryset) + list(ipadd_queryset) + list(codesnippet_queryset)
-        combined_reviewers = list(vuln_review_queryset) + list(hash_review_queryset) + list(ipadd_review_queryset) + list(codesnippet_review_queryset)
+async def ipadd(request):
+    """
+    Summary:
+        Handles GET and POST requests for IP addresses.
+        - GET: Renders the IP address list template.
+        - POST: Returns the last 10 IP addresses (cached for 24h), filtered and sorted by user parameters.
+    """
+    if request.method == "GET":
+        # Render the IP address list page using the template system
+        template = loader.get_template("ipadd_list.html")
+        return HttpResponse(template.render())
+    elif request.method == "POST":
+        try:
+            # Parse the incoming JSON request body
+            data = json.loads(request.body)
+            text = data.get("text", "")  # Text filter for searching
+            page_number = 1
+            per_page = 10
+            sort_by = data.get("sortBy", "publish_date")
+            sort_order = data.get("sortOrder", "asc")
 
-        # Count the number of contributions by each author and reviewer
-        author_counter = Counter([item['author'] for item in combined_authors])
-        reviewer_counter = Counter([item['author'] for item in combined_reviewers])
-        contributor_counter = author_counter + reviewer_counter
+            # Prepare cache key and query for last 10 IP addresses (ordered by publish_date)
+            cache_key = "last_10_ip"
+            last_10_ip = IpAdd.objects.order_by(
+                F("publish_date").desc(nulls_last=True)
+            )[:per_page]
 
-        # Sort authors by count in descending order
-        sorted_authors = author_counter.most_common()
-        sorted_reviewers = reviewer_counter.most_common()        
-        contributor_counter = contributor_counter.most_common()
-        
-        # Prepare the response data
-        top_authors = {}
-        for i in range(3):
-            if i < len(sorted_authors):
-                top_authors[f'author{i+1}'] = sorted_authors[i][0]
-            else:
-                top_authors[f'author{i+1}'] = ''
+            # Define filter function for IP addresses
+            # Checks if the filter text is present in ip_address, url, fqdn, or description
+            def filter_ip_text(text_filter, value):
+                return (
+                    text_filter in (value.ip_address or "").lower()
+                    or text_filter in (value.url or "").lower()
+                    or text_filter in (value.fqdn or "").lower()
+                    or text_filter in (value.description or "").lower()
+                )
 
-        top_reviewers = {}
-        for i in range(3):
-            if i < len(sorted_reviewers):
-                top_reviewers[f'reviewer{i+1}'] = sorted_reviewers[i][0]
-            else:
-                top_reviewers[f'reviewer{i+1}'] = ''
+            # Retrieve, cache, filter, and sort IP addresses
+            values_data = await get_cached_filterd_data_async(
+                text.lower(), last_10_ip, cache_key, filter_ip_text, sort_by, sort_order
+            )
 
-        top_contributors = {}
-        for i in range(3):
-            if i < len(contributor_counter):
-                top_contributors[f'contributor{i+1}'] = contributor_counter[i][0]
-            else:
-                top_contributors[f'contributor{i+1}'] = ''
+            # Serialize IP addresses for JSON response
+            ip_address_data = []
+            for ipadd in values_data:
+                ip_address_data.append(
+                    {
+                        "ip_address": ipadd.ip_address,
+                        "url": ipadd.url,
+                        "fqdn": ipadd.fqdn,
+                        "confidence": ipadd.confidence,
+                        "description": ipadd.description,
+                        "publish_date": (
+                            ipadd.publish_date.isoformat()
+                            if ipadd.publish_date
+                            else None
+                        ),
+                        "update_date": (
+                            ipadd.update_date.isoformat() if ipadd.update_date else None
+                        ),
+                        "expire_date": (
+                            ipadd.expire_date.isoformat() if ipadd.expire_date else None
+                        ),
+                        "author": ipadd.author,
+                        "lastchange_author": ipadd.lastchange_author,
+                    }
+                )
+            # Prepare the response with pagination info (always 1 page of 10 items)
+            response_data = {
+                "ip_address_list": ip_address_data,
+                "total_pages": 1,
+                "current_page": page_number,
+                "total_items": len(ip_address_data),
+            }
+
+            return JsonResponse(response_data)
+
+        except json.JSONDecodeError:
+            # Handle invalid JSON in request
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except ValueError:
+            # Handle invalid parameter types
+            return JsonResponse({"error": "Invalid parameter type"}, status=400)
+        except Exception as e:
+            # Catch-all for unexpected errors
+            print(e)
+            return JsonResponse({"error": "An error occurred"}, status=500)
+    else:
+        # Only GET and POST are allowed
+        return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-        response_data = {
-            'top_authors': top_authors,
-            'top_reviewers': top_reviewers,
-            'top_contributors': top_contributors,
-        }
-        cache.set(cache_key, response_data, timeout=86400)
-        return JsonResponse(response_data)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except ValueError:
-        return JsonResponse({'error': 'Invalid parameter type'}, status=400) #gestione di parametri non validi come stringhe al posto di interi
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': 'An error occurred'}, status=500)
-  else:
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
+@ensure_csrf_cookie
+async def scoreboard(request):
+    """
+    Summary:
+        Handles GET and POST requests for the scoreboard.
+        - GET: Renders the scoreboard template.
+        - POST: Returns the top 3 authors, reviewers, and contributors, using cache for 24h.
+    """
+    if request.method == "GET":
+        # Render the scoreboard page using the template system
+        template = loader.get_template("scoreboard.html")
+        return HttpResponse(template.render())
+    elif request.method == "POST":
+        try:
+            cache_key = "scoreboard_cache_key"
+            # Try to get scoreboard data from cache (to avoid heavy DB queries)
+            response_data = cache.get(cache_key)
+            if response_data:
+                # If cached, return immediately
+                return JsonResponse(response_data)
+
+            # Acquire a lock to prevent race conditions (multiple requests at once)
+            lock_key = ("lock_" + cache_key,)
+            lock_acquired = await sync_to_async(cache.add)(lock_key, "lock", 10)
+            if lock_acquired:
+                try:
+                    # Double-check cache after acquiring lock (another request may have set it)
+                    response_data = cache.get(cache_key)
+                    if response_data:
+                        return JsonResponse(response_data)
+                    # Retrieve all authors and reviewers from DB for each model
+                    vuln_queryset = Vuln.objects.values("author")
+                    hash_queryset = Hash.objects.values("author")
+                    ipadd_queryset = IpAdd.objects.values("author")
+                    codesnippet_queryset = CodeSnippet.objects.values("author")
+                    vuln_review_queryset = VulnReview.objects.values("author")
+                    hash_review_queryset = HashReview.objects.values("author")
+                    ipadd_review_queryset = IpAddReview.objects.values("author")
+                    codesnippet_review_queryset = CodeReview.objects.values("author")
+
+                    # Combine all authors and reviewers into lists
+                    combined_authors = (
+                        await sync_to_async(list)(vuln_queryset)
+                        + await sync_to_async(list)(hash_queryset)
+                        + await sync_to_async(list)(ipadd_queryset)
+                        + await sync_to_async(list)(codesnippet_queryset)
+                    )
+                    combined_reviewers = (
+                        await sync_to_async(list)(vuln_review_queryset)
+                        + await sync_to_async(list)(hash_review_queryset)
+                        + await sync_to_async(list)(ipadd_review_queryset)
+                        + await sync_to_async(list)(codesnippet_review_queryset)
+                    )
+
+                    # Count contributions by each author and reviewer
+                    author_counter = Counter(
+                        [item["author"] for item in combined_authors]
+                    )
+                    reviewer_counter = Counter(
+                        [item["author"] for item in combined_reviewers]
+                    )
+                    contributor_counter = author_counter + reviewer_counter
+
+                    # Sort authors, reviewers, and contributors by count (descending)
+                    sorted_authors = author_counter.most_common()
+                    sorted_reviewers = reviewer_counter.most_common()
+                    contributor_counter = contributor_counter.most_common()
+
+                    # Prepare top 3 authors, reviewers, and contributors for the response
+                    top_authors = {}
+                    for i in range(3):
+                        if i < len(sorted_authors):
+                            top_authors[f"author{i+1}"] = sorted_authors[i][0]
+                        else:
+                            top_authors[f"author{i+1}"] = ""
+
+                    top_reviewers = {}
+                    for i in range(3):
+                        if i < len(sorted_reviewers):
+                            top_reviewers[f"reviewer{i+1}"] = sorted_reviewers[i][0]
+                        else:
+                            top_reviewers[f"reviewer{i+1}"] = ""
+
+                    top_contributors = {}
+                    for i in range(3):
+                        if i < len(contributor_counter):
+                            top_contributors[f"contributor{i+1}"] = contributor_counter[
+                                i
+                            ][0]
+                        else:
+                            top_contributors[f"contributor{i+1}"] = ""
+                    # Build the final response data
+                    response_data = {
+                        "top_authors": top_authors,
+                        "top_reviewers": top_reviewers,
+                        "top_contributors": top_contributors,
+                    }
+                    # Cache the scoreboard for 24 hours (86400 seconds)
+                    cache.set(cache_key, response_data, timeout=86400)
+                finally:
+                    # Release the lock so other requests can proceed
+                    await sync_to_async(cache.delete)(lock_key)
+
+            return JsonResponse(response_data)
+        except json.JSONDecodeError:
+            # Handle invalid JSON in request
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+        except ValueError:
+            # Handle invalid parameter types
+            return JsonResponse({"error": "Invalid parameter type"}, status=400)
+        except Exception as e:
+            # Catch-all for unexpected errors
+            print(e)
+            return JsonResponse({"error": "An error occurred"}, status=500)
+    else:
+        # Only GET and POST are allowed
+        return JsonResponse({"error": "Invalid request method"}, status=405)
