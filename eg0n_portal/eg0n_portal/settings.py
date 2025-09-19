@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'infosec_dashboard',
     'ioc_management',
     'info_gathering',
-
+    'honeypot',
 ]
 
 MIDDLEWARE = [
