@@ -27,6 +27,33 @@ def add_log(req_type, req_path, req_header, req_body, req_useragent, req_xff):
         lastchange_author='honeypot'
     )
 
+# pagine di login
+def login_page():
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+    </head>
+    <body>
+        <h2>Login</h2>
+        <form method="POST" action="/">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Accedi</button>
+        </form>
+    </body>
+    </html>
+    """
+    return html
+
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -36,6 +63,34 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b'Server is running')
+
+            # definizione variabili per il log
+            req_type = self.command
+            req_path = self.path
+            user_agent = self.headers.get('User-Agent', 'unknown')
+            xff = self.headers.get('X-Forwarded-For', self.client_address[0])
+            req_header = str(self.headers)
+
+            # salvataggio in django
+            add_log(req_type, req_path, req_header, 'none', user_agent, xff)
+        elif self.path == '/login':
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(login_page().encode('utf-8'))
+
+            # definizione variabili per il log
+            req_type = self.command
+            req_path = self.path
+            user_agent = self.headers.get('User-Agent', 'unknown')
+            xff = self.headers.get('X-Forwarded-For', self.client_address[0])
+            req_header = str(self.headers)
+
+            # salvataggio in django
+            add_log(req_type, req_path, req_header, 'none', user_agent, xff)
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'Not Found')
 
             # definizione variabili per il log
             req_type = self.command
