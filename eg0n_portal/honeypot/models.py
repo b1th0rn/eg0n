@@ -4,7 +4,8 @@ from django.db import models
 class http_log(models.Model):
     req_type = models.CharField(max_length=32, unique=False)        # GET, POST, HEAD
     req_path = models.CharField(max_length=256, unique=False)       # path requested
-    req_header = models.TextField()
+    req_header = models.TextField(blank=True, default='none')       # full header
+    req_body = models.TextField(blank=True, default='none')
     req_useragent = models.CharField(max_length=256)
     req_xff = models.GenericIPAddressField(unpack_ipv4=True)        # X-Forwarded-For
     log_date = models.DateField(auto_now=False, auto_now_add=True)

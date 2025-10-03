@@ -40,6 +40,33 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             lastchange_author='honeypot'
         )
 
+    def do_POST(self):
+        # gestione richiesta
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Server is running')
+
+        # definizione variabili per il log
+        req_type = self.command
+        req_path = self.path
+        user_agent = self.headers.get('User-Agent', 'unknown')
+        xff = self.headers.get('X-Forwarded-For', self.client_address[0])
+        req_header = str(self.headers)
+        req_body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
+
+        # salvataggio in django
+        http_log.objects.create(
+            req_type=req_type,
+            req_path=req_path,
+            req_header=req_header,
+            req_useragent=user_agent,
+            req_xff=xff,
+            log_date=timezone.now().date(),
+            slug='http-honeypot-log',
+            author='honeypot',
+            lastchange_author='honeypot'
+        )
+
 def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler):
     server_address = ('127.0.0.1', 8888) 
     httpd = server_class(server_address, handler_class)
