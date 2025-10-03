@@ -59,6 +59,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             req_type=req_type,
             req_path=req_path,
             req_header=req_header,
+            req_body=req_body,
             req_useragent=user_agent,
             req_xff=xff,
             log_date=timezone.now().date(),
