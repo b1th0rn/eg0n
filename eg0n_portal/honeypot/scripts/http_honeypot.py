@@ -12,33 +12,40 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from honeypot.models import http_log
 from django.utils import timezone
 
+# funzione di scrittura del log
+def add_log(req_type, req_path, req_header, req_body, req_useragent, req_xff):
+    http_log.objects.create(
+        req_type=req_type,
+        req_path=req_path,
+        req_header=req_header,
+        req_body=req_body,
+        req_useragent=req_useragent,
+        req_xff=req_xff,
+        log_date=timezone.now().date(),
+        slug='http-honeypot-log',
+        author='honeypot',
+        lastchange_author='honeypot'
+    )
+
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
+
         # gestione richiesta
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Server is running')
+        if self.path == '/':
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b'Server is running')
 
-        # definizione variabili per il log
-        req_type = self.command
-        req_path = self.path
-        user_agent = self.headers.get('User-Agent', 'unknown')
-        xff = self.headers.get('X-Forwarded-For', self.client_address[0])
-        req_header = str(self.headers)
+            # definizione variabili per il log
+            req_type = self.command
+            req_path = self.path
+            user_agent = self.headers.get('User-Agent', 'unknown')
+            xff = self.headers.get('X-Forwarded-For', self.client_address[0])
+            req_header = str(self.headers)
 
-        # salvataggio in django
-        http_log.objects.create(
-            req_type=req_type,
-            req_path=req_path,
-            req_header=req_header,
-            req_useragent=user_agent,
-            req_xff=xff,
-            log_date=timezone.now().date(),
-            slug='http-honeypot-log',
-            author='honeypot',
-            lastchange_author='honeypot'
-        )
+            # salvataggio in django
+            add_log(req_type, req_path, req_header, 'none', user_agent, xff)
 
     def do_POST(self):
         # gestione richiesta
@@ -55,18 +62,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         req_body = self.rfile.read(int(self.headers.get('Content-Length', 0)))
 
         # salvataggio in django
-        http_log.objects.create(
-            req_type=req_type,
-            req_path=req_path,
-            req_header=req_header,
-            req_body=req_body,
-            req_useragent=user_agent,
-            req_xff=xff,
-            log_date=timezone.now().date(),
-            slug='http-honeypot-log',
-            author='honeypot',
-            lastchange_author='honeypot'
-        )
+        add_log(req_type, req_path, req_header, req_body.decode('utf-8', errors='ignore'), user_agent, xff)
 
 def run(server_class=HTTPServer, handler_class=SimpleHTTPRequestHandler):
     server_address = ('127.0.0.1', 8888) 
