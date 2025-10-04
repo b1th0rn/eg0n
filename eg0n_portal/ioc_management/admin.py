@@ -24,7 +24,7 @@ class CodeAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["name", "language"]
     # author field
-    readonly_fields = ("author", "lastchange_author", "misp_attribute_id")
+    eadonly_fields = ("misp_attribute_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
@@ -39,7 +39,7 @@ class IpAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["ip_address", "url"]
 # author field
-    readonly_fields = ("author", "lastchange_author", "misp_attribute_id")
+    readonly_fields = ("misp_attribute_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
@@ -54,7 +54,7 @@ class FQDNAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["fqdn"]
     # author field
-    readonly_fields = ("author", "lastchange_author", "misp_attribute_id")
+    eadonly_fields = ("misp_attribute_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
@@ -69,7 +69,7 @@ class HashAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["sha256", "sha1","md5"]
     # author field
-    readonly_fields = ("author", "lastchange_author", "misp_attribute_id")
+    eadonly_fields = ("misp_attribute_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
