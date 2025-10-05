@@ -38,7 +38,7 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
             chunk = client_socket.recv(1)
             if not chunk:
                 break
-            if chunk == b'\r' or chunk == b'\n':
+            if chunk == b'\r' or chunk == b'\n' or chunk == b'\x00':
                 if chunk == b'\r':
                     client_socket.setblocking(False)
                     try:
