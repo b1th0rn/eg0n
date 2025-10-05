@@ -91,7 +91,7 @@ def telnet_server():
 
             # password prompt
             client_socket.send(b"Password: ")
-            req_password = recv_input(client_socket, echo=False)
+            req_password = recv_input(client_socket, echo=False, mask_char='*')
             add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
