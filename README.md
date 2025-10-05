@@ -1,6 +1,7 @@
-# eg0n :: IoC management project
 
 ![eg0n screenshot](docs/screenshot.png)
+
+# eg0n :: IoC management project
 
 eg0n is a Django-based application designed to archive and manage IoC and CTI data.  
 The project started in 2024 as an idea by @roccosicilia, proposed to the BitHorn community.  
