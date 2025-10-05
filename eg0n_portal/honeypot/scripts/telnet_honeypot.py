@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from honeypot.models import telnet_log
 from django.utils import timezone
 
-# variabili di base
+# server configuration
 HOST = '0.0.0.0'
 TELNET_PORT = 23
 BANNER = "Ubuntu 20.04.3 TLS\r\n"
@@ -30,7 +30,20 @@ def add_log(req_ip, req_port, req_username, req_password, req_command):
         lastchange_author='honeypot'
     )
 
-# funzione del telnet server
+# clean input
+def clean_input(data):
+    ### clean IAC
+    cleaned = b''
+    i = 0
+    while i < len(data):
+        if data[i:i+1] == b'\xff':
+            i+=3
+        else:
+            cleaned += data[i:i+1]
+            i+=1
+    return cleaned.decode('utf-8', errors='ignore')
+
+# telnet server
 def telnet_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, TELNET_PORT))
@@ -44,7 +57,9 @@ def telnet_server():
 
         # richiesta username
         client_socket.send(b"login: ")
-        req_username = client_socket.recv(1024).decode('utf-8').strip()
+        raw_username = client_socket.recv(1024)
+        cleaned_username = clean_input(raw_username)
+        req_username = cleaned_username.decode('utf-8').strip()
         add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
         client_socket.send(b"Password: ")
         
