@@ -31,7 +31,7 @@ def add_log(req_ip, req_port, req_username, req_password, req_command):
     )
 
 # remove IAC sequences
-def recv_input(client_socket: socket.socket, echo: bool = True, mask: str = None) -> str:
+def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
     data = bytearray()
     try:
         while True:
@@ -60,9 +60,7 @@ def recv_input(client_socket: socket.socket, echo: bool = True, mask: str = None
                 continue
 
             data.extend(chunk)
-            if mask is not None:
-                client_socket.send(mask.encode('utf-8'))
-            elif echo:
+            if echo:
                 client_socket.send(chunk)
 
     except Exception:
@@ -94,7 +92,13 @@ def telnet_server():
 
             # password prompt
             client_socket.send(b"Password: ")
-            req_password = recv_input(client_socket, echo=False, mask='*')
+            ### echo ON for password input
+            client_socket.send(b'\xFF\xFB\x01')  # IAC WILL ECHO
+            client_socket.send(b'\xFF\xFE\x03')  # IAC DONT ECHO
+            req_password = recv_input(client_socket, echo=False)
+            ### echo ON after password input
+            client_socket.send(b'\xFF\xFC\x01')  # IAC WONT ECHO
+            client_socket.send(b'\xFF\xFD\x03')  # IAC DO ECHO
             add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
