@@ -21,6 +21,7 @@ class telnet_log(models.Model):
     class Meta:
         verbose_name = "02 :: Telnet Honeypot"
         verbose_name_plural = "02 :: Telnet Honeypot"
+    session_id = models.CharField(max_length=64, unique=True)       # session ID random generated
     req_ip = models.GenericIPAddressField(unpack_ipv4=True)         # IP address
     req_port = models.IntegerField()                                # Port
     req_username = models.CharField(max_length=64, unique=False)    # username
