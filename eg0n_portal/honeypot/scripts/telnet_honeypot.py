@@ -30,36 +30,47 @@ def add_log(req_ip, req_port, req_username, req_password, req_command):
         lastchange_author='honeypot'
     )
 
-# clean input
-def clean_input(data):
-    ### clean IAC
-    cleaned = b''
-    i = 0
-    while i < len(data):
-        if data[i:i+1] == b'\xff':
-            i+=3
-        else:
-            cleaned += data[i:i+1]
-            i+=1
-    return cleaned.decode('utf-8', errors='ignore').strip()
-
-# input byte by byte
-def recv_input(sock, timeout=10):
-    sock.settimeout(timeout)
-    data = b''
+# remove IAC sequences
+def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
+    data = bytearray()
     try:
         while True:
-            chunk = sock.recv(1)
-            if not chunk or chunk == b'\n' or chunk == b'\r':
+            chunk = client_socket.recv(1)
+            if not chunk:
                 break
-            data += chunk
-    except socket.timeout:
+            if chunk == b'\r' or chunk == b'\n':
+                if chunk == b'\r':
+                    client_socket.setblocking(False)
+                    try:
+                        next_char = client_socket.recv(1)
+                        if next_char != b'\n':
+                            data.extend(next_char)
+                    except Exception:
+                        pass
+                    finally:
+                        client_socket.setblocking(True)
+                break
+
+            if chunk in (b'\x08', b'\x7f'):
+                if len(data) > 0:
+                    data = data[:-1]
+                    if echo:
+                        client_socket.send(b'\b \b')
+                continue
+
+            data.extend(chunk)
+            if echo:
+                client_socket.send(chunk)
+
+    except Exception:
         pass
+
     return data.decode('utf-8', errors='ignore').strip()
 
 # telnet server
 def telnet_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, TELNET_PORT))
     server_socket.listen(5)
     print(f"[*] Telnet honeypot listening on {HOST}:{TELNET_PORT}")
@@ -69,27 +80,23 @@ def telnet_server():
         print(f"[*] Accepted connection from {addr[0]}:{addr[1]}")
 
         try:
-            client_socket.settimeout(0.5)
-            try:
-                client_socket.recv(1024)
-            except socket.timeout:
-                pass
 
+            # send banner
             client_socket.send(BANNER.encode('utf-8'))
 
-            # insert username
+            # login prompt
             client_socket.send(b"login: ")
-            req_username = recv_input(client_socket)
+            req_username = recv_input(client_socket, echo=True)
             add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
 
-            # insert password
+            # password prompt
             client_socket.send(b"Password: ")
-            req_password = recv_input(client_socket)
+            req_password = recv_input(client_socket, echo=False)
             add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket)
+                req_commnand = recv_input(client_socket, echo=True)
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
