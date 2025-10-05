@@ -86,7 +86,7 @@ def telnet_server():
 
             # login prompt
             client_socket.send(b"login: ")
-            req_username = recv_input(client_socket, echo=True)
+            req_username = recv_input(client_socket, echo=False)
             add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
 
             # password prompt
@@ -96,7 +96,7 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, echo=True)
+                req_commnand = recv_input(client_socket, echo=False)
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
