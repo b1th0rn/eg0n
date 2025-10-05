@@ -69,7 +69,7 @@ def telnet_server():
         print(f"[*] Accepted connection from {addr[0]}:{addr[1]}")
 
         try:
-            client_socket.settimeout(1)
+            client_socket.settimeout(0.5)
             try:
                 client_socket.recv(1024)
             except socket.timeout:
