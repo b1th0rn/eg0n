@@ -37,15 +37,44 @@
 
         .logo-placeholder {
             width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            color: white;
-            font-weight: bold;
+            height: 140px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .honey-jar {
+            width: 100%;
+            height: 100%;
+        }
+
+        .jar-body {
+            fill: #FFA500;
+            opacity: 0.3;
+            stroke: #FF8C00;
+            stroke-width: 2;
+        }
+
+        .jar-honey {
+            fill: url(#honeyGradient);
+        }
+
+        .jar-lid {
+            fill: #D4AF37;
+        }
+
+        .jar-lid-top {
+            fill: #FFD700;
+        }
+
+        .jar-label {
+            fill: #FFF8DC;
+            stroke: #D4AF37;
+            stroke-width: 1;
+        }
+
+        .jar-shine {
+            fill: white;
+            opacity: 0.4;
         }
 
         h2 {
@@ -138,7 +167,37 @@
     <div class="login-container">
         <div class="logo-container">
             <div class="logo-placeholder">
-                LOGO
+                <svg class="honey-jar" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="honeyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#FFB300;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Corpo del barattolo (vetro) -->
+                    <path class="jar-body" d="M 30 45 Q 30 40 35 40 L 85 40 Q 90 40 90 45 L 90 110 Q 90 120 80 120 L 40 120 Q 30 120 30 110 Z"/>
+                    
+                    <!-- Miele interno -->
+                    <path class="jar-honey" d="M 35 50 L 85 50 L 85 105 Q 85 112 78 112 L 42 112 Q 35 112 35 105 Z"/>
+                    
+                    <!-- Coperchio base -->
+                    <ellipse class="jar-lid" cx="60" cy="38" rx="32" ry="8"/>
+                    
+                    <!-- Coperchio superiore -->
+                    <ellipse class="jar-lid-top" cx="60" cy="35" rx="28" ry="6"/>
+                    
+                    <!-- Dettagli coperchio -->
+                    <path d="M 32 35 Q 32 32 60 32 Q 88 32 88 35" fill="none" stroke="#B8860B" stroke-width="1"/>
+                    
+                    <!-- Etichetta -->
+                    <rect class="jar-label" x="40" y="70" width="40" height="25" rx="3"/>
+                    <text x="60" y="85" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#D4AF37" text-anchor="middle">MIELE</text>
+                    
+                    <!-- Riflesso del vetro -->
+                    <ellipse class="jar-shine" cx="45" cy="60" rx="8" ry="15"/>
+                    <ellipse class="jar-shine" cx="50" cy="90" rx="5" ry="10"/>
+                </svg>
             </div>
         </div>
 
