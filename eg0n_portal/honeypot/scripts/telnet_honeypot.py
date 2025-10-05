@@ -31,7 +31,7 @@ def add_log(req_ip, req_port, req_username, req_password, req_command):
     )
 
 # remove IAC sequences
-def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
+def recv_input(client_socket: socket.socket, echo: bool = True, mask: str = None) -> str:
     data = bytearray()
     try:
         while True:
@@ -51,6 +51,7 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
                         client_socket.setblocking(True)
                 break
 
+            # handle backspace and delete
             if chunk in (b'\x08', b'\x7f'):
                 if len(data) > 0:
                     data = data[:-1]
@@ -59,7 +60,9 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
                 continue
 
             data.extend(chunk)
-            if echo:
+            if mask is not None:
+                client_socket.send(mask.encode('utf-8'))
+            elif echo:
                 client_socket.send(chunk)
 
     except Exception:
