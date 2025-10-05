@@ -41,7 +41,21 @@ def clean_input(data):
         else:
             cleaned += data[i:i+1]
             i+=1
-    return cleaned.decode('utf-8', errors='ignore')
+    return cleaned.decode('utf-8', errors='ignore').strip()
+
+# input byte by byte
+def recv_input(sock, timeout=10):
+    sock.settimeout(timeout)
+    data = b''
+    try:
+        while True:
+            chunk = sock.recv(1)
+            if not chunk or chunk == b'\n' or chunk == b'\r':
+                break
+            data += chunk
+    except socket.timeout:
+        pass
+    return data.decode('utf-8', errors='ignore').strip()
 
 # telnet server
 def telnet_server():
@@ -53,34 +67,42 @@ def telnet_server():
     while True:
         client_socket, addr = server_socket.accept()
         print(f"[*] Accepted connection from {addr[0]}:{addr[1]}")
-        client_socket.send(BANNER.encode('utf-8'))
 
-        # richiesta username
-        client_socket.send(b"login: ")
-        raw_username = client_socket.recv(1024)
-        req_username = clean_input(raw_username)
-        add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
-        client_socket.send(b"Password: ")
+        try:
+            client_socket.settimeout(1)
+            try:
+                client_socket.recv(1024)
+            except socket.timeout:
+                pass
+
+            client_socket.send(BANNER.encode('utf-8'))
+
+            # insert username
+            client_socket.send(b"login: ")
+            req_username = recv_input(client_socket)
+            add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
+
+            # insert password
+            client_socket.send(b"Password: ")
+            req_password = recv_input(client_socket)
+            add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
+            client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
+
+            while True:
+                req_commnand = recv_input(client_socket)
+                if req_commnand.lower() in ['exit', 'quit', 'logout']:
+                    client_socket.send(b"Logout\r\n")
+                    break
+                if req_commnand:
+                    response = f"bash: {req_commnand}: command not found\r\n$ "
+                    client_socket.send(response.encode('utf-8'))
+                    add_log(addr[0], addr[1], req_username, req_password, req_commnand)
         
-        # richiesta password
-        req_password = client_socket.recv(1024).decode('utf-8').strip()
-        add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
-        client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
-
-        # richiesta comandi
-        while True:
-            req_command = client_socket.recv(1024).decode('utf-8').strip()
-            if req_command.lower() in ['exit', 'quit']:
-                client_socket.send(b"Logout\r\n")
-                break
-            response = f"bash: {req_command}: command not found\r\n$ "
-            client_socket.send(response.encode('utf-8'))
-
-            # salvataggio log su DB
-            add_log(addr[0], addr[1], req_username, req_password, req_command)
-
-        client_socket.close()
-        print(f"[*] Closed connection from {addr[0]}:{addr[1]}")
+        except Exception as e:
+            print(f"[*] Exception: {e}")
+        finally:
+            client_socket.close()
+            print(f"[*] Closed connection from {addr[0]}:{addr[1]}")
 
 # funziona mail
 if __name__ == "__main__":
