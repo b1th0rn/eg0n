@@ -58,8 +58,7 @@ def telnet_server():
         # richiesta username
         client_socket.send(b"login: ")
         raw_username = client_socket.recv(1024)
-        cleaned_username = clean_input(raw_username)
-        req_username = cleaned_username.decode('utf-8').strip()
+        req_username = clean_input(raw_username)
         add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
         client_socket.send(b"Password: ")
         
