@@ -27,32 +27,14 @@ def add_log(req_type, req_path, req_header, req_body, req_useragent, req_xff):
         lastchange_author='honeypot'
     )
 
-# pagine di login
+# pagina di login
 def login_page():
-    html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Login</title>
-    </head>
-    <body>
-        <h2>Login</h2>
-        <form method="POST" action="/">
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Accedi</button>
-        </form>
-    </body>
-    </html>
-    """
-    return html
+    try:
+        with open("http_honeypot_login.html", "r") as file:
+            html = file.read()
+        return html
+    except FileNotFoundError:
+        pass
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
@@ -76,7 +58,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         elif self.path == '/login':
             self.send_response(200)
             self.end_headers()
-            self.wfile.write(login_page().encode('utf-8'))
+            html = login_page()
+            self.wfile.write(html.encode('utf-8'))
 
             # definizione variabili per il log
             req_type = self.command
