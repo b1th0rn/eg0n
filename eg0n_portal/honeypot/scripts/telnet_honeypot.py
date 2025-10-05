@@ -16,11 +16,9 @@ from django.utils import timezone
 HOST = '0.0.0.0'
 TELNET_PORT = 23
 BANNER = "Ubuntu 20.04.3 TLS\r\n"
-session_id = random(100000000, 999999999)   # cancolo di un random number per la sessione da salvare sul DB
 
-def add_log(session_id, req_ip, req_port, req_username, req_password, req_command):
+def add_log(req_ip, req_port, req_username, req_password, req_command):
     telnet_log.objects.create(
-        session_id=session_id,
         req_ip=req_ip,
         req_port=req_port,
         req_username=req_username,
@@ -47,12 +45,12 @@ def telnet_server():
         # richiesta username
         client_socket.send(b"login: ")
         req_username = client_socket.recv(1024).decode('utf-8').strip()
-        add_log(session_id, addr[0], addr[1], req_username, 'none', 'Login Attempt')
+        add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
         client_socket.send(b"Password: ")
         
         # richiesta password
         req_password = client_socket.recv(1024).decode('utf-8').strip()
-        add_log(session_id, addr[0], addr[1], req_username, req_password, 'Password Attempt')
+        add_log(addr[0], addr[1], req_username, req_password, 'Password Attempt')
         client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
         # richiesta comandi
@@ -65,7 +63,7 @@ def telnet_server():
             client_socket.send(response.encode('utf-8'))
 
             # salvataggio log su DB
-            add_log(session_id, addr[0], addr[1], req_username, req_password, req_command)
+            add_log(addr[0], addr[1], req_username, req_password, req_command)
 
         client_socket.close()
         print(f"[*] Closed connection from {addr[0]}:{addr[1]}")
