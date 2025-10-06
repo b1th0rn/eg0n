@@ -128,6 +128,10 @@ def telnet_server():
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
+                # intercetta il carattere backspace
+                if req_commnand == '':
+                    client_socket.send(b"$ ")
+                    continue
                 if req_commnand:
                     response = f"bash: {req_commnand}: command not found\r\n$ "
                     client_socket.send(response.encode('utf-8'))
