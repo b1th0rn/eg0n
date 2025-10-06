@@ -1,4 +1,4 @@
-import os, sys, socket, datetime, json, random
+import os, sys, socket, datetime, json, random, string
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -29,6 +29,10 @@ def add_log(req_ip, req_port, req_username, req_password, req_command):
         author='honeypot',
         lastchange_author='honeypot'
     )
+
+def clean_input(s: str) -> str:
+    # Rimuove caratteri non stampabili
+    return ''.join(c for c in s if c in string.printable and c not in '\x01\x03')
 
 # remove IAC sequences
 def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
@@ -66,7 +70,8 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
     except Exception:
         pass
 
-    return data.decode('utf-8', errors='ignore').strip()
+    raw_input = data.decode('utf-8', errors='ignore').strip()
+    return clean_input(raw_input)
 
 # telnet server
 def telnet_server():
@@ -103,7 +108,7 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, echo=True) # echo ON for command input
+                req_commnand = recv_input(client_socket, echo=False) # echo ON for command input
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
