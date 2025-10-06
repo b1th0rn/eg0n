@@ -103,7 +103,7 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, echo=False)
+                req_commnand = recv_input(client_socket, echo=True) # echo ON for command input
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
