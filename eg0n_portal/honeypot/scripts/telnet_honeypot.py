@@ -42,6 +42,11 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
             chunk = client_socket.recv(1)
             if not chunk:
                 break
+
+            # Ignora caratteri di controllo all'inizio
+            if len(data) == 0 and (chunk < b' ' or chunk > b'~'):
+                continue
+
             if chunk == b'\r' or chunk == b'\n' or chunk == b'\x00':
                 if chunk == b'\r':
                     client_socket.setblocking(False)
