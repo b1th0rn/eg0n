@@ -47,7 +47,8 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
             if len(data) == 0 and (chunk < b' ' or chunk > b'~'):
                 continue
 
-            if chunk == b'\r' or chunk == b'\n' or chunk == b'\x00':
+            # Gestione invio
+            if chunk in (b'\r', b'\n', b'\x00'):
                 if chunk == b'\r':
                     client_socket.setblocking(False)
                     try:
@@ -60,17 +61,20 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
                         client_socket.setblocking(True)
                 break
 
-            # handle backspace and delete
+            # Gestione backspace e delete
             if chunk in (b'\x08', b'\x7f'):
                 if len(data) > 0:
                     data = data[:-1]
                     if echo:
+                        # Muove il cursore indietro, cancella il carattere, muove indietro di nuovo
                         client_socket.send(b'\b \b')
                 continue
 
-            data.extend(chunk)
-            if echo:
-                client_socket.send(chunk)
+            # Solo caratteri stampabili
+            if 32 <= chunk[0] <= 126:
+                data.extend(chunk)
+                if echo:
+                    client_socket.send(chunk)
 
     except Exception:
         pass
