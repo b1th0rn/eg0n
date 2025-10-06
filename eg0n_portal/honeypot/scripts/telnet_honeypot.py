@@ -37,28 +37,36 @@ def clean_input(s: str) -> str:
 # remove IAC sequences
 def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
     data = bytearray()
+    iac_mode = False  # Modalità interpretazione comandi Telnet
+
     try:
         while True:
             chunk = client_socket.recv(1)
             if not chunk:
                 break
 
-            # Ignora caratteri di controllo all'inizio
-            if len(data) == 0 and (chunk < b' ' or chunk > b'~'):
+            # Gestione sequenze IAC (Interpret As Command)
+            if chunk == b'\xff':
+                iac_mode = True
+                continue
+            if iac_mode:
+                # Salta i byte di comando Telnet
+                iac_mode = False
                 continue
 
-            # Gestione invio
-            if chunk in (b'\r', b'\n', b'\x00'):
-                if chunk == b'\r':
-                    client_socket.setblocking(False)
-                    try:
-                        next_char = client_socket.recv(1)
-                        if next_char != b'\n':
+            # Gestione invio (Enter)
+            if chunk in (b'\r', b'\n'):
+                # Consuma eventuale LF dopo CR
+                client_socket.setblocking(False)
+                try:
+                    next_char = client_socket.recv(1)
+                    if next_char != b'\n':
+                        if next_char:
                             data.extend(next_char)
-                    except Exception:
-                        pass
-                    finally:
-                        client_socket.setblocking(True)
+                except Exception:
+                    pass
+                finally:
+                    client_socket.setblocking(True)
                 break
 
             # Gestione backspace e delete
@@ -66,7 +74,6 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
                 if len(data) > 0:
                     data = data[:-1]
                     if echo:
-                        # Muove il cursore indietro, cancella il carattere, muove indietro di nuovo
                         client_socket.send(b'\b \b')
                 continue
 
