@@ -71,14 +71,14 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
 
             # Gestione backspace e delete
             if chunk in (b'\x08', b'\x7f'):
-                if len(data) > 0:
-                    data = data[:-1]
-                    if echo:
-                        client_socket.send(b'\b \b')
+                if len(data) > 0:               # se c'è qualcosa da cancellare
+                    data = data[:-1]            # rimuovi l'ultimo carattere  
+                    if echo:                    # echo del backspace
+                        client_socket.send(b'\b \b')    # sposta indietro, spazio, sposta indietro
                 continue
 
-            # Solo caratteri stampabili
-            if 32 <= chunk[0] <= 126:
+            # Solo caratteri stampabili e backspace "32 <= chunk[0] <= 126:"
+            if 32 <= ord(chunk) <= 126:
                 data.extend(chunk)
                 if echo:
                     client_socket.send(chunk)
@@ -128,10 +128,6 @@ def telnet_server():
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
-                # intercetta il carattere backspace
-                if req_commnand == '':
-                    client_socket.send(b"$ ")
-                    continue
                 if req_commnand:
                     response = f"bash: {req_commnand}: command not found\r\n$ "
                     client_socket.send(response.encode('utf-8'))
