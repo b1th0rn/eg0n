@@ -123,6 +123,47 @@ def get_shell_response_from_gpt(command: str) -> str:
     except Exception as e:
         return f"Errore nell'interrogazione a ChatGPT: {e}\r\n$ "
 
+def get_shell_response_from_gemini(command: str) -> str:
+    """
+    Invia il comando a Gemini tramite API REST e restituisce una risposta coerente come output shell.
+    """
+    # get api key from config file
+    config_file = os.path.join(BASE_DIR, 'honeypot', 'scripts', 'telnet_honeypot.yaml')
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+    api_key = config.get('gemini_api_key')
+    if not api_key:
+        return "Errore: API key di Gemini non configurata.\r\n$ "
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+    headers = {
+        "Content-Type": "application/json"
+    }
+    prompt = f"Simula una shell Linux. Rispondi solo con l'output del comando: {command}"
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ]
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=10)
+        response.raise_for_status()
+        result = response.json()
+        # Gemini restituisce la risposta in result['candidates'][0]['content']['parts'][0]['text']
+        output = (
+            result.get('candidates', [{}])[0]
+            .get('content', {})
+            .get('parts', [{}])[0]
+            .get('text', '')
+        )
+        return output.strip() + "\r\n$ "
+    except Exception as e:
+        return f"Errore nell'interrogazione a Gemini: {e}\r\n$ "
+
 # telnet server
 def telnet_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -164,7 +205,7 @@ def telnet_server():
                     break
                 if req_commnand:
                     # Usa la funzione GPT per generare la risposta
-                    response = get_shell_response_from_gpt(req_commnand)
+                    response = get_shell_response_from_gemini(req_commnand)
                     client_socket.send(response.encode('utf-8'))
                     add_log(addr[0], addr[1], req_username, req_password, req_commnand)
         
