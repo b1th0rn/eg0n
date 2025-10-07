@@ -155,7 +155,7 @@ def get_shell_response_from_gemini(command: str) -> str:
         ]
     }
     try:
-        response = requests.post(url, headers=headers, json=data, timeout=10)
+        response = requests.post(url, headers=headers, json=data, timeout=60)
         response.raise_for_status()
         result = response.json()
         # Gemini restituisce la risposta in result['candidates'][0]['content']['parts'][0]['text']
