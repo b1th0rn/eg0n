@@ -135,7 +135,7 @@ def get_shell_response_from_gemini(command: str) -> str:
     if not api_key:
         return "Errore: API key di Gemini non configurata.\r\n$ "
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {
         "Content-Type": "application/json"
     }
