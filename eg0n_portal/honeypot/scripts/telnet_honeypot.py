@@ -127,6 +127,8 @@ def get_shell_response_from_gemini(command: str) -> str:
     """
     Invia il comando a Gemini tramite API REST e restituisce una risposta coerente come output shell.
     """
+
+    '''
     # get api key from config file
     config_file = os.path.join(BASE_DIR, 'honeypot', 'scripts', 'telnet_honeypot.yaml')
     with open(config_file, 'r') as f:
@@ -134,6 +136,9 @@ def get_shell_response_from_gemini(command: str) -> str:
     api_key = config.get('gemini_api_key')
     if not api_key:
         return "Errore: API key di Gemini non configurata.\r\n$ "
+    '''
+
+    api_key = os.getenv('GEMINI_API_KEY')
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {
