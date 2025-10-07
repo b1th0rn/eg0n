@@ -101,7 +101,7 @@ def get_shell_response_from_gemini(command: str) -> str:
     headers = {
         "Content-Type": "application/json"
     }
-    prompt = f"Simulate a Linux shell. Respond only with the command output, no explanations. Command: {command}"
+    prompt = f"Simulate a Linux shell. Respond only with the command output, no explanations. In case of document to read such as TXT, LOG, CONF, INI, JSON, XML, YAML, CSV, HTML, PHP, PYTHON, JAVASCRIPT, BASH, SHELL SCRIPT, DOCKERFILE, KUBERNETES, return only the content of the file with techical information. Do not include any additional text or formatting. Here is the command: {command}"
     data = {
         "contents": [
             {
