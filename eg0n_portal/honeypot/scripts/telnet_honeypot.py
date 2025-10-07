@@ -1,4 +1,5 @@
-import os, sys, socket, datetime, json, random, string
+import os, sys, socket, datetime, json, random, string, requests
+import yaml
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -89,6 +90,39 @@ def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
     raw_input = data.decode('utf-8', errors='ignore').strip()
     return clean_input(raw_input)
 
+def get_shell_response_from_gpt(command: str) -> str:
+    """
+    Invia il comando a ChatGPT tramite API e restituisce una risposta coerente come output shell.
+    """
+    # get api key from config file
+    config_file = os.path.join(BASE_DIR, 'honeypot', 'scripts', 'telnet_honeypot.yaml')
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+    api_key = config.get('openai_api_key')
+    if not api_key:
+        return "Errore: API key di OpenAI non configurata.\r\n$ "
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    prompt = f"Simula una shell Linux. Rispondi come se fossi il terminale a questo comando: {command}"
+    data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {"role": "system", "content": "Sei una shell Linux. Rispondi solo con l'output del comando."},
+            {"role": "user", "content": prompt}
+        ],
+        "max_tokens": 150
+    }
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=10)
+        response.raise_for_status() # Raise error for bad status
+        result = response.json()
+        return result["choices"][0]["message"]["content"].strip() + "\r\n$ "
+    except Exception as e:
+        return f"Errore nell'interrogazione a ChatGPT: {e}\r\n$ "
+
 # telnet server
 def telnet_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -124,12 +158,13 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, echo=False) # echo ON for command input
+                req_commnand = recv_input(client_socket, echo=False)
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
                 if req_commnand:
-                    response = f"bash: {req_commnand}: command not found\r\n$ "
+                    # Usa la funzione GPT per generare la risposta
+                    response = get_shell_response_from_gpt(req_commnand)
                     client_socket.send(response.encode('utf-8'))
                     add_log(addr[0], addr[1], req_username, req_password, req_commnand)
         

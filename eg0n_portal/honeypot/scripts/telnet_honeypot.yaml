@@ -1,0 +1,4 @@
+# confing file for telnet honeypot
+
+## chatGPT key
+openai_api_key: ""
