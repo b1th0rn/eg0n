@@ -13,5 +13,10 @@
     </head>
     <body>
         <h1>IP Address List</h1>
+        <ul>
+            {% for object in object_list %}
+                <li>{{ object.ip_address }} - {{ object.publish_date }}</li>
+            {% endfor %}
+        </ul>
     </body>
 </html>
