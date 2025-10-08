@@ -12,7 +12,7 @@ urlpatterns = [
     # path('ip_list/', ioc_views.ip_list, name='IP Address List'),
     path('ip_list/', ListView.as_view(
         queryset = IpAdd.objects.all().order_by('-publish_date'),
-        tamplte_name = 'ip_list.html'), name='IP Address List'),
+        template_name = 'ip_list.html'), name='IP Address List'),
 
     # Domain list
     path('domain_list/', ioc_views.domain_list, name='DomainName List'),
