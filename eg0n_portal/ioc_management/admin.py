@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Vuln, IpAdd, FQDN, Hash, CodeSnippet, Review
+from django.utils.html import format_html
 import random
 
 # Vulnerabilities: custom admin
@@ -24,7 +25,7 @@ class CodeAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["name", "language"]
     # author field
-    eadonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
@@ -45,6 +46,11 @@ class IpAdmin(admin.ModelAdmin):
             obj.author = request.user.username
         obj.lastchange_author = request.user.username
         return super().save_model(request, obj, form, change)
+    def link(self, obj):
+        if obj.url:
+            return format_html("<a href='{url}' target='_blank'>{url}</a>", url=obj.url)
+        else:
+            return "n/a"
     class Meta:
         model = IpAdd
 
@@ -54,7 +60,7 @@ class FQDNAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["fqdn"]
     # author field
-    eadonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
@@ -69,7 +75,7 @@ class HashAdmin(admin.ModelAdmin):
     list_filter = ["publish_date"]
     search_fields = ["sha256", "sha1","md5"]
     # author field
-    eadonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username
