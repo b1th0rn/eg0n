@@ -64,14 +64,18 @@ def import_ipadd_from_MISP():
 
     # import IP addresses into the database
     for ip in attributes:
+
+        # define misp url
+        misp_event_url = f"{misp_url}/events/view/{ip['event_id']}"
+
         try:
             IpAdd.objects.create(
-                ip_address=ip['value'],
-                description=ip['comment'] if ip['comment'] else 'Imported from MISP',
-                misp_attribute_id=ip['id'],
-                misp_event_id=ip['event_id'],
-                author="MISP",
-                lastchange_author="MISP",
+                ip_address = ip['value'],
+                description = ip['comment'] if ip['comment'] else 'Imported from MISP',
+                misp_attribute_id = ip['id'],
+                misp_event_id = misp_event_url,
+                author = "MISP",
+                lastchange_author = "MISP",
             )
             print("IP Address %s created successfully.", ip['value'])
         except:
@@ -84,7 +88,7 @@ def import_ipadd_from_MISP():
                     existing_ip.misp_attribute_id = ip['id']
                     updated = True
                 if existing_ip.misp_event_id == 'none':
-                    existing_ip.misp_event_id = ip['event_id']
+                    existing_ip.misp_event_id = misp_event_url
                     updated = True
                 if (not existing_ip.description or existing_ip.description == '') and ip['comment']:
                     existing_ip.description = ip['comment']
