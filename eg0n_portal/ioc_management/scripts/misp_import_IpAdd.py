@@ -66,7 +66,7 @@ def import_ipadd_from_MISP():
     for ip in attributes:
 
         # define misp url
-        misp_event_url = f"<a href=\"{misp_url}/events/view/{ip['event_id']}\" target=\"_blank\">{ip['event_id']}</a>"
+        misp_event_url = f"{misp_url}/events/view/{ip['event_id']}"
 
         try:
             IpAdd.objects.create(
