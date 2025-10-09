@@ -13,18 +13,28 @@ from ioc_management.models import IpAdd
 from django.utils import timezone
 from datetime import datetime
 
+# import apiConfig model to get MISP API key
+from core.models import apiConfig
+
 def import_ipadd_from_MISP():
-    misp_url = "https://misp.bithorn.org"
-    misp_key = ""
+    # get MISP API configuration from apiConfig model
+    misp_url = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_url
+    misp_key = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_key
+    verify_cert = apiConfig.objects.filter(api_name='MISP_bithorn').first().verify_cert
+    timeout = apiConfig.objects.filter(api_name='MISP_bithorn').first().timeout
+
+    if not verify_cert:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     # temporary extract last 100 IPs
     max_ioc = 100
 
-    verify_cert = True
-    timeout = 5
-
-    if not verify_cert:
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    '''
+    MISP test curl command:
+    curl -X POST https://<MISP_URL>/attributes/restSearch -H "Authorization: <API_KEY>" -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "returnFormat": "json", "limit": 0 }'
+    MISP test curl command to get IPs:
+    curl -X POST https://<MISP_URL>/attributes/restSearch -H "Authorization: <API_KEY>" -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "controller": "attributes", "type": ["ip-src"], "to_ids": true, "deleted": false, "order": "timestamp desc", "limit": 100 }'
+    '''
 
     data = {
         "controller": "attributes",
@@ -49,7 +59,7 @@ def import_ipadd_from_MISP():
         timeout=timeout
     )
 
-    response.raise_for_status()
+    response.raise_for_status() # will raise an error for bad responses
     attributes = response.json().get("response", {}).get("Attribute", [])
 
     # import IP addresses into the database
@@ -57,7 +67,7 @@ def import_ipadd_from_MISP():
         try:
             IpAdd.objects.create(
                 ip_address=ip['value'],
-                description="Imported from MISP",
+                description=ip['comment'] if ip['comment'] else 'Imported from MISP',
                 author="MISP",
                 lastchange_author="MISP",
             )
@@ -65,4 +75,9 @@ def import_ipadd_from_MISP():
         except:
             print(f"Error creating IP address {ip['value']}. It may already exist.")
 
-import_ipadd_from_MISP()
+# main
+if __name__ == "__main__":
+    try:
+        import_ipadd_from_MISP()
+    except Exception as e:
+        print(f"An error occurred: {e}")
