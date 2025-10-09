@@ -6,3 +6,5 @@ class apiConfigAdmin(admin.ModelAdmin):
     search_fields = ["api_name", "api_url"]
     class Meta:
         model = apiConfig
+
+admin.site.register(apiConfig, apiConfigAdmin)
