@@ -20,8 +20,8 @@ def import_ipadd_from_MISP():
     # get MISP API configuration from apiConfig model
     misp_url = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_url
     misp_key = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_key
-    verify_cert = apiConfig.objects.filter(api_name='MISP_bithorn').first().verify_cert
-    timeout = apiConfig.objects.filter(api_name='MISP_bithorn').first().timeout
+    verify_cert = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_verify_cert
+    timeout = apiConfig.objects.filter(api_name='MISP_bithorn').first().api_timeout
 
     if not verify_cert:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
