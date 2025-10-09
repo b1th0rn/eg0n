@@ -77,7 +77,7 @@ def import_ipadd_from_MISP():
                 author = "MISP",
                 lastchange_author = "MISP",
             )
-            print("IP Address %s created successfully.", ip['value'])
+            print(f"IP Address {ip['value']} created successfully.")
         except:
             print(f"Error creating IP address {ip['value']}. It may already exist.")
             # update record with misp_attribute_id, misp_event_id and description if blank
