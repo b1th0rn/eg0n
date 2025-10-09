@@ -13,6 +13,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from honeypot.models import telnet_log
 from django.utils import timezone
 
+# import apiConfig model to get Gemini API key
+from core.models import apiConfig
+
 # server configuration
 HOST = '0.0.0.0'
 TELNET_PORT = 23
@@ -95,7 +98,9 @@ def get_shell_response_from_gemini(command: str) -> str:
     send command to Gemini and get the response
     """
 
-    api_key = os.getenv('GEMINI_API_KEY')
+    # api_key = os.getenv('GEMINI_API_KEY')
+    # get api_key from django model
+    api_key = apiConfig.objects.filter(api_name='GEMINI_test').first().api_key
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {
