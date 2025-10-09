@@ -76,6 +76,26 @@ def import_ipadd_from_MISP():
             print("IP Address %s created successfully.", ip['value'])
         except:
             print(f"Error creating IP address {ip['value']}. It may already exist.")
+            # update record with misp_attribute_id, misp_event_id and description if blank
+            existing_ip = IpAdd.objects.filter(ip_address=ip['value']).first()
+            if existing_ip:
+                updated = False
+                if existing_ip.misp_attribute_id == 'none':
+                    existing_ip.misp_attribute_id = ip['id']
+                    updated = True
+                if existing_ip.misp_event_id == 'none':
+                    existing_ip.misp_event_id = ip['event_id']
+                    updated = True
+                if (not existing_ip.description or existing_ip.description == '') and ip['comment']:
+                    existing_ip.description = ip['comment']
+                    updated = True
+                if updated:
+                    existing_ip.lastchange_author = "MISP"
+                    existing_ip.update_date = timezone.now()
+                    existing_ip.save()
+                    print(f"IP Address {ip['value']} updated successfully.")
+                else:
+                    print(f"No updates needed for IP Address {ip['value']}.")
 
 # main
 if __name__ == "__main__":
