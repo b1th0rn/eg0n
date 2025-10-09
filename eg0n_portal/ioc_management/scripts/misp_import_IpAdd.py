@@ -68,6 +68,8 @@ def import_ipadd_from_MISP():
             IpAdd.objects.create(
                 ip_address=ip['value'],
                 description=ip['comment'] if ip['comment'] else 'Imported from MISP',
+                misp_attribute_id=ip['id'],
+                misp_event_id=ip['event_id'],
                 author="MISP",
                 lastchange_author="MISP",
             )

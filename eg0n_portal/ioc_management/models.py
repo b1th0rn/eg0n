@@ -37,6 +37,7 @@ class IpAdd(models.Model):
     expire_date = models.DateField(default=timezone.now)
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     misp_attribute_id = models.CharField(max_length=32, blank=True, default='none')
+    misp_event_id = models.CharField(max_length=32, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
@@ -60,6 +61,7 @@ class CodeSnippet(models.Model):
     expire_date = models.DateField(default=timezone.now)
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     misp_attribute_id = models.CharField(max_length=32, blank=True, default='none')
+    misp_event_id = models.CharField(max_length=32, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
@@ -81,6 +83,7 @@ class FQDN(models.Model):
     expire_date = models.DateField(default=timezone.now)
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     misp_attribute_id = models.CharField(max_length=32, blank=True, default='none')
+    misp_event_id = models.CharField(max_length=32, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
@@ -107,6 +110,7 @@ class Hash(models.Model):
     expire_date = models.DateField(default=timezone.now)
     validation_status = models.CharField(max_length=32, choices=VALIDATION_CHOICES, default='new')
     misp_attribute_id = models.CharField(max_length=32, blank=True, default='none')
+    misp_event_id = models.CharField(max_length=32, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
