@@ -136,6 +136,7 @@ def telnet_server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, TELNET_PORT))
+    server_socket.listen(5) # max 5 connections in queue
     print(f"[*] Telnet honeypot listening on {HOST}:{TELNET_PORT}")
 
     while True:
@@ -149,7 +150,7 @@ def telnet_server():
 
             # login prompt
             client_socket.send(b"login: ")
-            req_username = recv_input(client_socket, echo=False)
+            req_username = recv_input(client_socket, timeout=10, echo=True)
             add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
 
             # password prompt
@@ -157,7 +158,7 @@ def telnet_server():
             ### echo ON for password input
             client_socket.send(b'\xFF\xFB\x01')  # IAC WILL ECHO
             client_socket.send(b'\xFF\xFE\x03')  # IAC DONT ECHO
-            req_password = recv_input(client_socket, echo=False)
+            req_password = recv_input(client_socket, timeout=10, echo=False)
             ### echo ON after password input
             client_socket.send(b'\xFF\xFC\x01')  # IAC WONT ECHO
             client_socket.send(b'\xFF\xFD\x03')  # IAC DO ECHO
@@ -165,7 +166,7 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, echo=False)
+                req_commnand = recv_input(client_socket, timeout=10, echo=False)
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
