@@ -10,8 +10,8 @@ class BaseConfig(models.Model):
     param_description = models.TextField()
     create_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
-    author = models.CharField(max_length=32, editable=False, default=1)
-    lastchange_author = models.CharField(max_length=32, editable=False, default=1)
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
         return self.param_name
 
@@ -29,6 +29,6 @@ class apiConfig(models.Model):
     create_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     author = models.CharField(max_length=32, editable=False, default=1)
-    lastchange_author = models.CharField(max_length=32, editable=False, default=1)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
         return self.api_name
