@@ -10,8 +10,8 @@ class BaseConfig(models.Model):
     param_description = models.TextField()
     create_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
-    author = models.CharField(max_length=32, editable=False, default=None)
-    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    author = models.CharField(max_length=32, editable=False, default="-")
+    lastchange_author = models.CharField(max_length=32, editable=False, default="-")
     def __str__(self):
         return self.param_name
 
@@ -26,7 +26,9 @@ class apiConfig(models.Model):
     api_verify_cert = models.BooleanField(default=True)
     api_timeout = models.IntegerField(default=10)
     api_description = models.TextField()
-    author = models.CharField(max_length=32, editable=False, default=None)
-    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    create_date = models.DateField(auto_now=False, auto_now_add=True)
+    update_date = models.DateField(auto_now=True, auto_now_add=False)
+    author = models.CharField(max_length=32, editable=False, default="-")
+    lastchange_author = models.CharField(max_length=32, editable=False, default="-")
     def __str__(self):
         return self.api_name
