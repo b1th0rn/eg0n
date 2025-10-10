@@ -19,6 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include("ioc_management.urls")),
-    path('ioc_view/', include("ioc_management.urls"))
+    path('', include("core.urls")),
+    path('ioc_view/', include("core.urls"))
 ]
