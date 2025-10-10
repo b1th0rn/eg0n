@@ -39,7 +39,8 @@ def clean_input(s: str) -> str:
     return ''.join(c for c in s if c in string.printable and c not in '\x01\x03')
 
 # remove IAC sequences
-def recv_input(client_socket: socket.socket, echo: bool = True) -> str:
+def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 10) -> str:
+
     data = bytearray()
     iac_mode = False  # telnet IAC mode
 
@@ -166,7 +167,7 @@ def telnet_server():
             client_socket.send(b"\r\nWelcome to Ubuntu!\r\n$ ")
 
             while True:
-                req_commnand = recv_input(client_socket, timeout=10, echo=False)
+                req_commnand = recv_input(client_socket, echo=False)
                 if req_commnand.lower() in ['exit', 'quit', 'logout']:
                     client_socket.send(b"Logout\r\n")
                     break
