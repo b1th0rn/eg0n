@@ -1,5 +1,4 @@
-import os, sys, socket, datetime, json, random, string, requests
-import yaml
+import os, sys, socket, datetime, json, random, string, requests, time
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -43,9 +42,14 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
 
     data = bytearray()
     iac_mode = False  # telnet IAC mode
+    start_session = time.time() # session start time
 
     try:
         while True:
+            time_left = timeout - (time.time() - start_session) # calculate remaining time
+            if time_left <= 0:
+                break
+
             chunk = client_socket.recv(1)
             if not chunk:
                 break
