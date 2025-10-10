@@ -150,7 +150,7 @@ def telnet_server():
 
             # login prompt
             client_socket.send(b"login: ")
-            req_username = recv_input(client_socket, timeout=10, echo=True)
+            req_username = recv_input(client_socket, timeout=60, echo=True)
             add_log(addr[0], addr[1], req_username, 'none', 'Login Attempt')
 
             # password prompt
