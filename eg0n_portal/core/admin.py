@@ -16,6 +16,7 @@ class BaseConfigAdmin(admin.ModelAdmin):
 class apiConfigAdmin(admin.ModelAdmin):
     list_display = ["api_name", "api_url", "api_description"]
     search_fields = ["api_name", "api_url"]
+    readonly_fields = ("author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
             obj.author = request.user.username

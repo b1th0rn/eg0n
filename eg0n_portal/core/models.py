@@ -26,5 +26,7 @@ class apiConfig(models.Model):
     api_verify_cert = models.BooleanField(default=True)
     api_timeout = models.IntegerField(default=10)
     api_description = models.TextField()
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
     def __str__(self):
         return self.api_name
