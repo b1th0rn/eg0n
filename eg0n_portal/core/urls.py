@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views as ioc_views
 from django.views.generic import ListView, DetailView # useful for template rendering
-from .models import IpAdd
+from ioc_management.models import IpAdd
 
 urlpatterns = [
 
