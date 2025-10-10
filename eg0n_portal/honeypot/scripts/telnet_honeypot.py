@@ -1,4 +1,4 @@
-import os, sys, socket, datetime, json, random, string, requests, time
+import os, sys, socket, datetime, json, random, string, requests, time, select
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -48,8 +48,12 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
         while True:
             time_left = timeout - (time.time() - start_session) # calculate remaining time
             if time_left <= 0:
-                break
+                raise socket.timeout()
 
+            rlist, _, _ = select.select([client_socket], [], [], time_left)
+            if not rlist:
+                raise socket.timeout()
+            
             chunk = client_socket.recv(1)
             if not chunk:
                 break
