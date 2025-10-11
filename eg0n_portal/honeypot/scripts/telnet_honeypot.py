@@ -210,7 +210,7 @@ def inactivity_watchdog():
 
         while proc.is_alive():
             time.sleep(10) # check every 10 seconds
-            if time.time() - last_activity.value > 120: # seconds of inactivity
+            if time.time() - last_activity.value > 300: # seconds of inactivity
                 print("[*] No activity detected for 5 minutes. Terminating the telnet server process.")
                 proc.terminate() # terminate the server process
                 proc.join() # wait for the process to finish
