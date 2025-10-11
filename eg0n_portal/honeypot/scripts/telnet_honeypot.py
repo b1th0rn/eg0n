@@ -1,4 +1,4 @@
-import os, sys, socket, datetime, json, random, string, requests, time, select
+import os, sys, socket, datetime, json, random, string, requests, time, select, multiprocessing
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -141,7 +141,7 @@ def get_shell_response_from_gemini(command: str) -> str:
         return f"Errore nell'interrogazione a Gemini: {e}\r\n$ "
 
 # telnet server
-def telnet_server():
+def telnet_server(last_activity):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, TELNET_PORT))
@@ -151,6 +151,8 @@ def telnet_server():
     while True:
         client_socket, addr = server_socket.accept()
         print(f"[*] Accepted connection from {addr[0]}:{addr[1]}")
+        # timestamp last activity
+        last_activity.value = time.time()
 
         try:
 
@@ -191,10 +193,31 @@ def telnet_server():
             client_socket.close()
             print(f"[*] Closed connection from {addr[0]}:{addr[1]}")
 
+# watchdog to close server after inactivity
+def inactivity_watchdog():
+    last_activity = multiprocessing.Value('d', time.time())
+
+    while True:
+        proc = multiprocessing.Process(target=telnet_server, args=(last_activity,)) # pass the shared value to the server process
+        proc.start() # start the server process
+        print("[*] Watchdog started the telnet server process.")
+
+        while proc.is_alive():
+            time.sleep(10) # check every 10 seconds
+            if time.time() - last_activity.value > 30: # seconds of inactivity
+                print("[*] No activity detected for 5 minutes. Terminating the telnet server process.")
+                proc.terminate() # terminate the server process
+                proc.join() # wait for the process to finish
+                break
+        
+        if not proc.is_alive():
+            print("[*] Telnet server process has stopped. Restarting...")
+            time.sleep(5) # wait before restarting
+
 # main
 if __name__ == "__main__":
     try:
-        telnet_server()
+        inactivity_watchdog()
     except KeyboardInterrupt:
         print("\n[*] Shutting down the server.")
         sys.exit(0)
