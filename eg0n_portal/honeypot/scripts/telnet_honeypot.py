@@ -112,8 +112,8 @@ def get_shell_response_from_gemini(command: str) -> str:
     send command to Gemini and get the response
     """
 
-    # check for ampty command, return prompt and avoid API call
-    if not command.strip():
+    # check for ampty command string such as "return" or "enter"
+    if command.strip() == "":
         return "$ "
 
     api_key = apiConfig.objects.filter(api_name='GEMINI_test').first().api_key
