@@ -39,14 +39,13 @@ def clean_input(s: str) -> str:
 
 # remove IAC sequences
 def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 10) -> str:
-
     data = bytearray()
-    iac_mode = False  # telnet IAC mode
-    start_session = time.time() # session start time
+    iac_mode = False
+    start_session = time.time()
 
     try:
         while True:
-            time_left = timeout - (time.time() - start_session) # calculate remaining time
+            time_left = timeout - (time.time() - start_session)
             if time_left <= 0:
                 raise socket.timeout()
 
@@ -56,7 +55,8 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
             
             chunk = client_socket.recv(1)
             if not chunk:
-                break
+                # Socket chiusa dal client
+                raise ConnectionResetError("Socket closed by client")
 
             # IAC handling
             if chunk == b'\xff':
@@ -96,8 +96,13 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
                 if echo:
                     client_socket.send(chunk)
 
+    except socket.timeout:
+        return ""  # Timeout: restituisci stringa vuota
+    except (ConnectionResetError, OSError):
+        # Propaga l'errore per gestirlo nel loop REPL
+        raise
     except Exception:
-        pass
+        return ""
 
     raw_input = data.decode('utf-8', errors='ignore').strip()
     return clean_input(raw_input)
