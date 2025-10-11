@@ -55,7 +55,7 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
             
             chunk = client_socket.recv(1)
             if not chunk:
-                # Socket chiusa dal client
+                # Socket close by client
                 raise ConnectionResetError("Socket closed by client")
 
             # IAC handling
@@ -97,9 +97,9 @@ def recv_input(client_socket: socket.socket, echo: bool = True, timeout: int = 1
                     client_socket.send(chunk)
 
     except socket.timeout:
-        return ""  # Timeout: restituisci stringa vuota
+        return ""  # Timeout: return empty string
     except (ConnectionResetError, OSError):
-        # Propaga l'errore per gestirlo nel loop REPL
+        # in case of connection reset by peer or other socket errors
         raise
     except Exception:
         return ""
@@ -112,10 +112,11 @@ def get_shell_response_from_gemini(command: str) -> str:
     send command to Gemini and get the response
     """
 
-    # api_key = os.getenv('GEMINI_API_KEY')
-    # get api_key from django model
-    api_key = apiConfig.objects.filter(api_name='GEMINI_test').first().api_key
+    # check for ampty command, return prompt and avoid API call
+    if not command.strip():
+        return "$ "
 
+    api_key = apiConfig.objects.filter(api_name='GEMINI_test').first().api_key
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {
         "Content-Type": "application/json"
