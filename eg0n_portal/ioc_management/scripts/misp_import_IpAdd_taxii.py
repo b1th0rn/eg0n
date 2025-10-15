@@ -77,6 +77,7 @@ def import_ipadd_from_MISP():
 
         try:
             # add taxii indicator in cti-taxii format
+            print(f"Preparing to send IP {ip['value']} to TAXII server...")
             taxii_data = {
                 "objects": [
                     {
@@ -106,40 +107,8 @@ def import_ipadd_from_MISP():
             print(f"Preparing to send the following data to TAXII server:\n{taxii_data}\n")
             print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d '{taxii_data}'\n")
 
-            '''
-            IpAdd.objects.create(
-                ip_address = ip['value'],
-                description = ip['comment'] if ip['comment'] else 'Imported from MISP',
-                misp_attribute_id = ip['id'],
-                misp_event_id = misp_event_url,
-                author = "MISP",
-                lastchange_author = "MISP",
-            )
-            print(f"IP Address {ip['value']} created successfully.")
-            '''
-
         except:
-            print(f"Error creating IP address {ip['value']}. It may already exist.")
-            # update record with misp_attribute_id, misp_event_id and description if blank
-            existing_ip = IpAdd.objects.filter(ip_address=ip['value']).first()
-            if existing_ip:
-                updated = False
-                if existing_ip.misp_attribute_id == 'none':
-                    existing_ip.misp_attribute_id = ip['id']
-                    updated = True
-                if existing_ip.misp_event_id == 'none':
-                    existing_ip.misp_event_id = misp_event_url
-                    updated = True
-                if (not existing_ip.description or existing_ip.description == '') and ip['comment']:
-                    existing_ip.description = ip['comment']
-                    updated = True
-                if updated:
-                    existing_ip.lastchange_author = "MISP"
-                    existing_ip.update_date = timezone.now()
-                    existing_ip.save()
-                    print(f"IP Address {ip['value']} updated successfully.")
-                else:
-                    print(f"No updates needed for IP Address {ip['value']}.")
+            print(f"Error...")
 
 # main
 if __name__ == "__main__":
