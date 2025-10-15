@@ -87,7 +87,7 @@ def import_ipadd_from_MISP():
                         "modified": datetime.fromtimestamp(int(ip['timestamp']), UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "name": f"MISP IP Address {ip['value']}",
                         "description": ip['comment'] if ip['comment'] else 'Imported from MISP',
-                        "pattern": f"[ipv4-addr:value = \\\"{ip['value']}\\\"]",
+                        "pattern": f"[ipv4-addr:value = \'{ip['value']}\']",
                         "pattern_type": "stix",
                         "valid_from": datetime.fromtimestamp(int(ip['timestamp']), UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "external_references": [
