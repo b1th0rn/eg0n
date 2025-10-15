@@ -106,6 +106,22 @@ def import_ipadd_from_MISP():
             print(f"Preparing to send the following data to TAXII server:\n{taxii_data}\n")
             print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/collections/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d \"{taxii_data}\"\n")
 
+            # http request to taxii server
+            taxii_response = requests.post(
+                f"{taxii_url}/{taxii_apiroot}/collections/{taxii_collection_id}/objects/",
+                json=taxii_data,
+                auth=(taxii_username, taxii_password),
+                headers={
+                    "Accept": "application/taxii+json;version=2.1",
+                    "Content-Type": "application/json"
+                },
+                verify=True,
+                timeout=30
+            )
+            taxii_response.raise_for_status() # will raise an error for bad responses
+            print(f"Successfully sent IP {ip['value']} to TAXII server. Response status code: {taxii_response.status_code}\n")
+            time.sleep(1) # to avoid overwhelming the server
+
         except Exception as e:
             print(f"Error... {e}")
             # traceback.print_exc()
