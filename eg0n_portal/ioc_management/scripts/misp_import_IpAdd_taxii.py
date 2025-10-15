@@ -1,5 +1,5 @@
 import os, sys
-import requests, urllib3, time
+import requests, urllib3, time, traceback
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if BASE_DIR not in sys.path:
@@ -95,9 +95,9 @@ def import_ipadd_from_MISP():
                         "external_references": [
                             {
                                 "source_name": "MISP",
-                                #"description": f"MISP Event {ip['event_id']}",
+                                "description": f"MISP Event {ip['event_id']}",
                                 "url": misp_event_url,
-                                #"external_id": {ip['event_id']}
+                                "external_id": {ip['event_id']}
                             }
                         ]
                     }
@@ -110,6 +110,7 @@ def import_ipadd_from_MISP():
 
         except Exception as e:
             print(f"Error... {e}")
+            traceback.print_exc()
 
 # main
 if __name__ == "__main__":
