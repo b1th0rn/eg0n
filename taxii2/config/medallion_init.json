@@ -17,6 +17,11 @@
             ],
             "max_content_length": 9765625
         },
+        "status": {
+          "description": "Status",
+          "enabled": true,
+          "max_status_records": 100
+        },
         "collections": [
             {
                 "id": "test",
@@ -30,7 +35,7 @@
                 "manifest": []
             },
             {
-                "id": "malicious_ip",
+                "id": "malocious_ip",
                 "title": "Malicious IP Address",
                 "description": "",
                 "can_read": true,
