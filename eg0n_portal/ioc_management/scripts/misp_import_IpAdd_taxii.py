@@ -97,7 +97,7 @@ def import_ipadd_from_MISP():
                                 "source_name": "MISP",
                                 "description": f"MISP Event {ip['event_id']}",
                                 "url": misp_event_url,
-                                "external_id": str(ip['event_id'])
+                                "external_id": ip['event_id'].str()
                             }
                         ]
                     }
