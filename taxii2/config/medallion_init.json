@@ -30,7 +30,7 @@
                 "manifest": []
             },
             {
-                "id": "malocious_ip",
+                "id": "malicious_ip",
                 "title": "Malicious IP Address",
                 "description": "",
                 "can_read": true,
