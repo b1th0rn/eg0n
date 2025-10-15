@@ -112,8 +112,9 @@ def import_ipadd_from_MISP():
                 json=taxii_data,
                 auth=(taxii_username, taxii_password),
                 headers={
+                    # media type for TAXII 2.1
                     "Accept": "application/taxii+json;version=2.1",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/taxii+json;version=2.1"
                 },
                 verify=True,
                 timeout=30
