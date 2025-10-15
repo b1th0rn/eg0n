@@ -104,7 +104,7 @@ def import_ipadd_from_MISP():
 
             # test print taxii_data
             print(f"Preparing to send the following data to TAXII server:\n{taxii_data}\n")
-            print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d '{taxii_data}'\n")
+            print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/collections/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d \"{taxii_data}\"\n")
 
         except Exception as e:
             print(f"Error... {e}")
