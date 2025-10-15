@@ -63,10 +63,10 @@ def import_ipadd_from_MISP():
     attributes = response.json().get("response", {}).get("Attribute", [])
 
     # taxii server configuration
-    taxii_url = apiConfig.objects.filter(api_name='TAXII2_test').first().api_url
-    taxii_username = baseConfig.objects.filter(param_name='TAXII2_username').first().param_value
-    taxii_password = baseConfig.objects.filter(param_name='TAXII2_password').first().param_value
-    taxii_apiroot = baseConfig.objects.filter(param_name='TAXII2_apiroot').first().param_value
+    taxii_url = apiConfig.objects.filter(api_name='taxii2_test').first().api_url
+    taxii_username = baseConfig.objects.filter(param_name='taxii2_username').first().param_value
+    taxii_password = baseConfig.objects.filter(param_name='taxii2_password').first().param_value
+    taxii_apiroot = baseConfig.objects.filter(param_name='taxii_apiroot').first().param_value
     taxii_collection_id = baseConfig.objects.filter(param_name='taxii_collection_misp-ip').first().param_value
 
     # import IP addresses into the database
