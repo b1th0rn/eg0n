@@ -95,7 +95,7 @@ def import_ipadd_from_MISP():
                         "external_references": [
                             {
                                 "source_name": "MISP",
-                                "description": f"MISP Event {ip['event_id']}",
+                                #"description": f"MISP Event {ip['event_id']}",
                                 "url": misp_event_url,
                                 #"external_id": {ip['event_id']}
                             }
