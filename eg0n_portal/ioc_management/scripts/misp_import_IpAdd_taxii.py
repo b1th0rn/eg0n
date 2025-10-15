@@ -62,7 +62,7 @@ def import_ipadd_from_MISP():
     response.raise_for_status() # will raise an error for bad responses
     attributes = response.json().get("response", {}).get("Attribute", [])
 
-    # taxii server configuration
+    # get TAXII2 configuration from baseConfig model and apiConfig model
     taxii_url = apiConfig.objects.filter(api_name='taxii2_test').first().api_url
     taxii_username = baseConfig.objects.filter(param_name='taxii2_username').first().param_value
     taxii_password = baseConfig.objects.filter(param_name='taxii2_password').first().param_value
@@ -77,8 +77,6 @@ def import_ipadd_from_MISP():
 
         try:
             # add taxii indicator in cti-taxii format
-            print(f"Preparing to send IP {ip['value']} to TAXII server...")
-            
             taxii_data = {
                 "objects": [
                     {
@@ -110,7 +108,7 @@ def import_ipadd_from_MISP():
 
         except Exception as e:
             print(f"Error... {e}")
-            traceback.print_exc()
+            # traceback.print_exc()
 
 # main
 if __name__ == "__main__":
