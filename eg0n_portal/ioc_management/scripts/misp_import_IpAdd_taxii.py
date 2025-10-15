@@ -85,19 +85,19 @@ def import_ipadd_from_MISP():
                         "type": "indicator",
                         "spec_version": "2.1",
                         "id": f"indicator--{ip['uuid']}",
-                        "created": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
-                        "modified": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "created": datetime.fromtimestamp(int(ip['timestamp']), UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "modified": datetime.fromtimestamp(int(ip['timestamp']), UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "name": f"MISP IP Address {ip['value']}",
                         "description": ip['comment'] if ip['comment'] else 'Imported from MISP',
                         "pattern": f"[ipv4-addr:value = '{ip['value']}']",
                         "pattern_type": "stix",
-                        "valid_from": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "valid_from": datetime.fromtimestamp(int(ip['timestamp']), UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "external_references": [
                             {
                                 "source_name": "MISP",
                                 "description": f"MISP Event {ip['event_id']}",
                                 "url": misp_event_url,
-                                "external_id": {ip['event_id']}
+                                "external_id": str(ip['event_id'])
                             }
                         ]
                     }
