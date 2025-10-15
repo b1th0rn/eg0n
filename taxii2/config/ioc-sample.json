@@ -8,7 +8,7 @@
       "modified": "2025-10-14T12:00:00.000Z",
       "name": "Malicious IP - example",
       "description": "Indicator describing an IP observed performing scanning and C2 activity.",
-      "pattern": "[ipv4-addr:value = '1.2.3.4']",
+      "pattern": "[ipv4-addr:value = '192.168.1.1']",
       "pattern_type": "stix",
       "valid_from": "2025-10-14T12:00:00.000Z",
       "labels": [

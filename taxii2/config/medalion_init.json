@@ -1,0 +1,46 @@
+{
+    "/discovery": {
+        "title": "eg0n TAXII Server",
+        "description": "A TAXII server for sharing CTI data from eg0n",
+        "contact": "",
+        "default": "http://localhost:5000/eg0n/",
+        "api_roots": [
+            "http://localhost:5000/eg0n/"
+        ]
+    },
+    "eg0n": {
+        "information": {
+            "title": "eg0n TAXII Server",
+            "description" :"A TAXII server for sharing CTI data from eg0n",
+            "versions": [
+                "application/taxii+json;version=2.1"
+            ],
+            "max_content_length": 9765625
+        },
+        "collections": [
+            {
+                "id": "test",
+                "title": "This data collection is for testing querying across collections",
+                "can_read": true,
+                "can_write": true,
+                "media_types": [
+                    "application/stix+json;version=2.1"
+                ],
+                "objects": [],
+                "manifest": []
+            },
+            {
+                "id": "malocious_ip",
+                "title": "Malicious IP Address",
+                "description": "",
+                "can_read": true,
+                "can_write": true,
+                "media_types": [
+                    "application/stix+json;version=2.1"
+                ],
+                "objects": [],
+                "manifest": []
+            }
+        ]
+    }
+}
