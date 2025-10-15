@@ -78,6 +78,7 @@ def import_ipadd_from_MISP():
         try:
             # add taxii indicator in cti-taxii format
             print(f"Preparing to send IP {ip['value']} to TAXII server...")
+            '''
             taxii_data = {
                 "objects": [
                     {
@@ -102,10 +103,12 @@ def import_ipadd_from_MISP():
                     }
                 ]
             }
-
+            '''
+            taxii_data = "test"
+            
             # test print taxii_data
-            #print(f"Preparing to send the following data to TAXII server:\n{taxii_data}\n")
-            #print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d '{taxii_data}'\n")
+            print(f"Preparing to send the following data to TAXII server:\n{taxii_data}\n")
+            print(f"Example cURL command: curl -u {taxii_username}:{taxii_password} -X POST {taxii_url}/{taxii_apiroot}/{taxii_collection_id}/objects/ -H 'Accept: application/taxii+json;version=2.1' -d '{taxii_data}'\n")
 
         except:
             print(f"Error...")
