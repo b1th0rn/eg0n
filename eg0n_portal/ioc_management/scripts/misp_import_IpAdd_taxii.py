@@ -11,7 +11,7 @@ django.setup()
 
 from ioc_management.models import IpAdd
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, UTC
 
 # import apiConfig model to get MISP API key
 from core.models import apiConfig, BaseConfig as baseConfig
@@ -83,13 +83,13 @@ def import_ipadd_from_MISP():
                         "type": "indicator",
                         "spec_version": "2.1",
                         "id": f"indicator--{ip['uuid']}",
-                        "created": datetime.utcfromtimestamp(ip['timestamp']).strftime('%Y-%m-%dT%H:%M:%SZ'),
-                        "modified": datetime.utcfromtimestamp(ip['timestamp']).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "created": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "modified": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "name": f"MISP IP Address {ip['value']}",
                         "description": ip['comment'] if ip['comment'] else 'Imported from MISP',
                         "pattern": f"[ipv4-addr:value = '{ip['value']}']",
                         "pattern_type": "stix",
-                        "valid_from": datetime.utcfromtimestamp(ip['timestamp']).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                        "valid_from": datetime.fromtimestamp(ip['timestamp'], UTC).strftime('%Y-%m-%dT%H:%M:%SZ'),
                         "external_references": [
                             {
                                 "source_name": "MISP",
@@ -117,6 +117,7 @@ def import_ipadd_from_MISP():
             )
             print(f"IP Address {ip['value']} created successfully.")
             '''
+
         except:
             print(f"Error creating IP address {ip['value']}. It may already exist.")
             # update record with misp_attribute_id, misp_event_id and description if blank
