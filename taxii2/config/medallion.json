@@ -1,0 +1,29 @@
+{
+    "backend": {
+        "module": "medallion.backends.memory_backend",
+        "module_class": "MemoryBackend",
+        "filename": "cti-taxii-init.json"
+    },
+    "users": {
+        "admin": ""
+    },
+    "taxii": {
+        "title": "eg0n In-Memory TAXII 2.1 Server",
+        "max_page_size": 100,
+        "public_discovery": true
+    },
+    "api_roots": {
+        "default": {
+            "title": "Default API Root",
+            "description": "ADefault API Root",
+            "collections": {
+                "default-collection": {
+                    "title": "Default Collection",
+                    "description": "",
+                    "can_read": ["*"],
+                    "can_write": ["admin"]
+                }
+            }
+        }
+    }
+}
