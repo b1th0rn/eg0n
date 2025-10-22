@@ -32,25 +32,27 @@ class UserSerializer(ObjectSerializer):
 
     class Meta:
         model = User
-        fields = [
-            "id",
+        fields = (
             "date_joined",
             "email",
             "first_name",
-            "groups",
             "groups_display",
+            "groups",
+            "id",
             "is_active",
             "is_staff",
             "is_superuser",
             "last_login",
             "last_name",
             "username",
-        ]
-        read_only_fields = [
+        )
+        read_only_fields = (
             "date_joined",
+            "groups_display",
+            "id",
             "last_login",
             "password",
-        ]
+        )
 
 
     def get_groups_display(self, obj):

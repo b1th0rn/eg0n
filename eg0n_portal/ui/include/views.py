@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
-from django_tables2 import SingleTableView
+from django_tables2 import SingleTableView, RequestConfig
 from django_tables2.columns import Column
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
@@ -235,13 +235,6 @@ class ObjectListView(SingleTableView, FilterView):
     paginate_by = settings.DJANGO_TABLES2_PAGE_SIZE
     template_name = "ui/object_list.html"
 
-    def get_table(self, **kwargs):
-        """Return the table instance. Placeholder for custom pagination logic."""
-        # PAGINATE NOT WORKING TODO
-        table = super().get_table(**kwargs)
-        print("paginate_by in view:", self.get_paginate_by(table.data))
-        return table
-
     def get_table_data(self):
         """Return the queryset filtered by the FilterSet if present."""
         queryset = super().get_table_data()
@@ -250,25 +243,6 @@ class ObjectListView(SingleTableView, FilterView):
             filterset = filterset_class(self.request.GET, queryset=queryset)
             return filterset.qs
         return queryset
-
-    def get_paginate_by(self, queryset):
-        """Allow client to customize pagination via 'per_page' query param.
-
-        Enforces a maximum of DJANGO_TABLES2_MAX_PAGE_SIZE per page; defaults to
-        DJANGO_TABLES2_PAGE_SIZE if invalid or missing.
-        """
-        # PAGINATE NOT WORKING TODO
-        try:
-            per_page = int(self.request.GET.get("per_page", 0))
-            print(per_page)
-            if per_page <= 0:
-                return settings.DJANGO_TABLES2_PAGE_SIZE
-            print("FIX")
-            print(min(per_page, settings.DJANGO_TABLES2_MAX_PAGE_SIZE))
-            return min(per_page, settings.DJANGO_TABLES2_MAX_PAGE_SIZE)
-        except (TypeError, ValueError):
-            # return super().get_paginate_by(queryset)
-            return settings.DJANGO_TABLES2_PAGE_SIZE
 
     def get_context_data(self, **kwargs):
         """Add model name to context for template rendering."""
