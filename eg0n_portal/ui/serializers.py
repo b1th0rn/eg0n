@@ -5,6 +5,7 @@ instances to and from JSON representations.
 """
 
 from django.contrib.auth.models import Group, User
+from rest_framework import serializers
 from ui.include.serializers import ObjectSerializer
 
 
@@ -18,24 +19,26 @@ class GroupSerializer(ObjectSerializer):
 
     class Meta:
         model = Group
-        fields = "__all__"
+        fields = ("id", "name")
 
 
 #############################################################################
 # User
 #############################################################################
 
-
 class UserSerializer(ObjectSerializer):
     """Serializer for the `User` model."""
+    groups_display = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = [
+            "id",
             "date_joined",
             "email",
             "first_name",
             "groups",
+            "groups_display",
             "is_active",
             "is_staff",
             "is_superuser",
@@ -48,6 +51,11 @@ class UserSerializer(ObjectSerializer):
             "last_login",
             "password",
         ]
+
+
+    def get_groups_display(self, obj):
+        """Ritorna i nomi dei gruppi dell'utente in formato leggibile."""
+        return [{"id": group.id, "name": group.name} for group in obj.groups.all().order_by("name")]
 
     def update(self, instance, validated_data):
         """

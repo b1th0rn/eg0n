@@ -146,6 +146,20 @@ class GroupQueryMixin:
 
     Used by both HTML views and API views.
     """
+    filterset_class = GroupFilter
+    form_class = GroupForm
+    model = Group
+    serializer_class = GroupSerializer
+    table_class = GroupTable
+
+
+    def test_func(self):
+        # Define who can GET/HEAD/OPTION/DELETE/PATCH/POST/PUT
+        user = self.request.user
+        method = self.request.method.upper()
+        if method in ("GET", "HEAD", "OPTIONS"):
+            return user.is_authenticated
+        return user.is_authenticated and user.is_superuser
 
     def get_queryset(self):
         """Return the queryset of `Group` objects accessible to the current user.
@@ -183,55 +197,37 @@ class GroupQueryMixin:
 
 class GroupAPIViewSet(GroupQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the `Group` model."""
-
-    serializer_class = GroupSerializer
-    filterset_class = GroupFilter
+    pass
 
 
-class GroupBulkDeleteView(ObjectBulkDeleteView):
+class GroupBulkDeleteView(GroupQueryMixin, ObjectBulkDeleteView):
     """HTML view for deleting multiple `Group` objects at once."""
-
-    model = Group
-    permission_classes = [IsAdmin]
+    pass
 
 
-class GroupChangeView(ObjectChangeView):
+class GroupChangeView(GroupQueryMixin, ObjectChangeView):
     """HTML view for updating an existing `Group`."""
-
-    model = Group
-    form_class = GroupForm
-    permission_classes = [IsAdmin]
+    pass
 
 
-class GroupCreateView(ObjectCreateView):
+class GroupCreateView(GroupQueryMixin, ObjectCreateView):
     """HTML view for creating a new `Group`."""
-
-    model = Group
-    form_class = GroupForm
-    permission_classes = [IsAdmin]
+    pass
 
 
-class GroupDeleteView(ObjectDeleteView):
+class GroupDeleteView(GroupQueryMixin, ObjectDeleteView):
     """HTML view for deleting a single `Group`."""
-
-    model = Group
-    permission_classes = [IsAdmin]
+    pass
 
 
 class GroupDetailView(GroupQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a `Group`."""
-
-    model = Group
     exclude = ["id"]
 
 
 class GroupListView(GroupQueryMixin, ObjectListView):
     """HTML view for displaying a table of `Group` objects."""
-
-    filterset_class = GroupFilter
-    model = Group
-    table_class = GroupTable
-
+    pass
 
 #############################################################################
 # User
@@ -243,6 +239,21 @@ class UserQueryMixin:
 
     Used by both HTML views and API views.
     """
+    filterset_class = UserFilter
+    form_class = UserForm
+    model = User
+    serializer_class = UserSerializer
+    table_class = UserTable
+
+
+    def test_func(self):
+        # Define who can GET/HEAD/OPTION/DELETE/PATCH/POST/PUT
+        user = self.request.user
+        method = self.request.method.upper()
+        if method in ("GET", "HEAD", "OPTIONS"):
+            return user.is_authenticated
+        return user.is_authenticated and user.is_superuser
+
 
     def get_queryset(self):
         """Return the queryset of `User` objects accessible to the current user.
@@ -251,7 +262,7 @@ class UserQueryMixin:
         - Staff users can see users who share at least one group
         - Non-superusers can only access their own `User` object.
         """
-        qs = User.objects.all()
+        qs = User.objects.all().order_by("username")
         user = self.request.user
         if user.is_superuser:
             # Admin users can see all `User` objects
@@ -294,45 +305,30 @@ class UserQueryMixin:
 
 class UserAPIViewSet(UserQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the `User` model."""
+    pass
 
-    serializer_class = UserSerializer
-    filterset_class = UserFilter
-
-
-class UserBulkDeleteView(ObjectBulkDeleteView):
+class UserBulkDeleteView(UserQueryMixin, ObjectBulkDeleteView):
     """HTML view for deleting multiple `User` objects at once."""
-
-    model = User
-    permission_classes = [IsAdmin]
+    pass
 
 
-class UserChangeView(ObjectChangeView):
+class UserChangeView(UserQueryMixin, ObjectChangeView):
     """HTML view for updating an existing `User`."""
-
-    model = User
-    form_class = UserForm
-    permission_classes = [IsAdmin]
+    pass
 
 
-class UserCreateView(ObjectCreateView):
+class UserCreateView(UserQueryMixin, ObjectCreateView):
     """HTML view for creating a new `User`."""
-
-    model = User
-    form_class = UserForm
-    permission_classes = [IsAdmin]
+    pass
 
 
-class UserDeleteView(ObjectDeleteView):
+class UserDeleteView(UserQueryMixin, ObjectDeleteView):
     """HTML view for deleting a single `User`."""
-
-    model = User
-    permission_classes = [IsAdmin]
+    pass
 
 
 class UserDetailView(UserQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a `User`."""
-
-    model = User
     exclude = ["id", "password"]
     sequence = [
         "username",
@@ -347,10 +343,7 @@ class UserDetailView(UserQueryMixin, ObjectDetailView):
 
 class UserListView(UserQueryMixin, ObjectListView):
     """HTML view for displaying a table of `User` objects."""
-
-    filterset_class = UserFilter
-    model = User
-    table_class = UserTable
+    pass
 
 
 #############################################################################
@@ -451,7 +444,7 @@ class HomeView(TemplateView):
     """
     Render the home page for authenticated users.
 
-    The template is loaded from: templates/unetlab/home.html
+    The template is loaded from: templates/ui
     """
 
     template_name = "home.html"
