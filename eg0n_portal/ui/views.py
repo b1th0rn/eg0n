@@ -356,6 +356,11 @@ class TokenQueryMixin:
 
     Used by both HTML views and API views.
     """
+    filterset_class = TokenFilter
+    # form_class = None
+    model = Token
+    # serializer_class = None
+    table_class = TokenTable
 
     def get_queryset(self):
         """Return the queryset of `User` objects accessible to the current user.
@@ -405,14 +410,12 @@ class TokenQueryMixin:
         raise PermissionDenied(messages.PERMISSION_DENIED)
 
 
-class TokenBulkDeleteView(ObjectBulkDeleteView):
+class TokenBulkDeleteView(TokenQueryMixin, ObjectBulkDeleteView):
     """HTML view for deleting multiple `Token` objects at once."""
-
-    model = Token
-    permission_classes = [IsAdmin]
+    pass
 
 
-class TokenCreateView(ObtainAuthToken):
+class TokenCreateView(TokenQueryMixin, ObtainAuthToken):
     """
     API per permettere a ciascun utente di generare il proprio token.
     """
@@ -422,18 +425,14 @@ class TokenCreateView(ObtainAuthToken):
         return redirect("token_list")
 
 
-class TokenDeleteView(ObjectDeleteView):
+class TokenDeleteView(TokenQueryMixin, ObjectDeleteView):
     """HTML view for deleting a single `Token`."""
-
-    model = Token
+    pass
 
 
 class TokenListView(TokenQueryMixin, ObjectListView):
     """HTML view for displaying a table of `Token` objects."""
-
-    filterset_class = TokenFilter
-    model = Token
-    table_class = TokenTable
+    pass
 
 
 #############################################################################

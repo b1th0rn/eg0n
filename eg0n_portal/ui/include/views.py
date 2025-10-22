@@ -7,16 +7,18 @@ django-tables2, and django-filters.
 """
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
-from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
-from django_tables2 import SingleTableView, RequestConfig
+from django_tables2 import SingleTableView
 from django_tables2.columns import Column
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from ui.serializers import UserSerializer, GroupSerializer
 
 
 class APICRUDViewSet(ModelViewSet):
@@ -235,6 +237,30 @@ class ObjectListView(SingleTableView, FilterView):
     paginate_by = settings.DJANGO_TABLES2_PAGE_SIZE
     template_name = "ui/object_list.html"
 
+    # def render_to_response(self, context, **response_kwargs):
+    #     queryset = context['object_list']
+
+    #     # Paginazione
+    #     page = int(self.request.GET.get("page", 1))
+    #     per_page = int(self.request.GET.get("per_page", 10))
+    #     paginator = Paginator(queryset, per_page)
+    #     page_obj = paginator.get_page(page)
+
+    #     # Serializzazione
+    #     serializer = UserSerializer(page_obj, many=True)
+    #     data = {
+    #         "results": serializer.data,
+    #         "count": paginator.count,
+    #         "num_pages": paginator.num_pages,
+    #     }
+
+    #     # Ritorna JSON se richiesto
+    #     # if self.request.headers.get("Accept") == "application/json":
+    #     #     return JsonResponse(data, safe=False)
+
+    #     # Altrimenti fallback al template HTML
+    #     return super().render_to_response(context, **response_kwargs)
+    
     def get_table_data(self):
         """Return the queryset filtered by the FilterSet if present."""
         queryset = super().get_table_data()
