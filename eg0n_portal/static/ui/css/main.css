@@ -1,0 +1,16 @@
+/* Tabler fixes */
+.markdown pre {
+    /* Remove max-height */
+    max-height: none !important;
+}
+
+td .btn-list .dropdown-menu {
+    /* Fix dropdown-menu z-position if inside a TD */
+    /* See: https://github.com/tabler/tabler/issues/2518 */
+    position: fixed !important
+}
+
+/* Improvements */
+.markdown ul {
+    list-style-type: square;
+}

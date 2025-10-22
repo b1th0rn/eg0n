@@ -1,0 +1,131 @@
+<div class="nav-item dropdown d-none d-md-flex">
+    <a href="#" class="nav-link px-0 latest-logs-toggle" data-bs-toggle="dropdown" tabindex="-1"
+        aria-label="Show notifications" data-bs-auto-close="outside" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+            <path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6">
+            </path>
+            <path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+        </svg>
+        <span class="badge{% if latest_logs %} bg-red{% endif %} latest-logs-badge"></span>
+    </a>
+    <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+        <div class="card">
+            <div class="card-header d-flex">
+                <h3 class="card-title">Notifications</h3>
+                <div class="btn btn-close ms-auto" data-bs-dismiss="dropdown"></div>
+            </div>
+            <div class="list-group list-group-flush list-group-hoverable latest-logs-container">
+                {% for latest_log in latest_logs %}
+                <div class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-auto"><span
+                                class="status-dot status-dot-animated d-block{% if latest_log.get_severity_display == 'Error' %} bg-danger{% elif latest_log.get_severity_display == 'Warning' %} bg-warning{% endif %}"></span>
+                        </div>
+                        <div class="col text-truncate">
+                            <a href="#" class="text-body d-block">{{ latest_log.type }}</a>
+                            <div class="d-block text-secondary text-truncate mt-n1">{{ latest_log.message }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <a href="#" class="btn btn-2 w-100 btn-dropdown-close" data-bs-dismiss="dropdown"
+                            onclick="markAllLogsRead()"> Mark all as read </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    /**
+     * Prepends a log message to the top of the logs container.
+     * Adds a colored status dot based on severity.
+     *
+     * @param {string} severity - The severity level ("Error", "Warning", or others).
+     * @param {string} message - The log message text to display.
+     */
+    function prependLog(severity, message, type) {
+        // Use "UI" as default type if none is provided
+        const logType = type && type.trim() !== "" ? type : "UI";
+
+        // Select the container where logs are displayed
+        const logContainer = document.querySelector(".latest-logs-container");
+
+        // Create a new log item element
+        const logItem = document.createElement("div");
+        logItem.className = "list-group-item";
+
+        // Set the inner HTML structure for the log item
+        logItem.innerHTML = `
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="status-dot status-dot-animated d-block"></span>
+                </div>
+                <div class="col text-truncate">
+                    <a href="#" class="text-body d-block"></a>
+                    <div class="d-block text-secondary text-truncate mt-n1"></div>
+                </div>
+            </div>
+        `;
+
+        // Get references to the elements inside the log item
+        const severityElement = logItem.querySelector(".status-dot");
+        const typeElement = logItem.querySelector("a.text-body");
+        const messageElement = logItem.querySelector("div.text-secondary");
+
+        // Set status dot color based on severity
+        if (severity === 40) {
+            severityElement.classList.add("bg-danger");
+        } else if (severity === 30) {
+            severityElement.classList.add("bg-warning");
+        }
+        // Set values and insert the new log item at the beginning of the container
+        typeElement.textContent = logType;
+        messageElement.textContent = message;
+        logContainer.insertBefore(logItem, logContainer.firstChild);
+
+        // Highlight the badge if not already highlighted
+        const notificationElement = document.querySelector(".latest-logs-badge");
+        if (notificationElement && !notificationElement.classList.contains("bg-red")) {
+            notificationElement.classList.add("bg-red");
+        }
+    }
+    function markAllLogsRead() {
+        /**
+         * Marks all logs as read by sending a POST request to the API.
+         * On success, clears the log list and removes the red badge.
+         * Uses prependLog() to display errors on API failure, HTTP errors, network errors, and timeouts.
+         */
+        url = "/api/log/acknowledge/";
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Clear logs container and remove badge on success
+                    document.querySelector(".latest-logs-container").innerHTML = "";
+                    const notificationElement = document.querySelector(".latest-logs-badge");
+                    if (notificationElement && notificationElement.classList.contains("bg-red")) {
+                        notificationElement.classList.remove("bg-red");
+                    }
+                } else {
+                    // API returned error status, show message using prependLog
+                    prependLog(40, `API error: ${data.message || "Unknown error"}`);
+                }
+            })
+            .catch(error => {
+                // Catch network errors, timeouts, and other exceptions, then prepend log
+                prependLog(40, `Failed request to ${url}: ${error.message}`);
+            });
+    }
+</script>
