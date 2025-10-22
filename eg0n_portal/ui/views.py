@@ -446,4 +446,4 @@ class HomeView(TemplateView):
     The template is loaded from: templates/ui
     """
 
-    template_name = "home.html"
+    template_name = "ui/home.html"
