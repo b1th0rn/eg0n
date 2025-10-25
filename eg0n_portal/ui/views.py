@@ -267,10 +267,9 @@ class UserQueryMixin:
         if user.is_superuser:
             # Admin users can see all `User` objects
             return qs
-        else:
-            # Staff and standard users can see users who share at least one group
-            groups = user.groups.all()
-            return qs.filter(groups__in=groups).distinct()
+        # Staff and standard users can see users who share at least one group
+        groups = user.groups.all()
+        return qs.filter(groups__in=groups).distinct()
 
 
     def get_object(self):
@@ -285,19 +284,16 @@ class UserQueryMixin:
         """
         obj = super().get_object()
         user = self.request.user
+        if user == obj:
+            # Users can always see its own object.
+            return obj
         if user.is_superuser:
             # Admin users can see all `User` objects
             return obj
-        if user.is_staff:
-            if obj.is_superuser:
-                raise PermissionDenied(messages.PERMISSION_ADMIN)
-            # Staff users can see users who share at least one group
-            if user.groups.filter(
-                pk__in=obj.groups.values_list("pk", flat=True)
-            ).exists():
-                return obj
-        if user == obj:
-            # Non-admin users can only see the `Group` objects they belong to
+        # Staff and users can see users who share at least one group
+        if user.groups.filter(
+            pk__in=obj.groups.values_list("pk", flat=True)
+        ).exists():
             return obj
         raise PermissionDenied(messages.PERMISSION_DENIED)
 
