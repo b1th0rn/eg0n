@@ -457,8 +457,9 @@
                                             <div class="mt-1 small text-secondary">{{ user.username }}</div>
                                         </div>
                                     </a>
+                                    {% if user.is_authenticated %}
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                        <a href="" class="dropdown-item">
+                                        <a href="{% url 'user_detail' user.id %}" class="dropdown-item">
                                             {% translate "Profile" %}
                                         </a>
                                         <a href="{% url 'token_list' %}" class="dropdown-item">
@@ -473,6 +474,7 @@
                                             </button>
                                         </form>
                                     </div>
+                                    {% endif %}
                                 </div>
                             </li>
                         </ul>

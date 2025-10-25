@@ -4,27 +4,27 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 
-def test_ui_authentication_api_admin(api_client, user_set):
+def test_ui_authentication_api_admin(api_client, user_sets):
     """Test API authentication by admin."""
-    token, _ = Token.objects.get_or_create(user=user_set[0]["admin"])
+    token, _ = Token.objects.get_or_create(user=user_sets[0]["admin"])
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-list")
     response = api_client.get(url, headers=headers)
     assert response.status_code == 200
 
 
-def test_ui_authentication_api_staff(api_client, user_set):
+def test_ui_authentication_api_staff(api_client, user_sets):
     """Test API authentication by staff."""
-    token, _ = Token.objects.get_or_create(user=user_set[0]["staff"])
+    token, _ = Token.objects.get_or_create(user=user_sets[0]["staff"])
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-list")
     response = api_client.get(url, headers=headers)
     assert response.status_code == 200
 
 
-def test_ui_authentication_api_user(api_client, user_set):
+def test_ui_authentication_api_user(api_client, user_sets):
     """Test API authentication by user."""
-    token, _ = Token.objects.get_or_create(user=user_set[0]["user"])
+    token, _ = Token.objects.get_or_create(user=user_sets[0]["user"])
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-list")
     response = api_client.get(url, headers=headers)

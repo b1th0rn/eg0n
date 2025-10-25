@@ -267,12 +267,11 @@ class UserQueryMixin:
         if user.is_superuser:
             # Admin users can see all `User` objects
             return qs
-        if user.is_staff:
-            # Staff users can see users who share at least one group
+        else:
+            # Staff and standard users can see users who share at least one group
             groups = user.groups.all()
             return qs.filter(groups__in=groups).distinct()
-        # Non-admin users can only see their own user
-        return qs.filter(username=user.username)
+
 
     def get_object(self):
         """Return a `User` object only if the user has permission.
