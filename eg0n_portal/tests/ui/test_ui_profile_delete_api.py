@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
 
-def test_ui_profile_delete_api_user(api_client, user_sets):
+def test_ui_profile_delete_api_admin(api_client, user_sets):
     """Test API delete admin profile."""
     user = user_sets[0]["admin"]
     token, _ = Token.objects.get_or_create(user=user)

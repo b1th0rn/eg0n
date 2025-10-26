@@ -6,7 +6,7 @@ from rest_framework.authtoken.models import Token
 
 
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_profile_view_api(api_client, user_sets, role):
+def test_ui_profile_view_api_user(api_client, user_sets, role):
     """Test API profile view."""
     user = user_sets[0][role]
     token, _ = Token.objects.get_or_create(user=user)
