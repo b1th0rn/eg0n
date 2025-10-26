@@ -67,7 +67,6 @@ def test_ui_user_detail_view_api_user(api_client, user_sets):
 def test_ui_user_detail_view_api_guest(api_client, user_sets):
     """Test API get user detail by guest user."""
     for key, value in user_sets[0].items():
-        # Standard users must see all users, within the group.
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url)

@@ -23,49 +23,26 @@ class UserPermissionPolicy:
         if user.is_superuser:
             # Admin can do everything...
             # ...except delete themselves
-            if method == "DELETE" and target_user and target_user.id == user.id:
+            if target_user and target_user.id == user.id and method == "DELETE":
                 return False
             return True
 
         # === STAFF RULES ===
         if user.is_staff:
             if target_user:
-                # Can only act on users who share at least one group
-                same_group = self._share_group(user, target_user)
-                if not same_group:
-                    return False
-
-                # Cannot delete an admin
-                if method == "DELETE" and target_user.is_superuser:
-                    return False
-
-                # All other operations are allowed
+                if target_user.is_superuser:
+                    return method in ("GET", "HEAD", "OPTIONS")
                 return True
-            else:
-                # GET list allowed — staff sees only users sharing at least one group
-                return method in ("GET", "HEAD", "OPTIONS")
 
         # === STANDARD USER RULES ===
-        if not user.is_staff and not user.is_superuser:
-            if target_user:
-                # Can fully manage their own profile
-                if target_user.id == user.id:
-                    return True
-                # Can only *view* other users that share a group
-                if method in ("GET", "HEAD", "OPTIONS"):
-                    return self._share_group(user, target_user)
-                return False
-            else:
-                # For GET list: can view only users sharing a group
-                return method in ("GET", "HEAD", "OPTIONS")
+        if target_user:
+            if target_user.id == user.id:
+                return True
+            return method in ("GET", "HEAD", "OPTIONS")
 
-        return False
+        # Without target user, any method is safe
+        return True
 
-    def _share_group(self, user_a, user_b):
-        """Helper: return True if two users share at least one group."""
-        groups_a = set(user_a.groups.values_list("id", flat=True))
-        groups_b = set(user_b.groups.values_list("id", flat=True))
-        return len(groups_a & groups_b) > 0
 
 class UserPermission(BasePermission):
     """
@@ -82,12 +59,15 @@ class UserPermission(BasePermission):
         """
         user = request.user
         method = request.method
+        print("HERE")
+        print(self.policy.can(user, method, None))
         return self.policy.can(user, method, None)
 
     def has_object_permission(self, request, view, obj):
         """
         Called for detail routes or single-object operations.
         """
+        print("THERE")
         user = request.user
         method = request.method
         return self.policy.can(user, method, obj)

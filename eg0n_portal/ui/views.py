@@ -275,7 +275,7 @@ class UserQueryMixin:
     def get_object(self):
         """Return a `User` object only if the user has permission."""
         obj = super().get_object()
-        if obj not in self.get_queryset():
+        if not self.get_queryset().filter(pk=obj.pk).exists():
             raise PermissionDenied(messages.PERMISSION_DENIED)
         return obj
 
@@ -354,7 +354,7 @@ class TokenQueryMixin:
         if user.is_staff:
             # Staff users can see users who share at least one group
             groups = user.groups.all()
-            return qs.filter(user__groups__in=groups, is_superuser=False).distinct()
+            return qs.filter(user__groups__in=groups).distinct()
         # Non-admin users can only see their own user
         return qs.filter(user__username=user.username)
 

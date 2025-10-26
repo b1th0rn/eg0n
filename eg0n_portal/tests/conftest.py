@@ -41,8 +41,6 @@ def user_sets(db):
             username=f"user{i}",
             email=f"user{i}@example.com",
             password=f"user{i}_pass",
-            is_staff=False,
-            is_superuser=False
         )
         user_obj.groups.add(group_obj)
 
