@@ -16,4 +16,4 @@ def test_ui_authentication_ui_user(client, user_sets, role):
 def test_ui_authentication_ui_guest(client, user_sets):
     """Test UI authentication by non-existent user."""
     logged = client.login(username="guest", password="guest_pass")
-    assert logged is False, "Expected failed for guest login"
+    assert logged is False, "Expected failed for guest user"

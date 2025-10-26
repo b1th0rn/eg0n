@@ -21,4 +21,4 @@ def test_ui_authentication_api_guest(api_client, user_sets):
     url = reverse("user-list")
     data = {"username": "guest", "password": "guest_pass"}
     response = api_client.post(url, data, format="json")
-    assert response.status_code == 401, "Expected 401 for guest login"
+    assert response.status_code == 401, "Expected 401 for guest user"
