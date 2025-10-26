@@ -440,6 +440,7 @@
                                     </div>
                                 </div>
                             </li>
+                            {% if user.is_authenticated %}
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown"
@@ -457,7 +458,6 @@
                                             <div class="mt-1 small text-secondary">{{ user.username }}</div>
                                         </div>
                                     </a>
-                                    {% if user.is_authenticated %}
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                                         <a href="{% url 'user_detail' user.id %}" class="dropdown-item">
                                             {% translate "Profile" %}
@@ -474,9 +474,9 @@
                                             </button>
                                         </form>
                                     </div>
-                                    {% endif %}
                                 </div>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

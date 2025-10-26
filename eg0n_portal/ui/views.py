@@ -14,6 +14,7 @@ from constance import config
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from ui.include import messages
+from ui.permissions import UserPermissionPolicy, UserPermission
 from ui.include.permissions import IsAdmin
 from ui.include.views import (
     APICRUDViewSet,
@@ -242,25 +243,24 @@ class UserQueryMixin:
     filterset_class = UserFilter
     form_class = UserForm
     model = User
+    permission_classes = [UserPermission]
+    policy = UserPermissionPolicy()
     serializer_class = UserSerializer
     table_class = UserTable
 
 
     def test_func(self):
-        # Define who can GET/HEAD/OPTION/DELETE/PATCH/POST/PUT
+        """
+        Called automatically by UserPassesTestMixin to determine access.
+        """
         user = self.request.user
-        method = self.request.method.upper()
-        if method in ("GET", "HEAD", "OPTIONS"):
-            return user.is_authenticated
-        return user.is_authenticated and user.is_superuser
-
-
+        method = self.request.method
+        target_user = self.get_object()
+        return self.policy.can(user, method, target_user)
+    
     def get_queryset(self):
-        """Return the queryset of `User` objects accessible to the current user.
-
-        - Superusers can access all `User` objects.
-        - Staff users can see users who share at least one group
-        - Non-superusers can only access their own `User` object.
+        """
+        Limit visible users depending on the requester's role.
         """
         qs = User.objects.all().order_by("username")
         user = self.request.user
@@ -273,29 +273,11 @@ class UserQueryMixin:
 
 
     def get_object(self):
-        """Return a `User` object only if the user has permission.
-
-        - Superusers can access any `User`.
-        - Staff users can see users who share at least one group.
-        - Non-superusers can only access their own `User` object.
-
-        Raises:
-            PermissionDenied: If the user does not have access.
-        """
+        """Return a `User` object only if the user has permission."""
         obj = super().get_object()
-        user = self.request.user
-        if user == obj:
-            # Users can always see its own object.
-            return obj
-        if user.is_superuser:
-            # Admin users can see all `User` objects
-            return obj
-        # Staff and users can see users who share at least one group
-        if user.groups.filter(
-            pk__in=obj.groups.values_list("pk", flat=True)
-        ).exists():
-            return obj
-        raise PermissionDenied(messages.PERMISSION_DENIED)
+        if obj not in self.get_queryset():
+            raise PermissionDenied(messages.PERMISSION_DENIED)
+        return obj
 
 
 class UserAPIViewSet(UserQueryMixin, APICRUDViewSet):
