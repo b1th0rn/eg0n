@@ -10,7 +10,7 @@ def test_ui_authentication_ui_user(client, user_sets, role):
     username = f"{role}1"
     password = f"{username}_pass"
     logged = client.login(username=username, password=password)
-    assert logged is True, f"Failed for user {username} ({role})" + password
+    assert logged is True, f"Failed for user {username} ({role})"
 
 
 @pytest.mark.django_db
