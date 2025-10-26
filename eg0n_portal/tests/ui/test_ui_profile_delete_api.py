@@ -12,7 +12,7 @@ def test_ui_profile_delete_api_admin(api_client, user_sets):
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-detail", kwargs={"pk": user.id})
     response = api_client.delete(url, headers=headers)
-    assert response.status_code == 403, "Expected 401 for admin deletion"
+    assert response.status_code == 403, "Expected 403 for admin deletion"
 
 
 @pytest.mark.parametrize("role", ["staff", "user"])

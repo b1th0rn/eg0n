@@ -16,7 +16,7 @@ def test_ui_authentication_api_user(api_client, user_sets, role):
     assert response.status_code == 200, f"Failed for user {user.username} ({role})"
 
 
-def test_ui_authentication_api_guest(api_client, db):
+def test_ui_authentication_api_guest(api_client, user_sets):
     """Test UI authentication by non-existent user."""
     url = reverse("user-list")
     data = {"username": "guest", "password": "guest_pass"}
