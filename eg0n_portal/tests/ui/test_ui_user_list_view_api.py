@@ -18,7 +18,7 @@ def test_ui_user_list_view_api_admin(api_client, user_sets):
     for user_set in user_sets:
         for key, value in user_set.items():
             if key in ["admin", "staff", "user"]:
-                assert any(user['username'] == value.username for user in response.data["results"])
+                assert any(user['username'] == value.username for user in response.data["results"]), f"Failed for user {value.username}"
 
 
 def test_ui_user_list_view_api_staff(api_client, user_sets):
@@ -35,11 +35,11 @@ def test_ui_user_list_view_api_staff(api_client, user_sets):
     for key, value in user_sets[0].items():
         # Staff users must see all users, within the group.
         if key in ["admin", "staff", "user"]:
-            assert any(user['username'] == value.username for user in response.data["results"])
+            assert any(user['username'] == value.username for user in response.data["results"]), f"Failed for user {value.username}"
     for key, value in user_sets[1].items():
         # Staff users must not see users from different groups.
         if key in ["admin", "staff", "user"]:
-            assert not any(user['username'] == value.username for user in response.data["results"])
+            assert not any(user['username'] == value.username for user in response.data["results"]), "Expected 404 for user on diffenret group"
 
 
 def test_ui_user_list_view_api_user(api_client, user_sets):
@@ -56,15 +56,15 @@ def test_ui_user_list_view_api_user(api_client, user_sets):
     for key, value in user_sets[0].items():
         # Standard users must see all users, within the group.
         if key in ["admin", "staff", "user"]:
-            assert any(user['username'] == value.username for user in response.data["results"])
+            assert any(user['username'] == value.username for user in response.data["results"]), f"Failed for user {value.username}"
     for key, value in user_sets[1].items():
         # Standard users must not see users from different groups.
         if key in ["admin", "staff", "user"]:
-            assert not any(user['username'] == value.username for user in response.data["results"])
+            assert not any(user['username'] == value.username for user in response.data["results"]), "Expected 404 for user on diffenret group"
 
 
 def test_ui_user_list_view_api_guest(api_client, user_sets):
     """Test API get user list by guest user."""
     url = reverse("user-list")
     response = api_client.get(url)
-    assert response.status_code == 401
+    assert response.status_code == 401, "Expected 401 for guest user"

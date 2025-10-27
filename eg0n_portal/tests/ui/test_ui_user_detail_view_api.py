@@ -17,7 +17,7 @@ def test_ui_user_detail_view_api_admin(api_client, user_sets):
             if key in ["admin", "staff", "user"]:
                 url = reverse("user-detail", kwargs={"pk": value.id})
                 response = api_client.get(url, headers=headers)
-                assert response.status_code == 200
+                assert response.status_code == 200, f"Failed for user {value.username}"
 
 
 def test_ui_user_detail_view_api_staff(api_client, user_sets):
@@ -33,13 +33,13 @@ def test_ui_user_detail_view_api_staff(api_client, user_sets):
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url, headers=headers)
-            assert response.status_code == 200
+            assert response.status_code == 200, f"Failed for user {value.username}"
     for key, value in user_sets[1].items():
         # Staff users must not see users from different groups.
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url, headers=headers)
-            assert response.status_code == 404
+            assert response.status_code == 404, "Expected 404 for user on diffenret group"
 
 
 def test_ui_user_detail_view_api_user(api_client, user_sets):
@@ -55,13 +55,13 @@ def test_ui_user_detail_view_api_user(api_client, user_sets):
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url, headers=headers)
-            assert response.status_code == 200
+            assert response.status_code == 200, f"Failed for user {value.username}"
     for key, value in user_sets[1].items():
         # Standard users must not see users from different groups.
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url, headers=headers)
-            assert response.status_code == 404
+            assert response.status_code == 404, "Expected 404 for user on diffenret group"
 
 
 def test_ui_user_detail_view_api_guest(api_client, user_sets):
@@ -70,4 +70,4 @@ def test_ui_user_detail_view_api_guest(api_client, user_sets):
         if key in ["admin", "staff", "user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.get(url)
-            assert response.status_code == 401
+            assert response.status_code == 401, "Expected 401 for guest user"
