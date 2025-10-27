@@ -12,7 +12,7 @@ def test_ui_profile_update_api_user(api_client, user_sets, role):
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-detail", kwargs={"pk": user.id})
-    data = {"first_name": f"New {user.username} Name"}
-    response = api_client.patch(url, data, format="json", headers=headers)
+    payload = {"first_name": f"New {user.username} Name"}
+    response = api_client.patch(url, payload, format="json", headers=headers)
     assert response.status_code == 200, f"Failed for user {user.username} ({role})"
-    assert response.data["first_name"] == data["first_name"], f"Mismatch for user {user.username} ({role})"
+    assert response.data["first_name"] == payload["first_name"], f"Mismatch for user {user.username} ({role})"
