@@ -41,16 +41,26 @@ def test_ui_user_delete_api_staff(api_client, user_sets):
     """
     token, _ = Token.objects.get_or_create(user=user_sets[0]["staff"])
     headers = {"Authorization": f"Token {token}"}
+    # Adding an additional staff user
+    extra_staff = User.objects.create_user(
+        username="extra",
+        password="extra_pass",
+        is_staff=True,
+    )
+    extra_staff.groups.add(user_sets[0]["user"].groups.first())
     for key, value in user_sets[0].items():
         # Staff users must see all users, within the group.
-        if key in ["admin", "staff"]:
+        if key in ["admin"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.delete(url, headers=headers)
-            assert response.status_code == 403, "Expected 403 for admin and staff users" + value.username
+            assert response.status_code == 403, "Expected 403 for admin users"
         if key in ["user"]:
             url = reverse("user-detail", kwargs={"pk": value.id})
             response = api_client.delete(url, headers=headers)
             assert response.status_code == 204, f"Failed for user {value.username}"
+    url = reverse("user-detail", kwargs={"pk": extra_staff.id})
+    response = api_client.delete(url, headers=headers)
+    assert response.status_code == 403, "Expected 403 for staff users"
     for key, value in user_sets[1].items():
         # Staff users must not see users from different groups.
         if key in ["admin", "staff", "user"]:
@@ -67,7 +77,7 @@ def test_ui_user_delete_api_user(api_client, user_sets):
     """
     token, _ = Token.objects.get_or_create(user=user_sets[0]["user"])
     headers = {"Authorization": f"Token {token}"}
-    # Adding an additional user
+    # Adding an additional stanard user
     extra_user = User.objects.create_user(
         username="extra",
         password="extra_pass",

@@ -29,8 +29,11 @@ class UserPermissionPolicy:
 
         # === STAFF RULES ===
         if user.is_staff:
-            if target_user and (target_user.is_superuser or target_user.is_staff):
-                return method in ("GET", "HEAD", "OPTIONS")
+            if target_user:
+                if target_user.id == user.id:
+                    return True
+                if target_user.is_superuser or target_user.is_staff:
+                    return method in ("GET", "HEAD", "OPTIONS")
             return True
 
         # === STANDARD USER RULES ===
@@ -58,15 +61,12 @@ class UserPermission(BasePermission):
         """
         user = request.user
         method = request.method
-        print("HERE")
-        print(self.policy.can(user, method, None))
         return self.policy.can(user, method, None)
 
     def has_object_permission(self, request, view, obj):
         """
         Called for detail routes or single-object operations.
         """
-        print("THERE")
         user = request.user
         method = request.method
         return self.policy.can(user, method, obj)
