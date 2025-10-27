@@ -29,10 +29,9 @@ class UserPermissionPolicy:
 
         # === STAFF RULES ===
         if user.is_staff:
-            if target_user:
-                if target_user.is_superuser:
-                    return method in ("GET", "HEAD", "OPTIONS")
-                return True
+            if target_user and (target_user.is_superuser or target_user.is_staff):
+                return method in ("GET", "HEAD", "OPTIONS")
+            return True
 
         # === STANDARD USER RULES ===
         if target_user:
