@@ -19,6 +19,10 @@ class UserPermissionPolicy:
 
         method = method.upper()
 
+        if method == "POST" and not user.is_superuser:
+            # Only admins can create new users
+            return False
+        
         # === ADMIN RULES ===
         if user.is_superuser:
             # Admin can do everything...
