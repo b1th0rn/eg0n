@@ -239,20 +239,10 @@ class ObjectMixin:
     Mixin generico per applicare una policy di permessi (es. UserPermissionPolicy)
     a qualsiasi ModelView Django (Create/Update/Delete/List/Detail).
 
-    Supporta la semantica REST-like tramite l'attributo `action_method`
-    definito nelle singole view (es. ObjectDeleteView.action_method = "DELETE").
+    Solo per CBV.
     """
 
     policy_class = None  # da impostare nelle subclass o nei mixin specifici
-
-
-    def setup(self, request, *args, **kwargs):
-        # request.user è sicuro qui
-        super().setup(request, *args, **kwargs)
-        self.user = request.user
-        # Inizializza la policy se definita
-        self.policy = self.policy_class() if self.policy_class else None
-
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -264,19 +254,17 @@ class ObjectMixin:
         print("PASSED")
         return super().dispatch(request, *args, **kwargs)
 
-        
+            
     def has_permission(self):
         """
         Verifica i permessi a livello di view, includendo la normalizzazione del metodo.
         """
         if not self.policy_class:
-            return True  # Nessuna policy definita → accesso consentito per API
-        # return True # not working
+            return True  # Nessuna policy definita → accesso consentito
+
 
         policy = self.policy_class()
-        print("POLICY", policy)
         user = self.request.user
-        print("USER", user)
         
         # 🔹 Normalizzazione del metodo (inline)
         if hasattr(self, "action_method"):
@@ -285,29 +273,17 @@ class ObjectMixin:
             method = self.request.method.upper()
 
         target = None
-        if hasattr(self, "get_object"):
+        if hasattr(self, "get_object") and callable(getattr(self, "get_object")):
             try:
-                target = super().get_object()
+                target = self.get_object()
             except Exception:
-                # Non tutte le view hanno oggetto (es. ListView)
                 target = None
-        print("TARGET", target)
-        print("USER", user)
-        print("METHOD", method)
-        print("CAN", policy.can(user, method, target))
-        return policy.can(user, method, target)
-    
 
-    # def get_object(self):
-    #     # Cerca se la superclasse ha davvero il metodo
-    #     super_get_object = getattr(super(), "get_object", None)
-    #     if callable(super_get_object):
-    #         return super_get_object()
-    #     raise AttributeError(
-    #         f"{self.__class__.__name__}: nessun get_object trovato nella superclasse"
-    #     )
+        return policy.can(user, method, target)
+
+
     
-class UserQueryMixin(ObjectMixin):
+class UserQueryMixin:
     """Mixin encapsulating common queryset and permission logic for `User`.
 
     Used by both HTML views and API views.
@@ -357,27 +333,27 @@ class UserAPIViewSet(UserQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the `User` model."""
     pass
 
-class UserBulkDeleteView(UserQueryMixin, ObjectBulkDeleteView):
+class UserBulkDeleteView(UserQueryMixin, ObjectMixin, ObjectBulkDeleteView):
     """HTML view for deleting multiple `User` objects at once."""
     pass
 
 
-class UserChangeView(UserQueryMixin, ObjectChangeView):
+class UserChangeView(UserQueryMixin, ObjectMixin, ObjectChangeView):
     """HTML view for updating an existing `User`."""
     pass
 
 
-class UserCreateView(UserQueryMixin, ObjectCreateView):
+class UserCreateView(UserQueryMixin, ObjectMixin, ObjectCreateView):
     """HTML view for creating a new `User`."""
     pass
 
 
-class UserDeleteView(UserQueryMixin, ObjectDeleteView):
+class UserDeleteView(UserQueryMixin, ObjectMixin, ObjectDeleteView):
     """HTML view for deleting a single `User`."""
     pass
 
 
-class UserDetailView(UserQueryMixin, ObjectDetailView):
+class UserDetailView(UserQueryMixin, ObjectMixin, ObjectDetailView):
     """HTML view for displaying the details of a `User`."""
     exclude = ["id", "password"]
     sequence = [
@@ -391,7 +367,7 @@ class UserDetailView(UserQueryMixin, ObjectDetailView):
     ]
 
 
-class UserListView(UserQueryMixin, ObjectListView):
+class UserListView(UserQueryMixin, ObjectMixin, ObjectListView):
     """HTML view for displaying a table of `User` objects."""
     pass
 
