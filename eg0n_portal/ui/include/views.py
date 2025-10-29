@@ -164,12 +164,23 @@ class ObjectDeleteView(DeleteView):
 
     action_method = "DELETE"
     model = None
+    form_class = None
     template_name = "ui/object_confirm_delete.html"
 
     def get_success_url(self):
         """Redirect to the list page of the model after deletion."""
         model_name = self.model._meta.model_name
         return reverse_lazy(f"{model_name}_list")
+
+    def post(self, request, *args, **kwargs):
+        """
+        Forza la chiamata diretta a delete(), ignorando eventuali mixin
+        che ereditano da FormMixin e provano a usare un form.
+        """
+        self.object = self.get_object()
+        return self.delete(request, *args, **kwargs)
+    
+
 
 
 class ObjectDetailView(DetailView):
