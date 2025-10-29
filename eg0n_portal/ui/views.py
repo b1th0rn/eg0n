@@ -245,6 +245,15 @@ class ObjectMixin:
 
     policy_class = None  # da impostare nelle subclass o nei mixin specifici
 
+
+    def setup(self, request, *args, **kwargs):
+        # request.user è sicuro qui
+        super().setup(request, *args, **kwargs)
+        self.user = request.user
+        # Inizializza la policy se definita
+        self.policy = self.policy_class() if self.policy_class else None
+
+
     def dispatch(self, request, *args, **kwargs):
         """
         Esegue il controllo dei permessi prima di processare la view.
