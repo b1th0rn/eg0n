@@ -65,6 +65,7 @@ class ObjectBulkDeleteView(TemplateView):
     Subclasses should define `model`.
     """
 
+    action_method = "DELETE"
     model = None
     template_name = "ui/object_confirm_delete.html"
 
@@ -112,6 +113,7 @@ class ObjectChangeView(UpdateView):
     Uses `ui/object_form.html` template.
     """
 
+    action_method = "PATCH"
     model = None
     template_name = "ui/object_form.html"
     form_class = None
@@ -136,6 +138,7 @@ class ObjectCreateView(CreateView):
     Uses `ui/object_form.html` template.
     """
 
+    action_method = "POST"
     model = None
     template_name = "ui/object_form.html"
 
@@ -159,6 +162,7 @@ class ObjectDeleteView(DeleteView):
     Uses `ui/object_confirm_delete.html` template.
     """
 
+    action_method = "DELETE"
     model = None
     template_name = "ui/object_confirm_delete.html"
 
@@ -175,6 +179,7 @@ class ObjectDetailView(DetailView):
     and custom attributes for title and description in context.
     """
 
+    action_method = "GET"
     model = None
     exclude = []
     sequence = []
@@ -230,6 +235,7 @@ class ObjectListView(SingleTableView, FilterView):
     Subclasses should define `model`, `table_class`, and optionally `filterset_class`.
     """
 
+    action_method = "GET"
     filterset_class = None
     model = None
     table_class = None

@@ -17,8 +17,6 @@ class UserPermissionPolicy:
         if not user.is_authenticated:
             return False
 
-        method = method.upper()
-
         if method == "POST" and not user.is_superuser:
             # Only admins can create new users
             return False

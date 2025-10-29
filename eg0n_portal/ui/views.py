@@ -234,8 +234,46 @@ class GroupListView(GroupQueryMixin, ObjectListView):
 # User
 #############################################################################
 
+class ObjectMixin:
+    """
+    Mixin generico per applicare una policy di permessi (es. UserPermissionPolicy)
+    a qualsiasi ModelView Django (Create/Update/Delete/List/Detail).
 
-class UserQueryMixin:
+    Supporta la semantica REST-like tramite l'attributo `action_method`
+    definito nelle singole view (es. ObjectDeleteView.action_method = "DELETE").
+    """
+
+    policy_class = None  # da impostare nelle subclass o nei mixin specifici
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Esegue il controllo dei permessi prima di processare la view.
+        """
+        if not self.has_permission():
+            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")
+        return super().dispatch(request, *args, **kwargs)
+
+    def has_permission(self):
+        """
+        Verifica i permessi a livello di view, includendo la normalizzazione del metodo.
+        """
+        if not self.policy_class:
+            return True  # Nessuna policy definita → accesso consentito per API
+
+        policy = self.policy_class()
+        user = self.request.user
+
+        # 🔹 Normalizzazione del metodo (inline)
+        if hasattr(self, "action_method"):
+            method = getattr(self, "action_method").upper()
+        else:
+            method = self.request.method.upper()
+
+        target = self.get_object()
+        return policy.can(user, method, target)
+    
+
+class UserQueryMixin(ObjectMixin):
     """Mixin encapsulating common queryset and permission logic for `User`.
 
     Used by both HTML views and API views.
@@ -249,14 +287,14 @@ class UserQueryMixin:
     table_class = UserTable
 
 
-    def test_func(self):
-        """
-        Called automatically by UserPassesTestMixin to determine access.
-        """
-        user = self.request.user
-        method = self.request.method
-        target_user = self.get_object()
-        return self.policy.can(user, method, target_user)
+    # def test_func(self):
+    #     """
+    #     Called automatically by UserPassesTestMixin to determine access.
+    #     """
+    #     user = self.request.user
+    #     method = self.request.method
+    #     target_user = self.get_object()
+    #     return self.policy.can(user, method, target_user)
     
     def get_queryset(self):
         """
