@@ -262,10 +262,12 @@ class ObjectMixin:
         """
         if not self.policy_class:
             return True  # Nessuna policy definita → accesso consentito per API
-        return True # not working
+        # return True # not working
 
         policy = self.policy_class()
+        print("POLICY", policy)
         user = self.request.user
+        print("USER", user)
         
         # 🔹 Normalizzazione del metodo (inline)
         if hasattr(self, "action_method"):

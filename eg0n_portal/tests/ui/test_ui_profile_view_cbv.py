@@ -6,7 +6,7 @@ from rest_framework.authtoken.models import Token
 
 
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_profile_view_ui_user(client, user_sets, role):
+def test_ui_profile_view_cbv_user(client, user_sets, role):
     """
     Test Django model view (CBV) for user profile.
     
