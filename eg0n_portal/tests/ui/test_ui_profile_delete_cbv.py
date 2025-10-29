@@ -15,7 +15,7 @@ from rest_framework.authtoken.models import Token
 #     assert response.status_code == 403, "Expected 403 for admin deletion"
 
 
-def test_ui_profile_delete_ui_admin(client, user_sets):
+def test_ui_profile_delete_cbv_admin(client, user_sets):
     """
     Test Django model view: admin cannot delete their own profile.
     """

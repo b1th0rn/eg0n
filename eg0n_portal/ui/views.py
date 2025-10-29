@@ -234,55 +234,6 @@ class GroupListView(GroupQueryMixin, ObjectListView):
 # User
 #############################################################################
 
-class ObjectMixin:
-    """
-    Mixin generico per applicare una policy di permessi (es. UserPermissionPolicy)
-    a qualsiasi ModelView Django (Create/Update/Delete/List/Detail).
-
-    Solo per CBV.
-    """
-
-    policy_class = None  # da impostare nelle subclass o nei mixin specifici
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Esegue il controllo dei permessi prima di processare la view.
-        """
-        print("DISPATCH")
-        if not self.has_permission():
-            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")
-        print("PASSED")
-        return super().dispatch(request, *args, **kwargs)
-
-            
-    def has_permission(self):
-        """
-        Verifica i permessi a livello di view, includendo la normalizzazione del metodo.
-        """
-        if not self.policy_class:
-            return True  # Nessuna policy definita → accesso consentito
-
-
-        policy = self.policy_class()
-        user = self.request.user
-        
-        # 🔹 Normalizzazione del metodo (inline)
-        if hasattr(self, "action_method"):
-            method = getattr(self, "action_method").upper()
-        else:
-            method = self.request.method.upper()
-
-        target = None
-        if hasattr(self, "get_object") and callable(getattr(self, "get_object")):
-            try:
-                target = self.get_object()
-            except Exception:
-                target = None
-
-        return policy.can(user, method, target)
-
-
-    
 class UserQueryMixin:
     """Mixin encapsulating common queryset and permission logic for `User`.
 
@@ -333,27 +284,27 @@ class UserAPIViewSet(UserQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the `User` model."""
     pass
 
-class UserBulkDeleteView(UserQueryMixin, ObjectMixin, ObjectBulkDeleteView):
+class UserBulkDeleteView(UserQueryMixin, ObjectBulkDeleteView):
     """HTML view for deleting multiple `User` objects at once."""
     pass
 
 
-class UserChangeView(UserQueryMixin, ObjectMixin, ObjectChangeView):
+class UserChangeView(UserQueryMixin, ObjectChangeView):
     """HTML view for updating an existing `User`."""
     pass
 
 
-class UserCreateView(UserQueryMixin, ObjectMixin, ObjectCreateView):
+class UserCreateView(UserQueryMixin, ObjectCreateView):
     """HTML view for creating a new `User`."""
     pass
 
 
-class UserDeleteView(UserQueryMixin, ObjectMixin, ObjectDeleteView):
+class UserDeleteView(UserQueryMixin, ObjectDeleteView):
     """HTML view for deleting a single `User`."""
     pass
 
 
-class UserDetailView(UserQueryMixin, ObjectMixin, ObjectDetailView):
+class UserDetailView(UserQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a `User`."""
     exclude = ["id", "password"]
     sequence = [
@@ -367,7 +318,7 @@ class UserDetailView(UserQueryMixin, ObjectMixin, ObjectDetailView):
     ]
 
 
-class UserListView(UserQueryMixin, ObjectMixin, ObjectListView):
+class UserListView(UserQueryMixin, ObjectListView):
     """HTML view for displaying a table of `User` objects."""
     pass
 

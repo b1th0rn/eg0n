@@ -8,6 +8,7 @@ django-tables2, and django-filters.
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, TemplateView
@@ -59,7 +60,56 @@ class APIRViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = None
 
 
-class ObjectBulkDeleteView(TemplateView):
+
+class ObjectMixin:
+    """
+    Mixin generico per applicare una policy di permessi (es. UserPermissionPolicy)
+    a qualsiasi ModelView Django (Create/Update/Delete/List/Detail).
+
+    Solo per CBV.
+    """
+
+    policy_class = None  # da impostare nelle subclass o nei mixin specifici
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Esegue il controllo dei permessi prima di processare la view.
+        """
+        if not self.has_permission():
+            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")
+        return super().dispatch(request, *args, **kwargs)
+
+            
+    def has_permission(self):
+        """
+        Verifica i permessi a livello di view, includendo la normalizzazione del metodo.
+        """
+        if not self.policy_class:
+            return True  # Nessuna policy definita → accesso consentito
+
+
+        policy = self.policy_class()
+        user = self.request.user
+        
+        # 🔹 Normalizzazione del metodo (inline)
+        if hasattr(self, "action_method"):
+            method = getattr(self, "action_method").upper()
+        else:
+            method = self.request.method.upper()
+
+        target = None
+        if hasattr(self, "get_object") and callable(getattr(self, "get_object")):
+            try:
+                target = self.get_object()
+            except Exception:
+                target = None
+
+        return policy.can(user, method, target)
+
+
+    
+
+class ObjectBulkDeleteView(ObjectMixin, TemplateView):
     """Generic view to delete multiple objects selected via checkboxes.
 
     Subclasses should define `model`.
@@ -106,7 +156,7 @@ class ObjectBulkDeleteView(TemplateView):
         )
 
 
-class ObjectChangeView(UpdateView):
+class ObjectChangeView(ObjectMixin, UpdateView):
     """Generic update view for any model object.
 
     Subclasses should define `model` and `form_class`.
@@ -131,7 +181,7 @@ class ObjectChangeView(UpdateView):
         return kwargs
 
 
-class ObjectCreateView(CreateView):
+class ObjectCreateView(ObjectMixin, CreateView):
     """Generic create view for any model object.
 
     Subclasses should define `model` and optionally `form_class`.
@@ -155,7 +205,7 @@ class ObjectCreateView(CreateView):
         return kwargs
 
 
-class ObjectDeleteView(DeleteView):
+class ObjectDeleteView(ObjectMixin, DeleteView):
     """Generic delete view with confirmation for a single object.
 
     Subclasses should define `model`.
@@ -183,7 +233,7 @@ class ObjectDeleteView(DeleteView):
 
 
 
-class ObjectDetailView(DetailView):
+class ObjectDetailView(ObjectMixin, DetailView):
     """Generic detail view for any model object.
 
     Provides field data as a dictionary, supports column ordering,
@@ -239,7 +289,7 @@ class ObjectDetailView(DetailView):
         return context
 
 
-class ObjectListView(SingleTableView, FilterView):
+class ObjectListView(ObjectMixin, SingleTableView, FilterView):
     """Base list view using django-tables2 and django-filters.
 
     Supports pagination customization via 'per_page' query param.
