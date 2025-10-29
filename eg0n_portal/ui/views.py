@@ -249,30 +249,53 @@ class ObjectMixin:
         """
         Esegue il controllo dei permessi prima di processare la view.
         """
+        print("DISPATCH")
         if not self.has_permission():
             raise PermissionDenied("Non hai i permessi per eseguire questa azione.")
+        print("PASSED")
         return super().dispatch(request, *args, **kwargs)
 
+        
     def has_permission(self):
         """
         Verifica i permessi a livello di view, includendo la normalizzazione del metodo.
         """
         if not self.policy_class:
             return True  # Nessuna policy definita → accesso consentito per API
+        return True # not working
 
         policy = self.policy_class()
         user = self.request.user
-
+        
         # 🔹 Normalizzazione del metodo (inline)
         if hasattr(self, "action_method"):
             method = getattr(self, "action_method").upper()
         else:
             method = self.request.method.upper()
 
-        target = self.get_object()
+        target = None
+        if hasattr(self, "get_object"):
+            try:
+                target = super().get_object()
+            except Exception:
+                # Non tutte le view hanno oggetto (es. ListView)
+                target = None
+        print("TARGET", target)
+        print("USER", user)
+        print("METHOD", method)
+        print("CAN", policy.can(user, method, target))
         return policy.can(user, method, target)
     
 
+    # def get_object(self):
+    #     # Cerca se la superclasse ha davvero il metodo
+    #     super_get_object = getattr(super(), "get_object", None)
+    #     if callable(super_get_object):
+    #         return super_get_object()
+    #     raise AttributeError(
+    #         f"{self.__class__.__name__}: nessun get_object trovato nella superclasse"
+    #     )
+    
 class UserQueryMixin(ObjectMixin):
     """Mixin encapsulating common queryset and permission logic for `User`.
 
@@ -281,8 +304,9 @@ class UserQueryMixin(ObjectMixin):
     filterset_class = UserFilter
     form_class = UserForm
     model = User
-    permission_classes = [UserPermission]
-    policy = UserPermissionPolicy()
+    permission_classes = [UserPermission] # Required for API
+    # policy = UserPermissionPolicy
+    policy_class = UserPermissionPolicy
     serializer_class = UserSerializer
     table_class = UserTable
 

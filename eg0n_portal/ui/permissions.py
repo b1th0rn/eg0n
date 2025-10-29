@@ -52,24 +52,29 @@ class UserPermission(BasePermission):
     """
     DRF permission class using the shared UserPermissionPolicy.
     """
+    # policy_class = None
 
-    def __init__(self):
-        self.policy = UserPermissionPolicy()
+    # def __init__(self):
+    #     self.policy = self.policy_class()
 
     def has_permission(self, request, view):
         """
         Called before accessing the queryset.
         Used for list/create endpoints (no specific target object yet).
         """
+        policy_class = getattr(view, "policy_class", None)
+        policy = policy_class()
         user = request.user
         method = request.method
-        return self.policy.can(user, method, None)
+        return policy.can(user, method, None)
 
     def has_object_permission(self, request, view, obj):
         """
         Called for detail routes or single-object operations.
         """
+        policy_class = getattr(view, "policy_class", None)
+        policy = policy_class()
         user = request.user
         method = request.method
-        return self.policy.can(user, method, obj)
+        return policy.can(user, method, obj)
     
