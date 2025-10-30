@@ -9,7 +9,7 @@ django-tables2, and django-filters.
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, TemplateView
@@ -82,6 +82,8 @@ class ObjectMixin:
         elif result is False:
             raise PermissionDenied("Non hai i permessi per eseguire questa azione.")  # 403
         elif result is None:
+            if settings.LOGIN_URL:
+                return HttpResponseRedirect(settings.LOGIN_URL)
             return HttpResponse("Non autenticato", status=401)  # 401
         else:
             # fallback di sicurezza
