@@ -61,6 +61,29 @@ class APIRViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = None
 
 
+class TemplateMixin:
+    # Solo per TemplateView   
+    policy_class = None  # da impostare nelle subclass o nei mixin specifici
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Esegue il controllo dei permessi prima di processare la view.
+        """
+        policy = self.policy_class()
+        result = policy.can(request.user, request.method)
+        if result is True:
+            return super().dispatch(request, *args, **kwargs)
+        elif result is False:
+            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")  # 403
+        elif result is None:
+            if settings.LOGIN_URL:
+                return HttpResponseRedirect(settings.LOGIN_URL)
+            return HttpResponse("Non autenticato", status=401)  # 401
+        else:
+            # fallback di sicurezza
+            return HttpResponse("Errore permessi", status=403)
+
+
 
 class ObjectMixin:
     """

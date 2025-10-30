@@ -24,6 +24,7 @@ from ui.include.views import (
     ObjectDeleteView,
     ObjectDetailView,
     ObjectListView,
+    TemplateMixin,
 )
 from ui.filters import GroupFilter, TokenFilter, UserFilter
 from ui.forms import GroupForm, UserForm
@@ -416,11 +417,29 @@ class TokenListView(TokenQueryMixin, ObjectListView):
 # Home
 #############################################################################
 
-class HomeView(TemplateView):
+class HomePermissionPolicy:
+    """
+    Policy per TemplateView.
+    """
+
+    def can(self, user, method):
+        """
+        Restituisce:
+        - True: ha permesso → mostra la view
+        - False: utente autenticato ma senza permesso → 403
+        - None: utente anonimo → 401 / redirect
+        """
+        if not user.is_authenticated:
+            return None
+        return True
+
+
+class HomeView(TemplateMixin, TemplateView):
     """
     Render the home page for authenticated users.
 
     The template is loaded from: templates/ui
     """
 
+    policy_class = HomePermissionPolicy
     template_name = "ui/home.html"
