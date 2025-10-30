@@ -9,6 +9,7 @@ django-tables2, and django-filters.
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DeleteView, TemplateView
@@ -75,9 +76,17 @@ class ObjectMixin:
         """
         Esegue il controllo dei permessi prima di processare la view.
         """
-        if not self.has_permission():
-            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")
-        return super().dispatch(request, *args, **kwargs)
+        result = self.has_permission()
+        if result is True:
+            return super().dispatch(request, *args, **kwargs)
+        elif result is False:
+            raise PermissionDenied("Non hai i permessi per eseguire questa azione.")  # 403
+        elif result is None:
+            return HttpResponse("Non autenticato", status=401)  # 401
+        else:
+            # fallback di sicurezza
+            return HttpResponse("Errore permessi", status=403)
+
 
             
     def has_permission(self):
@@ -92,11 +101,29 @@ class ObjectMixin:
         user = self.request.user
         
         # 🔹 Normalizzazione del metodo (inline)
-        if hasattr(self, "action_method"):
-            method = getattr(self, "action_method").upper()
-        else:
-            method = self.request.method.upper()
+        method = self.request.method.upper()
 
+        # Normalizza i form POST delle view HTML in "DELETE" o "PUT"
+        if method == "POST":
+            if isinstance(self, ObjectDeleteView) or isinstance(self, ObjectBulkDeleteView):
+                return "DELETE"
+            if isinstance(self, ObjectChangeView):
+                return "PUT"
+            if isinstance(self, ObjectCreateView):
+                return "POST"
+
+        data = getattr(self.request, "data", None)
+        if isinstance(data, list):
+            # bulk operation
+            for item in data:
+                obj = self._resolve_object(item)
+                if not policy.can(user, method, obj):
+                    raise PermissionDenied(
+                        f"Non hai i permessi per modificare l'oggetto {obj}."
+                    )
+            return True
+
+        # Single object
         target = None
         if hasattr(self, "get_object") and callable(getattr(self, "get_object")):
             try:
@@ -107,6 +134,7 @@ class ObjectMixin:
         return policy.can(user, method, target)
 
 
+
     
 
 class ObjectBulkDeleteView(ObjectMixin, TemplateView):
@@ -115,7 +143,6 @@ class ObjectBulkDeleteView(ObjectMixin, TemplateView):
     Subclasses should define `model`.
     """
 
-    action_method = "DELETE"
     model = None
     template_name = "ui/object_confirm_delete.html"
 
@@ -163,7 +190,6 @@ class ObjectChangeView(ObjectMixin, UpdateView):
     Uses `ui/object_form.html` template.
     """
 
-    action_method = "PATCH"
     model = None
     template_name = "ui/object_form.html"
     form_class = None
@@ -188,7 +214,6 @@ class ObjectCreateView(ObjectMixin, CreateView):
     Uses `ui/object_form.html` template.
     """
 
-    action_method = "POST"
     model = None
     template_name = "ui/object_form.html"
 
@@ -212,7 +237,6 @@ class ObjectDeleteView(ObjectMixin, DeleteView):
     Uses `ui/object_confirm_delete.html` template.
     """
 
-    action_method = "DELETE"
     model = None
     form_class = None
     template_name = "ui/object_confirm_delete.html"
@@ -240,7 +264,6 @@ class ObjectDetailView(ObjectMixin, DetailView):
     and custom attributes for title and description in context.
     """
 
-    action_method = "GET"
     model = None
     exclude = []
     sequence = []
@@ -296,7 +319,6 @@ class ObjectListView(ObjectMixin, SingleTableView, FilterView):
     Subclasses should define `model`, `table_class`, and optionally `filterset_class`.
     """
 
-    action_method = "GET"
     filterset_class = None
     model = None
     table_class = None

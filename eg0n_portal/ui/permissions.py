@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from ui.include.exceptions import NotAuthenticated
 from rest_framework.permissions import BasePermission
 
 class UserPermissionPolicy:
@@ -15,7 +16,7 @@ class UserPermissionPolicy:
         - target_user: the user object being acted upon (for detail routes)
         """
         if not user.is_authenticated:
-            return False
+            return None
 
         if method == "POST" and not user.is_superuser:
             # Only admins can create new users
