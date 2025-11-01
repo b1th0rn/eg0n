@@ -81,7 +81,7 @@ class TemplateMixin:
             return HttpResponse("Non autenticato", status=401)  # 401
         else:
             # fallback di sicurezza
-            return HttpResponse("Errore permessi", status=403)
+            return HttpResponse("Errore permessi TemplateView", status=403)
 
 
 
@@ -100,6 +100,8 @@ class ObjectMixin:
         Esegue il controllo dei permessi prima di processare la view.
         """
         result = self.has_permission()
+        print("RESULT", result)
+        print(type(result), result)
         if result is True:
             return super().dispatch(request, *args, **kwargs)
         elif result is False:
@@ -110,7 +112,7 @@ class ObjectMixin:
             return HttpResponse("Non autenticato", status=401)  # 401
         else:
             # fallback di sicurezza
-            return HttpResponse("Errore permessi", status=403)
+            return HttpResponse("Errore permessi ObjectMixin", status=403)
 
 
             
@@ -131,11 +133,11 @@ class ObjectMixin:
         # Normalizza i form POST delle view HTML in "DELETE" o "PUT"
         if method == "POST":
             if isinstance(self, ObjectDeleteView) or isinstance(self, ObjectBulkDeleteView):
-                return "DELETE"
+                method = "DELETE"
             if isinstance(self, ObjectChangeView):
-                return "PUT"
+                method = "PUT"
             if isinstance(self, ObjectCreateView):
-                return "POST"
+                method = "POST"
 
         data = getattr(self.request, "data", None)
         if isinstance(data, list):

@@ -6,6 +6,7 @@ retrieval, and deletion.
 """
 
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.contrib import messages as django_msgs
 from django.contrib.auth.models import Group, User
 from django.views.generic import TemplateView
@@ -235,6 +236,39 @@ class GroupListView(GroupQueryMixin, ObjectListView):
 # User
 #############################################################################
 
+"""
+CBV:
+as_view()
+→ dispatch()
+   → LoginRequiredMixin
+   → UserPassesTestMixin → test_func()
+→ get()
+   → get_object() (di solito non riceve un queryset specifico)
+      → get_queryset() (se personalizzo get_queryset, influenzo get_object)
+   → get_context_data()
+→ render_to_response()
+
+TemplateView:
+as_view()
+→ dispatch()
+   → (LoginRequiredMixin / UserPassesTestMixin controllano permessi)
+→ get()
+   → get_context_data()
+→ render_to_response()
+
+DRF (REST API):
+as_view()
+→ dispatch()
+   → perform_authentication(request)
+   → check_permissions(request)
+   → get() / post() / put() / delete()
+      → get_object() (solo per Detail)
+        → get_queryset()
+        → check_object_permissions(request, obj)
+            has_object_permission su ogni class
+      → serializer (serializzazione)
+→ Response()
+"""
 class UserQueryMixin:
     """Mixin encapsulating common queryset and permission logic for `User`.
 
@@ -270,15 +304,20 @@ class UserQueryMixin:
             return qs
         # Staff and standard users can see users who share at least one group
         groups = user.groups.all()
+        # return qs.filter(
+        #     Q(groups__in=groups) | Q(id=user.id)
+        # ).distinct()
+
         return qs.filter(groups__in=groups).distinct()
+        # TODO: perchè il test funziona?
 
 
-    def get_object(self):
-        """Return a `User` object only if the user has permission."""
-        obj = super().get_object()
-        if not self.get_queryset().filter(pk=obj.pk).exists():
-            raise PermissionDenied(messages.PERMISSION_DENIED)
-        return obj
+    # def get_object(self):
+    #     """Return a `User` object only if the user has permission."""
+    #     obj = super().get_object()
+    #     if not self.get_queryset().filter(pk=obj.pk).exists():
+    #         raise PermissionDenied(messages.PERMISSION_DENIED)
+    #     return obj
 
 
 class UserAPIViewSet(UserQueryMixin, APICRUDViewSet):
