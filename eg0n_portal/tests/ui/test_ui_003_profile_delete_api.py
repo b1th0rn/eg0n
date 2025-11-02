@@ -14,10 +14,14 @@ def test_ui_profile_delete_api_admin(api_client, user_set_group1):
     headers = {"Authorization": f"Token {token}"}
     url = reverse("user-detail", kwargs={"pk": user.id})
     response = api_client.delete(url, headers=headers)
-    assert response.status_code == 403, f"Expected 403 for user {user.username} ({role})"
+    assert (
+        response.status_code == 403
+    ), f"Expected 403 for user {user.username} ({role})"
     # Verify the profile still exists
     response = api_client.get(url, headers=headers)
-    assert response.status_code == 200, f"Expected 200 for user {user.username} ({role})"
+    assert (
+        response.status_code == 200
+    ), f"Expected 200 for user {user.username} ({role})"
 
 
 @pytest.mark.django_db
@@ -34,4 +38,6 @@ def test_ui_profile_delete_api_user(api_client, user_set_group1, role):
     assert response.status_code == 204, f"Failed for user {user.username} ({role})"
     # Verify the profile hs been deleted
     response = api_client.get(url, headers=admin_headers)
-    assert response.status_code == 404, f"Expected 404 for for user {user.username} ({role})"
+    assert (
+        response.status_code == 404
+    ), f"Expected 404 for for user {user.username} ({role})"
