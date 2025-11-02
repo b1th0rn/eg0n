@@ -17,4 +17,4 @@ def test_ui_authentication_html_user(client, user_set_group1, role):
 def test_ui_authentication_html_guest(client, user_sets):
     """Test HTML (UI) authentication by non-existent user."""
     logged = client.login(username="guest", password="guest123")
-    assert logged is False, "Expected failed for guest user"
+    assert logged is False, "Expected False for guest user"
