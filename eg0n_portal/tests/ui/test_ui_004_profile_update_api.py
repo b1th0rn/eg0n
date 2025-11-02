@@ -8,7 +8,7 @@ from rest_framework.authtoken.models import Token
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
 def test_ui_profile_update_api_user(api_client, user_set_group1, role):
-    """Test DRF (API) admin profile update."""
+    """Test DRF (API) user profile update."""
     user = user_set_group1[role]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
