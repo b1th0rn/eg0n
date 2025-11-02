@@ -48,7 +48,7 @@ def test_ui_profile_delete_html_user(client, admin_client, user_set_group1, role
     response = client.post(url)
     assert (
         response.status_code == 302
-    ), f"Expected 302 for user {user.username} ({role})"
+    ), f"Expected 302 (redirect to login page) for user {user.username} ({role})"
     # Verify the profile hs been deleted
     response = admin_client.get(url)
     assert (

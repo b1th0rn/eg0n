@@ -6,9 +6,9 @@ from django.urls import reverse
 
 
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_profile_view_html_user(client, user_sets, role):
+def test_ui_profile_view_html_user(client, user_set_group1, role):
     """Test HTML (UI) user profile view."""
-    user = user_sets[0][role]
+    user = user_set_group1[role]
     client.force_login(user)
     url = reverse("user_detail", kwargs={"pk": user.id})
     response = client.get(url)
@@ -19,4 +19,4 @@ def test_ui_profile_view_html_user(client, user_sets, role):
     card_bodies = soup.find_all("div", class_="card-body")
     assert any(
         user.username in div.get_text(strip=True) for div in card_bodies
-    ), f"Porfile not found for {role}"
+    ), f"Profile not found for {role}"

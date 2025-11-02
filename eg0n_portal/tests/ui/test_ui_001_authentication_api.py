@@ -18,7 +18,7 @@ def test_ui_authentication_api_user(api_client, user_set_group1, role):
 
 
 @pytest.mark.django_db
-def test_ui_authentication_api_guest(api_client, user_sets):
+def test_ui_authentication_api_guest(api_client):
     """Test DRF (API) authentication by non-existent user."""
     url = reverse("user-list")
     response = api_client.get(url)
