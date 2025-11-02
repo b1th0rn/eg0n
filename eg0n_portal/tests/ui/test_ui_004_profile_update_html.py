@@ -1,4 +1,4 @@
-"""Test HTML (UI) profile view."""
+"""Test HTML (UI) profile update."""
 
 from bs4 import BeautifulSoup
 import pytest
@@ -18,7 +18,7 @@ def test_ui_profile_update_html_user(client, user_set_group1, user_set_ungrouped
             response.status_code == 200
         ), f"Expected 200 for user {user.username} ({role})"
         # Verify the change
-        url = reverse("user_detail", kwargs={"pk": user.id})
+        url = reverse("user_update", kwargs={"pk": user.id})
         response = client.get(url)
         assert response.status_code == 200, (
             f"Expected 200 for user {user.username} ({role})" + response.text
