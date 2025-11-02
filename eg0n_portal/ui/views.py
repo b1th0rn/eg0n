@@ -290,7 +290,13 @@ class UserQueryMixin:
 
     def get_queryset(self):
         """Limit visible users depending on the requester's role."""
-        qs = User.objects.all()
+        qs = User.objects.all().order_by("username")
+        # Without order_by raise:
+        """ 
+        /Users/dainese/src/bh-eg0n/venv/lib/python3.13/site-packages/rest_framework/pagination.py:207:
+        UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'django.contrib.auth.models.User'> QuerySet.
+        paginator = self.django_paginator_class(queryset, page_size)
+        """
         user = self.request.user
         if user.is_superuser:
             # Admin users can see all User objects
@@ -374,9 +380,9 @@ class TokenQueryMixin:
         qs = Token.objects.all()
         user = self.request.user
         if user.is_superuser:
-            # Admin users can see all Tokeb objects
+            # Admin users can see all Token objects
             return qs
-        # Staff and standard users can only see their own token
+        # Staff and standard users can only see their own Token
         return qs.filter(user__username=user.username)
 
 
@@ -387,7 +393,7 @@ class TokenBulkDeleteView(TokenQueryMixin, ObjectBulkDeleteView):
 
 
 class TokenCreateView(TokenQueryMixin, ObtainAuthToken):
-    """HTML view for creating a new User."""
+    """HTML view for creating a new Token."""
 
     def post(self, request, *args, **kwargs):
         Token.objects.get_or_create(user=request.user)
