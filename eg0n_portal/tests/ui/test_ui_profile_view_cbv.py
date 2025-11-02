@@ -1,5 +1,6 @@
 """Test API profile view."""
 
+from bs4 import BeautifulSoup
 import pytest
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
@@ -23,7 +24,13 @@ def test_ui_profile_view_cbv_user(client, user_sets, role):
     response = client.get(url)
     assert response.status_code == 200, f"Failed for user {user.username} ({role})"
 
-    # Optional: check that some user data is in the rendered HTML
-    assert user.username in response.content.decode(), (
-        f"Username not visible in response for {role}"
-    )
+    html = response.content.decode()
+    soup = BeautifulSoup(html, "html.parser")
+    card_bodies = soup.find_all("div", class_="card-body")
+    # assert False, html
+    assert any(user.username in div.get_text(strip=True) for div in card_bodies), f"Username not visible in response for {role}" + html
+
+    # # Optional: check that some user data is in the rendered HTML
+    # assert user.username in response.content.decode(), (
+    #     f"Username not visible in response for {role}"
+    # )
