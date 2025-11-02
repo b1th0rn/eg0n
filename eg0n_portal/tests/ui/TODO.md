@@ -1,4 +1,3 @@
-Token create
 token delete
 token view
 token view list
@@ -8,8 +7,7 @@ group view
 grou plist view
 group delete
 group modify
-cambio password
-
+constance CRUD
 
 users:
 CREATE -> admin
