@@ -304,12 +304,9 @@ class UserQueryMixin:
             return qs
         # Staff and standard users can see users who share at least one group
         groups = user.groups.all()
-        # return qs.filter(
-        #     Q(groups__in=groups) | Q(id=user.id)
-        # ).distinct()
-
-        return qs.filter(groups__in=groups).distinct()
-        # TODO: perchè il test funziona?
+        return qs.filter(
+            Q(groups__in=groups) | Q(id=user.id)
+        ).distinct()
 
 
     # def get_object(self):
