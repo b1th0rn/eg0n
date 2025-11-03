@@ -51,7 +51,7 @@ def connect_mongodb():
 
 def fetch_stix_objects(collection, collection_id=None):
     """Fetch STIX indicator objects from MongoDB"""
-    query = {"type": "indicator"}
+    query = {}
     if collection_id:
         query["_collection_id"] = collection_id
     print(f"Fetching STIX indicators from MongoDB (filter: {query}) ...")
@@ -94,6 +94,12 @@ def send_to_taxii(objects):
 
         except Exception as e:
             print(f"Error sending batch {i//BATCH_SIZE + 1}: {e}")
+            # debug info
+            print(f"\nPOST that would have been sent to TAXII2 server:")
+            print(f"Endpoint: {endpoint}")
+            print(f"Headers: {{'Accept': 'application/taxii+json;version=2.1', 'Content-Type': 'application/taxii+json;version=2.1'}}")
+            print(f"Auth: ({TAXII_USERNAME}, ******)")
+            print(f"Payload: {json.dumps(payload, indent=2)}\n")
 
     print(f"\nDone. Total sent: {total_sent}/{len(objects)}")
 
