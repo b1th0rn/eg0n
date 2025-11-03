@@ -61,15 +61,14 @@ def fetch_stix_objects(collection, collection_id=None):
 
 
 def send_to_taxii(objects):
-    """Send STIX objects to TAXII2 server via requests"""
+    """Send each STIX object individually to TAXII2 server via requests"""
     endpoint = f"{TAXII_URL}/{TAXII_APIROOT}/collections/{TAXII_COLLECTION_ID}/objects/"
     print(f"\nSending to TAXII collection: {endpoint}")
 
     total_sent = 0
-    for i in range(0, len(objects), BATCH_SIZE):
-        batch = objects[i:i + BATCH_SIZE]
-        payload = {"objects": batch}
 
+    for idx, obj in enumerate(objects, start=1):
+        payload = {"objects": [obj]}  # singolo oggetto per POST
         try:
             response = requests.post(
                 endpoint,
@@ -84,25 +83,24 @@ def send_to_taxii(objects):
             )
 
             if response.status_code == 403:
-                print(f"Collection '{TAXII_COLLECTION_ID}' is read-only (HTTP 403).")
+                print(f"Collection '{TAXII_COLLECTION_ID}' is read-only (HTTP 403). Stopping.")
                 break
 
             response.raise_for_status()
-            total_sent += len(batch)
-            print(f"Sent batch {i//BATCH_SIZE + 1}: {len(batch)} objects (HTTP {response.status_code})")
-            time.sleep(1)
+            total_sent += 1
+            print(f"Sent object {idx}/{len(objects)}: {obj.get('id')} (HTTP {response.status_code})")
+            time.sleep(1)  # evita di sovraccaricare il server
 
         except Exception as e:
-            print(f"Error sending batch {i//BATCH_SIZE + 1}: {e}")
-            # debug info
-            print(f"\nPOST that would have been sent to TAXII2 server:")
+            print(f"Error sending object {idx}: {e}")
+            # mostra dettagli del POST anche in caso di errore
+            print(f"\nPOST details:")
             print(f"Endpoint: {endpoint}")
             print(f"Headers: {{'Accept': 'application/taxii+json;version=2.1', 'Content-Type': 'application/taxii+json;version=2.1'}}")
             print(f"Auth: ({TAXII_USERNAME}, ******)")
             print(f"Payload: {json.dumps(payload, indent=2)}\n")
 
     print(f"\nDone. Total sent: {total_sent}/{len(objects)}")
-
 
 def main():
     start_time = datetime.now()
