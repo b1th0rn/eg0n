@@ -40,8 +40,8 @@ def test_ui_profile_delete_api_user(
         url = reverse("user-detail", kwargs={"pk": user.id})
         response = api_client.delete(url, headers=headers)
         assert response.status_code == 204, f"Failed for user {user.username} ({role})"
-        # Verify the profile hs been deleted
+        # Verify the profile has been deleted
         response = api_client.get(url, headers=admin_headers)
         assert (
             response.status_code == 404
-        ), f"Expected 404 for for user {user.username} ({role})"
+        ), f"Expected 404 for user {user.username} ({role})"
