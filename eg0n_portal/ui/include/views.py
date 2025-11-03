@@ -7,7 +7,6 @@ django-tables2, and django-filters.
 """
 
 from django.conf import settings
-from django.core.paginator import Paginator
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
@@ -20,7 +19,6 @@ from django_tables2 import SingleTableView
 from django_tables2.columns import Column
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from ui.serializers import UserSerializer, GroupSerializer
 
 
 class APICRUDViewSet(ModelViewSet):
