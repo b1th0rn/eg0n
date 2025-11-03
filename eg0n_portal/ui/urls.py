@@ -55,26 +55,26 @@ urlpatterns = [
     #########################################################################
     # Contance settings (HTML)
     #########################################################################
-    path("settings/edit", ConstanceUpdateView.as_view(), name="settings_update"),
     path("settings/", ConstanceListView.as_view(), name="settings_list"),
+    path("settings/edit", ConstanceUpdateView.as_view(), name="settings_update"),
     #########################################################################
     # Group views (HTML)
     #########################################################################
     path("group/", GroupListView.as_view(), name="group_list"),
     path("group/create", GroupCreateView.as_view(), name="group_create"),
     path("group/delete", GroupBulkDeleteView.as_view(), name="group_bulkdelete"),
+    path("group/<int:pk>/", GroupDetailView.as_view(), name="group_detail"),
     path("group/<int:pk>/delete", GroupDeleteView.as_view(), name="group_delete"),
     path("group/<int:pk>/update", GroupChangeView.as_view(), name="group_update"),
-    path("group/<int:pk>/", GroupDetailView.as_view(), name="group_detail"),
     #########################################################################
     # User views (HTML)
     #########################################################################
     path("user/", UserListView.as_view(), name="user_list"),
     path("user/create", UserCreateView.as_view(), name="user_create"),
     path("user/delete", UserBulkDeleteView.as_view(), name="user_bulkdelete"),
+    path("user/<int:pk>/", UserDetailView.as_view(), name="user_detail"),
     path("user/<int:pk>/delete", UserDeleteView.as_view(), name="user_delete"),
     path("user/<int:pk>/update", UserChangeView.as_view(), name="user_update"),
-    path("user/<int:pk>/", UserDetailView.as_view(), name="user_detail"),
     #########################################################################
     # Token views (HTML)
     #########################################################################
@@ -85,8 +85,8 @@ urlpatterns = [
     #########################################################################
     # API endpoints
     #########################################################################
-    path("api/token/", obtain_auth_token, name="api_token"),
     path("api/", include(router.urls)),
+    path("api/token/", obtain_auth_token, name="api_token"),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
