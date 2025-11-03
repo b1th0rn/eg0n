@@ -1,16 +1,12 @@
-"""URL configuration for User, Group, and Token views.
-
-This module defines both HTML views (class-based) and REST API endpoints
-using Django REST Framework routers.
-"""
+"""URL configuration for UI app."""
 
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path, include
 from django.views.generic import RedirectView
-from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter
 from ui.views import ConstanceListView, ConstanceUpdateView
 from ui.views import (
     GroupAPIViewSet,
