@@ -7,6 +7,7 @@ auth-related models.
 
 from django import forms
 from django.contrib.auth.models import Group, User
+from rest_framework.authtoken.models import Token
 from ui.include import messages
 from ui.include.forms import ObjectModelForm
 
@@ -174,3 +175,27 @@ class UserForm(ObjectModelForm):
             user.save()
             user.groups.set(self.cleaned_data["groups"])
         return user
+
+
+
+#############################################################################
+# Token
+#############################################################################
+
+
+class TokenForm(ObjectModelForm):
+    """
+    Form for the Django Token model.
+    """
+
+    class Meta:
+        """
+        Meta class for TokenForm.
+        """
+
+        model = Token
+        fields = [
+            "user",
+            "key",
+            # "created",
+        ]

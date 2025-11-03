@@ -10,7 +10,7 @@ from django.views.generic import TemplateView
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from ui.filters import GroupFilter, TokenFilter, UserFilter
-from ui.forms import GroupForm, UserForm
+from ui.forms import GroupForm, UserForm, TokenForm
 from ui.include import messages
 from ui.include.permissions import IsAdmin
 from ui.include.views import (
@@ -23,7 +23,7 @@ from ui.include.views import (
     ObjectListView,
     TemplateMixin,
 )
-from ui.permissions import UserPermissionPolicy, UserPermission
+from ui.permissions import UserPermissionPolicy, UserPermission, TokenPermission, TokenPermissionPolicy
 from ui.serializers import GroupSerializer, UserSerializer
 from ui.tables import GroupTable, TokenTable, UserTable
 
@@ -290,13 +290,8 @@ class UserQueryMixin:
 
     def get_queryset(self):
         """Limit visible users depending on the requester's role."""
+        # order_by is required to aboid UnorderedObjectListWarning warning
         qs = User.objects.all().order_by("username")
-        # Without order_by raise:
-        """ 
-        /Users/dainese/src/bh-eg0n/venv/lib/python3.13/site-packages/rest_framework/pagination.py:207:
-        UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'django.contrib.auth.models.User'> QuerySet.
-        paginator = self.django_paginator_class(queryset, page_size)
-        """
         user = self.request.user
         if user.is_superuser:
             # Admin users can see all User objects
@@ -368,10 +363,10 @@ class TokenQueryMixin:
     """
 
     filterset_class = TokenFilter
-    form_class = None
+    form_class = TokenForm
     model = Token
-    # permission_classes = [TokenPermission]  # Required for API
-    # policy_class = TokenPermissionPolicy
+    permission_classes = [TokenPermission]  # Required for API
+    policy_class = TokenPermissionPolicy
     serializer_class = None
     table_class = TokenTable
 
@@ -384,6 +379,7 @@ class TokenQueryMixin:
             return qs
         # Staff and standard users can only see their own Token
         return qs.filter(user__username=user.username)
+
 
 
 class TokenBulkDeleteView(TokenQueryMixin, ObjectBulkDeleteView):

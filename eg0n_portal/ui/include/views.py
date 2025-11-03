@@ -99,10 +99,10 @@ class ObjectMixin:
         """
         Esegue il controllo dei permessi prima di processare la view.
         """
+        print("MRO:", [cls.__name__ for cls in self.__class__.mro()])
         result = self.has_permission()
-        print("RESULT", result)
-        print(type(result), result)
         if result is True:
+            print("HERE")
             return super().dispatch(request, *args, **kwargs)
         elif result is False:
             raise PermissionDenied("Non hai i permessi per eseguire questa azione.")  # 403
