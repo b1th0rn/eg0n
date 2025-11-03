@@ -194,8 +194,4 @@ class TokenForm(ObjectModelForm):
         """
 
         model = Token
-        fields = [
-            "user",
-            "key",
-            # "created",
-        ]
+        fields = []
