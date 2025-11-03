@@ -19,12 +19,12 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 # ============================================================================
 
 with open("config.json", "r") as f:
-    config = json.load(f)   # access information with config[key]
+    config = json.load(f)  # access information with config[key]
 
 # MISP Configuration
 MISP_URL = config['misp_url']
 MISP_API_KEY = config['misp_key']
-MISP_VERIFY_SSL = True  # Set to False for self-signed certificates
+MISP_VERIFY_SSL = True  # set to False for self-signed certificates
 
 # MongoDB Configuration
 MONGO_URI = config["mongo_url"]
@@ -33,11 +33,11 @@ MONGO_OBJECTS_COLLECTION = config["mongo_objects_collection"]
 MONGO_MANIFESTS_COLLECTION = config["mongo_manifests_collection"]
 
 # TAXII Configuration
-TAXII_COLLECTION_ID = "misp-indicators"  # Your TAXII collection ID
+TAXII_COLLECTION_ID = "misp-indicators"  # your TAXII collection ID
 
 # Query Configuration
-MAX_IOC = 10000  # Maximum number of IOCs to fetch
-BATCH_SIZE = 100  # Number of documents to insert per batch
+MAX_IOC = 10000  # maximum number of IOCs to fetch
+BATCH_SIZE = 100  # number of documents to insert per batch
 
 # ============================================================================
 # MONGODB SETUP
