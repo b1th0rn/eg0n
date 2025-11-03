@@ -68,7 +68,23 @@ def send_to_taxii(objects):
     total_sent = 0
 
     for idx, obj in enumerate(objects, start=1):
-        payload = {"objects": [obj]}  # singolo oggetto per POST
+        # rimuovi _id MongoDB
+        obj_copy = obj.copy()
+        if "_id" in obj_copy:
+            del obj_copy["_id"]
+
+        payload = {"objects": [obj_copy]}
+        payload_json = json.dumps(payload)
+
+        # costruzione della riga curl per debug
+        curl_cmd = (
+            f"curl -u {TAXII_USERNAME}:<password> "
+            f"-X POST {endpoint} "
+            f"-H 'Accept: application/taxii+json;version=2.1' "
+            f"-H 'Content-Type: application/taxii+json;version=2.1' "
+            f"-d '{payload_json}'"
+        )
+
         try:
             response = requests.post(
                 endpoint,
@@ -82,23 +98,14 @@ def send_to_taxii(objects):
                 timeout=TIMEOUT
             )
 
-            if response.status_code == 403:
-                print(f"Collection '{TAXII_COLLECTION_ID}' is read-only (HTTP 403). Stopping.")
-                break
-
             response.raise_for_status()
-            total_sent += 1
-            print(f"Sent object {idx}/{len(objects)}: {obj.get('id')} (HTTP {response.status_code})")
-            time.sleep(1)  # evita di sovraccaricare il server
+            print(f"Sent object {idx}/{len(objects)}: {obj_copy.get('id')} (HTTP {response.status_code})")
+            time.sleep(1)
 
         except Exception as e:
             print(f"Error sending object {idx}: {e}")
-            # mostra dettagli del POST anche in caso di errore
-            print(f"\nPOST details:")
-            print(f"Endpoint: {endpoint}")
-            print(f"Headers: {{'Accept': 'application/taxii+json;version=2.1', 'Content-Type': 'application/taxii+json;version=2.1'}}")
-            print(f"Auth: ({TAXII_USERNAME}, ******)")
-            print(f"Payload: {json.dumps(payload, indent=2)}\n")
+            print(f"Payload JSON:\n{payload_json}")
+            print(f"Equivalent cURL:\n{curl_cmd}\n")
 
     print(f"\nDone. Total sent: {total_sent}/{len(objects)}")
 
