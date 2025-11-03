@@ -372,7 +372,8 @@ class TokenQueryMixin:
 
     def get_queryset(self):
         """Limit visible users depending on the requester's role."""
-        qs = Token.objects.all()
+        # order_by is required to aboid UnorderedObjectListWarning warning
+        qs = Token.objects.all().order_by("user__username")
         user = self.request.user
         if user.is_superuser:
             # Admin users can see all Token objects
