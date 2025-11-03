@@ -1,8 +1,4 @@
-"""Filter definitions for Group and User models.
-
-These filters are used in list views and API endpoints to provide
-search functionality.
-"""
+"""Filter definitions for UI app."""
 
 from django import forms
 from django.contrib.auth.models import User

@@ -1,4 +1,4 @@
-"""Views for managing Constance, Group, User, Token objects."""
+"""Views for UI app."""
 
 from constance import config
 from django.contrib import messages as django_msgs

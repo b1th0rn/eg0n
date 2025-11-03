@@ -1,8 +1,4 @@
-"""Table definitions for User, Group, and Token models.
-
-These tables are used in the corresponding list views to render
-HTML tables with django-tables2.
-"""
+"""Table definitions for UI app."""
 
 from django.contrib.auth.models import Group, User
 from rest_framework.authtoken.models import Token

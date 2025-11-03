@@ -1,3 +1,5 @@
+"""Permissions for UI app."""
+
 from rest_framework.permissions import BasePermission
 
 

@@ -1,8 +1,4 @@
-"""Serializers for Group and User models.
-
-These serializers are used by the API views to convert model
-instances to and from JSON representations.
-"""
+"""Serializers for UI app."""
 
 from django.contrib.auth.models import Group, User
 from rest_framework import serializers

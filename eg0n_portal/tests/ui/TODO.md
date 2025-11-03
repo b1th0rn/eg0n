@@ -1,7 +1,3 @@
-token delete
-token view
-token view list
-token modify -> forbidden
 group create
 group view
 grou plist view
@@ -17,3 +13,6 @@ EDIT -> admin, staff in the same group
     staff cannot edit staff
 
 Check self cannot modify privileges fur users and staff
+
+pagination
+filters

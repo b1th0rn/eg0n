@@ -1,9 +1,4 @@
-"""
-Forms for managing Django Group, User, and Token models.
-
-This module provides reusable forms for CRUD operations on
-auth-related models.
-"""
+"""Forms definitions for UI app."""
 
 from django import forms
 from django.contrib.auth.models import Group, User
