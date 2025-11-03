@@ -1,7 +1,23 @@
 from django.contrib import admin
-from .models import Vuln, IpAdd, FQDN, Hash, CodeSnippet, Review
+from .models import Events, Vuln, IpAdd, FQDN, Hash, CodeSnippet, Review
 from django.utils.html import format_html
 import random
+
+# Events
+class EventsAdmin(admin.ModelAdmin):
+    list_display = ["event_name", "publish_date", "author", "lastchange_author"]
+    list_filter = ["publish_date"]
+    search_fields = ["event_name", "author"]
+    prepopulated_fields = {"slug": ("name",)}
+    # author field
+    readonly_fields = ("author", "lastchange_author")
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user.username
+        obj.lastchange_author = request.user.username
+        return super().save_model(request, obj, form, change)
+    class Meta:
+        model = Vuln
 
 # Vulnerabilities: custom admin
 class VulnsAdmin(admin.ModelAdmin):
@@ -39,7 +55,7 @@ class IpAdmin(admin.ModelAdmin):
     list_display = ["ip_address", "url", "publish_date", "expire_date", "lastchange_author"]
     list_filter = ["publish_date"]
     search_fields = ["ip_address", "url"]
-# author field
+    # author field
     readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
     def save_model(self, request, obj, form, change):
         if not change:
@@ -101,6 +117,7 @@ class ReviewAdmin(admin.ModelAdmin):
         model = Review
 
 # Register
+admin.site.register(Events, EventsAdmin)
 admin.site.register(Vuln, VulnsAdmin)
 admin.site.register(IpAdd, IpAdmin)
 admin.site.register(FQDN, FQDNAdmin)

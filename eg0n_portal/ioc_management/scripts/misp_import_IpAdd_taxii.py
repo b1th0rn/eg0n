@@ -63,7 +63,7 @@ def import_ipadd_from_MISP():
     attributes = response.json().get("response", {}).get("Attribute", [])
 
     # get TAXII2 configuration from baseConfig model and apiConfig model
-    taxii_url = apiConfig.objects.filter(api_name='taxii2_test').first().api_url
+    taxii_url = apiConfig.objects.filter(api_name='TAXII2_test').first().api_url
     taxii_username = baseConfig.objects.filter(param_name='taxii2_username').first().param_value
     taxii_password = baseConfig.objects.filter(param_name='taxii2_password').first().param_value
     taxii_apiroot = baseConfig.objects.filter(param_name='taxii2_apiroot').first().param_value

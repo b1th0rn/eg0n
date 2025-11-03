@@ -1,24 +1,29 @@
 ##########################################################################
 # Script to import IP addresses from MISP and send to TAXII2 server (cti-taxii-server)
-# Usage: python misp_to_taxii2.py
+# Usage: python3 misp_to_taxii2.py
 # Requires: requests, urllib3
 ##########################################################################
 
-import requests, urllib3, time, traceback
-from datetime import datetime, UTC
+import requests, urllib3, time, traceback, json
+from datetime import datetime, timezone
+UTC = timezone.utc
+
+# import config file
+with open("config.json", "r") as f:
+    config = json.load(f)   # access information with config[key]
 
 # misp configuration
-misp_url = "https://misp.example.com"
-misp_key = "YOUR_MISP_API_KEY"
+misp_url = config['misp_url']
+misp_key = config['misp_key']
 verify_cert = False
 timeout = 30
 max_ioc = 100
 # taxii configuration
-taxii_url = "https://taxii.example.com"
-taxii_username = "YOUR_TAXII_USERNAME"
-taxii_password = "YOUR_TAXII_PASSWORD"
-taxii_apiroot = "api-root"
-taxii_collection_id = "collection-id-for-misp-ips"  
+taxii_url = config['taxii_url']
+taxii_username = config['taxii_username']
+taxii_password = config['taxii_password']
+taxii_apiroot = config['taxii_apiroot']
+taxii_collection_id = config['taxii_collection_id']
 
 # function to import IP addresses from MISP and send to TAXII2 server
 def import_ipadd_from_MISP():
@@ -26,12 +31,13 @@ def import_ipadd_from_MISP():
     if not verify_cert:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    # misp_data to get IP addresses
+    # misp_data to get IP addresses -- only published
     misp_data = {
         "controller": "attributes",
         "type": ["ip-src"],
         "to_ids": True,
         "deleted": False,
+        "published": True,
         "order": "timestamp desc",
         "limit": max_ioc
     }

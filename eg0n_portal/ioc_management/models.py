@@ -1,14 +1,33 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import uuid
+
+# Threat Int. events
+class Events(models.Model):
+    class Meta:
+        verbose_name = "00 :: Event"
+        verbose_name_plural = "00 :: Events"
+    event_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    event_name = models.CharField(max_length=64, null=False)
+    description = models.TextField()
+    publish_date = models.DateField(auto_now=False, auto_now_add=True)
+    update_date = models.DateField(auto_now=True, auto_now_add=False)
+    slug = models.SlugField()
+    author = models.CharField(max_length=32, editable=False, default=None)
+    lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+
+    def __str__(self):
+        return self.event_name
 
 # Vuln model: vulnerabilities list
 class Vuln(models.Model):
     class Meta:
         verbose_name = "01 :: Vulnerability"
         verbose_name_plural = "01 :: Vulnerabilities"
-    cve = models.CharField(max_length=32, unique=True)
-    name = models.CharField(max_length=32, unique=True)
+    cve_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    cve = models.CharField(max_length=32, unique=False)
+    name = models.CharField(max_length=32, unique=False)
     cvss = models.FloatField(default=0, null=True)
     description = models.TextField()
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
@@ -16,6 +35,7 @@ class Vuln(models.Model):
     slug = models.SlugField()
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
 
     def __str__(self):
         return self.cve
@@ -27,7 +47,8 @@ class IpAdd(models.Model):
     class Meta:
         verbose_name = "02 :: IP Address"
         verbose_name_plural = "02 :: IP Addresses"
-    ip_address = models.GenericIPAddressField(unique=True, unpack_ipv4=True)
+    ip_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
     url = models.CharField(max_length=32, blank=True, default='none')
     fqdn = models.CharField(max_length=32, blank=True, default='none')
     confidence = models.CharField(max_length=16, choices=CONFIDENCE_CHOICES, default='low')
@@ -40,6 +61,7 @@ class IpAdd(models.Model):
     misp_event_id = models.URLField(max_length=128, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
     def __str__(self):
         return self.ip_address
 
@@ -51,6 +73,7 @@ class CodeSnippet(models.Model):
     class Meta:
         verbose_name = "03 :: Code Snippet"
         verbose_name_plural = "03 :: Code Snippets"
+    codesnippet_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=56, blank=True, default='none', unique=True)
     language = models.CharField(max_length=16, choices=Language, default='python')
     confidence = models.CharField(max_length=16, choices=CONFIDENCE_CHOICES, default='low')
@@ -64,6 +87,7 @@ class CodeSnippet(models.Model):
     misp_event_id = models.URLField(max_length=128, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
     def __str__(self):
         return self.name
 
@@ -74,7 +98,8 @@ class FQDN(models.Model):
     class Meta:
         verbose_name = "04 :: FQDN"
         verbose_name_plural = "04 :: FQDNs"
-    fqdn = models.CharField(max_length=32, unique=True)
+    fqdn_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    fqdn = models.CharField(max_length=32, unique=False)
     ip_address = models.GenericIPAddressField(default="0.0.0.0", unpack_ipv4=True)
     confidence = models.CharField(max_length=16, choices=CONFIDENCE_CHOICES, default='low')
     description = models.TextField()
@@ -86,6 +111,7 @@ class FQDN(models.Model):
     misp_event_id = models.URLField(max_length=128, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
     def __str__(self):
         return self.fqdn
 
@@ -97,6 +123,7 @@ class Hash(models.Model):
     class Meta:
         verbose_name = "05 :: File Hash"
         verbose_name_plural = "05 :: File Hashes"
+    hash_uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     filename = models.CharField(max_length=56, blank=True, default='none')
     platform = models.CharField(max_length=16, choices=PLATFORM, default='Windows')
     sha256 = models.CharField(max_length=64, blank=True, default='none', unique=True)
@@ -113,6 +140,7 @@ class Hash(models.Model):
     misp_event_id = models.URLField(max_length=128, blank=True, default='none')
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
     def __str__(self):
         return "[{}] {}".format(self.filename, self.sha256)
 
