@@ -7,7 +7,7 @@ from rest_framework.authtoken.models import Token
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_profile_view_api_user1(
+def test_ui_profile_read_api_user1(
     api_client, user_set_group1, user_set_ungrouped, role
 ):
     """Test DRF (API) user profile view."""
