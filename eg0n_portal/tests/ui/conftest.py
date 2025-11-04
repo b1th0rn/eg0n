@@ -104,6 +104,6 @@ def user_set_single(db, create_user):
     """Create admin, staff and standard user, each one with a dedicated group."""
     return {
         "admin": create_user("admin41", role="admin", groups="group4"),
-        "staff": create_user("staff31", role="staff", groups="group5"),
-        "user": create_user("user31", groups="group6"),
+        "staff": create_user("staff51", role="staff", groups="group5"),
+        "user": create_user("user61", groups="group6"),
     }
