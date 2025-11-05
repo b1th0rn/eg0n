@@ -1,4 +1,4 @@
-"""Test API user deletion."""
+"""Test API user update."""
 
 import pytest
 from django.contrib.auth.models import User
@@ -7,14 +7,14 @@ from rest_framework.authtoken.models import Token
 
 
 @pytest.mark.django_db
-def test_ui_user_delete_api_admin(
+def test_ui_user_update_api_admin(
     api_client,
     user_set_group1,
     user_set_group_multiple,
     user_set_ungrouped,
     user_set_single,
 ):
-    """Test DRF (API) user deletion by admin."""
+    """Test DRF (API) user update by admin."""
     user = user_set_group_multiple["admin1"]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
@@ -23,21 +23,25 @@ def test_ui_user_delete_api_admin(
             # Own profile deletion tested in profile tests
             continue
         url = reverse("user-detail", kwargs={"pk": u.id})
-        response = api_client.delete(url, headers=headers)
+        payload = {"first_name": f"First {u.username} Name"}
+        response = api_client.patch(url, payload, format="json", headers=headers)
         assert (
-            response.status_code == 204
-        ), f"User {u.username} not found by {user.username}"
+            response.status_code == 200
+        ), f"Failed updating {u.username} by {user.username}"
+        assert (
+            response.data["first_name"] == payload["first_name"]
+        ), f"Unexpected value for {u.username}"
 
 
 @pytest.mark.django_db
-def test_ui_user_delete_api_staff(
+def test_ui_user_read_detail_api_staff(
     api_client,
     user_set_group1,
     user_set_group_multiple,
     user_set_ungrouped,
     user_set_single,
 ):
-    """Test DRF (API) user deletion by staffs."""
+    """Test DRF (API) user detail view by staffs."""
     user = user_set_group_multiple["staff1"]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
@@ -50,39 +54,34 @@ def test_ui_user_delete_api_staff(
             & u.groups.values_list("id", flat=True)
         )
         url = reverse("user-detail", kwargs={"pk": u.id})
-        response = api_client.delete(url, headers=headers)
+        payload = {"first_name": f"First {u.username} Name"}
+        response = api_client.patch(url, payload, format="json", headers=headers)
         if shared_groups and (u.is_superuser or u.is_staff):
             assert (
                 response.status_code == 403
-            ), f"User {u.username} must not be deleted by {user.username}"
-            assert (
-                len(User.objects.filter(id=u.id)) == 1
-            ), f"User {u.username} has been deleted"
+            ), f"User {u.username} must not be updated by {user.username}"
         elif shared_groups:
             assert (
-                response.status_code == 204
-            ), f"User {u.username} must be deleted by {user.username}"
+                response.status_code == 200
+            ), f"Failed updating {u.username} by {user.username}"
             assert (
-                len(User.objects.filter(id=u.id)) == 0
-            ), f"User {u.username} has not been deleted"
+                response.data["first_name"] == payload["first_name"]
+            ), f"Unexpected value for {u.username}"
         else:
             assert (
                 response.status_code == 404
-            ), f"User {u.username} must not be deleted by {user.username}"
-            assert (
-                len(User.objects.filter(id=u.id)) == 1
-            ), f"User {u.username} has been deleted"
+            ), f"User {u.username} must not be updated by {user.username}"
 
 
 @pytest.mark.django_db
-def test_ui_user_delete_api_user(
+def test_ui_user_update_detail_api_user(
     api_client,
     user_set_group1,
     user_set_group_multiple,
     user_set_ungrouped,
     user_set_single,
 ):
-    """Test DRF (API) user deletion by users."""
+    """Test DRF (API) user update view by users."""
     user = user_set_group_multiple["user1"]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
@@ -99,23 +98,8 @@ def test_ui_user_delete_api_user(
         if shared_groups:
             assert (
                 response.status_code == 403
-            ), f"User {u.username} must not be deleted by {user.username}"
-            assert (
-                len(User.objects.filter(id=u.id)) == 1
-            ), f"User {u.username} has been deleted"
+            ), f"User {u.username} must not be update by {user.username}"
         else:
             assert (
                 response.status_code == 404
-            ), f"User {u.username} must not be deleted by {user.username}"
-            assert (
-                len(User.objects.filter(id=u.id)) == 1
-            ), f"User {u.username} has been deleted"
-
-
-@pytest.mark.django_db
-def test_ui_user_delete_api_guest(api_client, user_set_group1):
-    """Test DRS (API) user deletion by guest user."""
-    for u in User.objects.all():
-        url = reverse("user-detail", kwargs={"pk": u.id})
-        response = api_client.delete(url)
-        assert response.status_code == 401, "Expected 401 for guest user"
+            ), f"User {u.username} must not be updated by {user.username}"

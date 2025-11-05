@@ -27,7 +27,7 @@ def test_ui_user_read_detail_api_admin(
 
 
 @pytest.mark.django_db
-def test_ui_user_read_list_api_user(
+def test_ui_user_read_detail_api_user(
     api_client,
     user_set_group1,
     user_set_group_multiple,
@@ -65,7 +65,7 @@ def test_ui_user_read_list_api_user(
 
 
 @pytest.mark.django_db
-def test_ui_user_read_list_api_guest(api_client, user_set_group1):
+def test_ui_user_read_detail_api_guest(api_client, user_set_group1):
     """Test DRS (API) user detail view by guest user."""
     for u in User.objects.all():
         url = reverse("user-detail", kwargs={"pk": u.id})
