@@ -24,7 +24,7 @@ def test_ui_user_read_list_api_admin(
         assert response.status_code == 200, f"Failed for user {user.username}"
         result_users = [u["username"] for u in response.data["results"]]
         for u in all_users:
-            assert u in result_users, f"User {u} not found for {user.username}"
+            assert u in result_users, f"User {u} not found by {user.username}"
 
 
 @pytest.mark.django_db
@@ -51,7 +51,7 @@ def test_ui_user_read_list_api_user(
             .values_list("username", flat=True)
         )
         for u in all_users_w_shared_group:
-            assert u in result_users, f"User {u} not found for {user.username}"
+            assert u in result_users, f"User {u} not found by {user.username}"
         # Testing users without a shared group
         all_users_wo_shared_group = list(
             all_users.exclude(

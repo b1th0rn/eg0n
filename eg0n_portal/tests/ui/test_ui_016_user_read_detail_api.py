@@ -23,7 +23,7 @@ def test_ui_user_read_detail_api_admin(
             response = api_client.get(url, headers=headers)
             assert (
                 response.status_code == 200
-            ), f"User {u.username} not found for {user.username}"
+            ), f"User {u.username} not found by {user.username}"
 
 
 @pytest.mark.django_db
@@ -50,7 +50,7 @@ def test_ui_user_read_list_api_user(
             response = api_client.get(url, headers=headers)
             assert (
                 response.status_code == 200
-            ), f"User {u.username} not found for {user.username}"
+            ), f"User {u.username} not found by {user.username}"
         # Testing users without a shared group
         all_users_wo_shared_group = list(
             all_users.exclude(

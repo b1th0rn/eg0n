@@ -7,6 +7,7 @@ from rest_framework.permissions import BasePermission
 # User
 #############################################################################
 
+
 class UserPermissionPolicy:
     """UI and DRF (API) permisson policy for User objects."""
 
@@ -17,9 +18,16 @@ class UserPermissionPolicy:
         if not user.is_authenticated:
             # Guest users are not allowed to do anything
             return None
-        
+
         # === COMMON RULES ===
-        if not target and method in ("GET", "OPTIONS", "HEAD", "PUT", "PATCH", "DELETE"):
+        if not target and method in (
+            "GET",
+            "OPTIONS",
+            "HEAD",
+            "PUT",
+            "PATCH",
+            "DELETE",
+        ):
             # Without target object, return True with safe methods
             return True
 
@@ -49,7 +57,7 @@ class UserPermissionPolicy:
         if target and target.id == user.id:
             # Standard users can do anything on their own profile
             return True
-                
+
         # Standard users can only read other staffs/admins/users
         return method in ("GET")
 
@@ -77,6 +85,7 @@ class UserPermission(BasePermission):
 #############################################################################
 # Token
 #############################################################################
+
 
 class TokenPermissionPolicy:
     """UI and DRF (API) permisson policy for Token objects."""
