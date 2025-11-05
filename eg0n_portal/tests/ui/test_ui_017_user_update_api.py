@@ -20,7 +20,7 @@ def test_ui_user_update_api_admin(
     headers = {"Authorization": f"Token {token}"}
     for u in User.objects.all():
         if u.id == user.id:
-            # Own profile deletion tested in profile tests
+            # Own profile update tested in profile tests
             continue
         url = reverse("user-detail", kwargs={"pk": u.id})
         payload = {"first_name": f"First {u.username} Name"}
@@ -47,7 +47,7 @@ def test_ui_user_read_detail_api_staff(
     headers = {"Authorization": f"Token {token}"}
     for u in User.objects.all():
         if u.id == user.id:
-            # Own profile deletion tested in profile tests
+            # Own profile update tested in profile tests
             continue
         shared_groups = bool(
             user.groups.values_list("id", flat=True)
@@ -87,7 +87,7 @@ def test_ui_user_update_detail_api_user(
     headers = {"Authorization": f"Token {token}"}
     for u in User.objects.all():
         if u.id == user.id:
-            # Own profile deletion tested in profile tests
+            # Own profile update tested in profile tests
             continue
         shared_groups = bool(
             user.groups.values_list("id", flat=True)
