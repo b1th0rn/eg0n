@@ -24,6 +24,10 @@ class GroupSerializer(ObjectSerializer):
 
 class UserSerializer(ObjectSerializer):
     """Serializer for the `User` model."""
+    groups = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Group.objects.all()
+    )
     groups_display = serializers.SerializerMethodField()
 
     class Meta:
@@ -47,7 +51,6 @@ class UserSerializer(ObjectSerializer):
             "groups_display",
             "id",
             "last_login",
-            "password",
         )
 
 
@@ -73,11 +76,29 @@ class UserSerializer(ObjectSerializer):
             - Saves the instance before returning.
         """
         password = validated_data.pop("password", None)
+        groups = validated_data.pop("groups", None)
+
         for attr, value in validated_data.items():
+            # Aggiorna i campi normali
             setattr(instance, attr, value)
+
+        # Aggiorna i gruppi (sovrascrive)
+        if groups is not None:
+            instance.groups.set(groups)
 
         if password:  # if filled in
             instance.set_password(password)
 
         instance.save()
         return instance
+
+
+    def get_fields(self):
+        fields = super().get_fields()
+        user = self.context["request"].user
+        if not user.is_superuser:
+            # Disable field for non admins
+            fields["groups"].read_only = True
+            fields["is_staff"].read_only = True
+            fields["is_superuser"].read_only = True
+        return fields

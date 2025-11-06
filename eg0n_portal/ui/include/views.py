@@ -100,7 +100,6 @@ class ObjectMixin:
         print("MRO:", [cls.__name__ for cls in self.__class__.mro()])
         result = self.has_permission()
         if result is True:
-            print("HERE")
             return super().dispatch(request, *args, **kwargs)
         elif result is False:
             raise PermissionDenied("Non hai i permessi per eseguire questa azione.")  # 403

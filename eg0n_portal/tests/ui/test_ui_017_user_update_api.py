@@ -1,7 +1,7 @@
 """Test API user update."""
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 
@@ -103,3 +103,60 @@ def test_ui_user_update_detail_api_user(
             assert (
                 response.status_code == 404
             ), f"User {u.username} must not be updated by {user.username}"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", ["admin", "staff", "user"])
+def test_ui_user_update_api_role(api_client, user_set_group1, role):
+    """Test DRF (API) role upgrade."""
+    user = user_set_group1[role]
+    token, _ = Token.objects.get_or_create(user=user)
+    headers = {"Authorization": f"Token {token}"}
+    for u in User.objects.all():
+        payload = {"is_superuser": True, "is_staff": True}
+        url = reverse("user-detail", kwargs={"pk": u.id})
+        response = api_client.patch(url, payload, format="json", headers=headers)
+        if role == "admin" and not u.is_superuser:
+            # Admins can upgrade users
+            v = User.objects.get(id=u.id)
+            assert v.is_superuser, f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user") and not u.is_superuser:
+            # Staff cannot upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                not v.is_superuser
+            ), f"User {u.username} cannot be upgraded by {user.username}"
+        if role in ("staff", "user") and not u.is_staff:
+            # Staff cannot upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                not v.is_staff
+            ), f"User {u.username} cannot be upgraded by {user.username}"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", ["admin", "staff", "user"])
+def test_ui_user_update_api_groups(api_client, user_set_group1, role):
+    """Test DRF (API) groups change."""
+    new_group, _ = Group.objects.get_or_create("group_new")
+    user = user_set_group1[role]
+    token, _ = Token.objects.get_or_create(user=user)
+    headers = {"Authorization": f"Token {token}"}
+    for u in User.objects.all():
+        group_ids = set(u.groups.all().values_list("id", flat=True))
+        payload = {"groups": list(group_ids) + [new_group.id]}
+        url = reverse("user-detail", kwargs={"pk": u.id})
+        api_client.patch(url, payload, format="json", headers=headers)
+        v = User.objects.get(id=u.id)
+        new_group_ids = set(v.groups.all().values_list("id", flat=True))
+        if role == "admin" and not u.is_superuser:
+            # Admins can upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                set(payload["groups"]) == new_group_ids
+            ), f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user"):
+            # Staff cannot upgrade users
+            assert (
+                group_ids == new_group_ids
+            ), f"User {u.username} cannot be upgraded by {user.username}"
