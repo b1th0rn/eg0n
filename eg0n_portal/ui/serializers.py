@@ -26,7 +26,9 @@ class UserSerializer(ObjectSerializer):
     """Serializer for the `User` model."""
     groups = serializers.PrimaryKeyRelatedField(
         many=True,
-        queryset=Group.objects.all()
+        queryset=Group.objects.all(),
+        required=False,
+        default=[],
     )
     groups_display = serializers.SerializerMethodField()
 
