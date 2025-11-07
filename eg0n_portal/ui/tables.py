@@ -46,6 +46,45 @@ class GroupTable(ObjectTable):
 
 
 #############################################################################
+# User
+#############################################################################
+
+
+class UserTable(ObjectTable):
+    """Table definition for the `User` model.
+
+    Used in the `user_list` view.
+    """
+
+    is_active = GreenRedBooleanColumn()
+    is_staff = GreenRedReverseBooleanColumn(verbose_name="Staff")
+    is_superuser = GreenRedReverseBooleanColumn(verbose_name="Admin")
+    username = tables.LinkColumn(
+        "user_detail",
+        args=[tables.A("pk")],
+    )
+    date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
+    last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = User
+        exclude = ["id", "password", "date_joined", "last_login"]
+        sequence = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "is_active",
+            "is_superuser",
+            "is_staff",
+            "...",
+        ]
+        order_by = "username"
+
+
+#############################################################################
 # Token
 #############################################################################
 
@@ -93,47 +132,3 @@ class TokenTable(ObjectTable):
                 },
             ],
         }
-
-
-#############################################################################
-# User
-#############################################################################
-
-
-class UserTable(ObjectTable):
-    """Table definition for the `User` model.
-
-    Used in the `user_list` view.
-    """
-
-    is_active = GreenRedBooleanColumn()
-    is_staff = GreenRedReverseBooleanColumn(verbose_name="Admin")
-    is_superuser = GreenRedReverseBooleanColumn(verbose_name="Staff")
-    username = tables.LinkColumn(
-        "user_detail",
-        args=[tables.A("pk")],
-    )
-    date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
-    last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
-
-    class Meta:
-        """Meta options for the `UserTable`.
-
-        - Defines the underlying model.
-        - Excludes sensitive or unused fields.
-        - Sets column sequence and default ordering.
-        """
-
-        model = User
-        exclude = ["id", "password", "date_joined", "last_login"]
-        sequence = [
-            "username",
-            "first_name",
-            "last_name",
-            "email",
-            "is_active",
-            "is_superuser",
-            "is_staff",
-            "...",
-        ]
-        order_by = "username"

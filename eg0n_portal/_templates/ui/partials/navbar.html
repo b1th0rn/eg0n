@@ -440,7 +440,7 @@
                                     </div>
                                 </div>
                             </li>
-                            {% if user.is_authenticated %}
+                            {% if request.user.is_authenticated %}
                             <li class="nav-item">
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown"
@@ -454,12 +454,12 @@
                                             <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
                                         </svg>
                                         <div class="d-none d-xl-block ps-2">
-                                            <div>{{ user.first_name }} {{ user.last_name }}</div>
-                                            <div class="mt-1 small text-secondary">{{ user.username }}</div>
+                                            <div>{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                                            <div class="mt-1 small text-secondary">{{ request.user.username }}</div>
                                         </div>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                        <a href="{% url 'user_detail' user.id %}" class="dropdown-item">
+                                        <a href="{% url 'user_detail' request.user.id %}" class="dropdown-item">
                                             {% translate "Profile" %}
                                         </a>
                                         <a href="{% url 'token_list' %}" class="dropdown-item">

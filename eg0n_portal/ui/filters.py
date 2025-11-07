@@ -46,7 +46,7 @@ class UserFilter(SearchFilterSet):
         last_login_after (DateFilter): Filter users who last logged in after a date.
     """
 
-    search_fields = ["username"]
+    search_fields = ["username", "first_name", "last_name", "email"]
     is_active = django_filters.BooleanFilter(
         widget=forms.Select(
             choices=messages.CHOICES_YES_NO,

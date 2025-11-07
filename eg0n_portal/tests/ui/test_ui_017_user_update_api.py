@@ -34,7 +34,7 @@ def test_ui_user_update_api_admin(
 
 
 @pytest.mark.django_db
-def test_ui_user_read_detail_api_staff(
+def test_ui_user_update_api_staff(
     api_client,
     user_set_group1,
     user_set_group_multiple,
@@ -74,7 +74,7 @@ def test_ui_user_read_detail_api_staff(
 
 
 @pytest.mark.django_db
-def test_ui_user_update_detail_api_user(
+def test_ui_user_update_api_user(
     api_client,
     user_set_group1,
     user_set_group_multiple,
@@ -138,7 +138,7 @@ def test_ui_user_update_api_role(api_client, user_set_group1, role):
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
 def test_ui_user_update_api_groups(api_client, user_set_group1, role):
     """Test DRF (API) groups change."""
-    new_group, _ = Group.objects.get_or_create("group_new")
+    new_group, _ = Group.objects.get_or_create(name="group_new")
     user = user_set_group1[role]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}

@@ -97,7 +97,6 @@ class ObjectMixin:
         """
         Esegue il controllo dei permessi prima di processare la view.
         """
-        print("MRO:", [cls.__name__ for cls in self.__class__.mro()])
         result = self.has_permission()
         if result is True:
             return super().dispatch(request, *args, **kwargs)
