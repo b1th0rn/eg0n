@@ -39,10 +39,6 @@ def test_ui_user_read_detail_api_user(
         token, _ = Token.objects.get_or_create(user=user)
         headers = {"Authorization": f"Token {token}"}
         all_users = User.objects.all()
-        url = reverse("user-list") + f"?per_page={len(all_users)}"
-        response = api_client.get(url, headers=headers)
-        assert response.status_code == 200, f"Failed for user {user.username}"
-        result_users = [u["username"] for u in response.data["results"]]
         # Testing users with a shared group
         all_users_w_shared_group = all_users.filter(groups__in=user.groups.all())
         for u in all_users_w_shared_group:
@@ -52,16 +48,16 @@ def test_ui_user_read_detail_api_user(
                 response.status_code == 200
             ), f"User {u.username} not found by {user.username}"
         # Testing users without a shared group
-        all_users_wo_shared_group = list(
-            all_users.exclude(
-                username__in=list(
-                    all_users_w_shared_group.values_list("username", flat=True)
-                )
-                + [user.username]
-            ).values_list("username", flat=True)
+        all_users_wo_shared_group = all_users.exclude(
+            username__in=list(
+                all_users_w_shared_group.values_list("username", flat=True)
+            )
+            + [user.username]
         )
         for u in all_users_wo_shared_group:
-            assert u not in result_users, f"User {user.username} must not see {u}"
+            url = reverse("user-detail", kwargs={"pk": u.id})
+            response = api_client.get(url, headers=headers)
+            assert response.status_code == 404, f"User {user.username} must not see {u}"
 
 
 @pytest.mark.django_db
