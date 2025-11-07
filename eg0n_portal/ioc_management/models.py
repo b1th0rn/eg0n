@@ -150,14 +150,11 @@ class Review(models.Model):
         verbose_name = "06 :: IoC Review"
         verbose_name_plural = "06 :: IoC Reviews"
     review_name = models.CharField(max_length=64, default="none", unique=True)
-    ref_IpAdd = models.ForeignKey(IpAdd, to_field="ip_address", on_delete=models.CASCADE, default="none", related_name="ref_IpAdd", null=True, blank=True)
-    ref_FQDN = models.ForeignKey(FQDN, to_field="fqdn", on_delete=models.CASCADE, default="none",related_name="ref_FQDN", null=True, blank=True)
-    ref_Hash = models.ForeignKey(Hash, to_field="sha256", on_delete=models.CASCADE, default="none", related_name="ref_Hash", null=True, blank=True)
-    ref_CodeSnippet = models.ForeignKey(CodeSnippet, to_field="name", on_delete=models.CASCADE, default="none",related_name="ref_CodeSnippet", null=True, blank=True)
     review = models.TextField(null=True, blank=True)
     publish_date = models.DateField(auto_now=False, auto_now_add=True)
     update_date = models.DateField(auto_now=True, auto_now_add=False)
     author = models.CharField(max_length=32, editable=False, default=None)
     lastchange_author = models.CharField(max_length=32, editable=False, default=None)
+    event_id = models.ForeignKey(Events, to_field="event_id", on_delete=models.CASCADE, default="none", related_name="ref_Event", null=True, blank=True)
     def __str__(self):
-        return self.review_name
+        return "[{}] {}".format(self.event_id, self.review_name)
