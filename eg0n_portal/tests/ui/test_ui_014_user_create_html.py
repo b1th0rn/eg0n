@@ -3,12 +3,11 @@
 import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
-from rest_framework.authtoken.models import Token
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_user_create_api_user(client, user_set_group1, role):
+def test_ui_user_create_html_user(client, user_set_group1, role):
     """Test HTML (UI) user creation."""
     user = user_set_group1[role]
     client.force_login(user)
@@ -32,14 +31,14 @@ def test_ui_user_create_api_user(client, user_set_group1, role):
 
 
 @pytest.mark.django_db
-def test_ui_user_create_api_guest(client):
+def test_ui_user_create_html_guest(client):
     """Test HTML (UI) get user creation by guest user."""
     url = reverse("user_create")
     payload = {"username": "new_user"}
     response = client.post(url, payload, format="json")
     assert (
         response.status_code == 302
-    ), f"Expected 302 (redirect to list page) for user {user.username} ({role})"
+    ), f"Expected 302 (redirect to login page) for guest user"
     assert (
         len(User.objects.filter(username=payload["username"])) == 0
     ), f"User has been created"
