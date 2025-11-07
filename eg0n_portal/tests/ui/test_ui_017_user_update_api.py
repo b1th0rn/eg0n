@@ -1,4 +1,4 @@
-"""Test API user update."""
+"""Test DRF (API) user update."""
 
 import pytest
 from django.contrib.auth.models import User, Group
