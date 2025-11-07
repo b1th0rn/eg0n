@@ -16,3 +16,5 @@ Check self cannot modify privileges fur users and staff
 
 pagination
 filters
+
+BULK DELETE

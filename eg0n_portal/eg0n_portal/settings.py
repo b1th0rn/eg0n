@@ -37,9 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',  # Filters
+    'django_tables2',  # Tables
+    'rest_framework',  # API
+    'rest_framework.authtoken',
+    'constance',  # Dynamic settings backend
     'core',
     'ioc_management',
     'honeypot',
+    'ui',
 ]
 
 MIDDLEWARE = [
@@ -119,8 +125,57 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==============================================================================
+# DJANGO REST FRAMEWORK (DRF)
+# ==============================================================================
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "ui.include.pagination.CustomPagination",
+    # "DEFAULT_RENDERER_CLASSES": [
+    #     "unetlab.renderers.CustomJSONRenderer",
+    # ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    # "EXCEPTION_HANDLER": "unetlab.exception_handler.custom_exception_handler",
+    "PAGE_SIZE": 10,
+    "MAX_PAGE_SIZE": 100,
+}
+
+# ==============================================================================
+# TABLES2 SETTINGS
+# ==============================================================================
+
+DJANGO_TABLES2_PAGE_SIZE = REST_FRAMEWORK["PAGE_SIZE"]
+DJANGO_TABLES2_MAX_PAGE_SIZE = REST_FRAMEWORK["MAX_PAGE_SIZE"]
+DJANGO_TABLES2_TEMPLATE = "ui/tables/table_full.html"
+
+# ==============================================================================
+# DJANGO-CONSTANCE (Dynamic settings)
+# ==============================================================================
+
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+
+CONSTANCE_CONFIG = {
+}
+
+# ==============================================================================
+# LOGIN / LOGOUT REDIRECTS
+# ==============================================================================
+
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
+# LOGIN_URL = '/accounts/login/'
+# LOGOUT_URL = '/accounts/logout/'
