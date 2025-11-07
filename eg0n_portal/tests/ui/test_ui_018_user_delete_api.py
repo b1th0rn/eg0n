@@ -1,4 +1,4 @@
-"""Test API user deletion."""
+"""Test DRF (API) user deletion."""
 
 import pytest
 from django.contrib.auth.models import User

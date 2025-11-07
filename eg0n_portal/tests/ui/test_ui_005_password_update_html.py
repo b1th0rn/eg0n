@@ -1,4 +1,4 @@
-"""Test HTML (UI) password view."""
+"""Test HTML (UI) password update."""
 
 import pytest
 from django.urls import reverse

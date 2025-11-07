@@ -1,4 +1,4 @@
-"""Test API token creation."""
+"""Test HTML (UI) token deletion."""
 
 import pytest
 from django.urls import reverse

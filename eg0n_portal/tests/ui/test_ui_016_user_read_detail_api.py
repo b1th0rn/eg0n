@@ -1,4 +1,4 @@
-"""Test API user detail view."""
+"""Test DRF (API) user view."""
 
 import pytest
 from django.contrib.auth.models import User

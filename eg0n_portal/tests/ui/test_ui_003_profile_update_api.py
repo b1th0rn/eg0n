@@ -1,4 +1,4 @@
-"""Test API profile update."""
+"""Test DRF (API) profile update."""
 
 import pytest
 from django.urls import reverse

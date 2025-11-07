@@ -1,4 +1,4 @@
-"""Test DRF (API) user creation."""
+"""Test HTML (UI) user creation."""
 
 import pytest
 from django.contrib.auth.models import User
@@ -8,20 +8,18 @@ from rest_framework.authtoken.models import Token
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_user_create_api_user(api_client, user_set_group1, role):
-    """Test DRS (API) user creation."""
+def test_ui_user_create_api_user(client, user_set_group1, role):
+    """Test HTML (UI) user creation."""
     user = user_set_group1[role]
-    token, _ = Token.objects.get_or_create(user=user)
-    headers = {"Authorization": f"Token {token}"}
-    url = reverse("user-list")
+    client.force_login(user)
+    url = reverse("user_create")
     payload = {"username": "new_user"}
-    response = api_client.post(url, payload, format="json", headers=headers)
+    response = client.post(url, payload, format="json")
     if role == "admin":
         # Admin users must be able to create new users.
-        assert response.status_code == 201, f"Failed for user {user.username}"
         assert (
-            response.data["username"] == payload["username"]
-        ), f"Username not in the returning payload"
+            response.status_code == 302
+        ), f"Expected 302 (redirect to list page) for user {user.username} ({role})"
         assert (
             len(User.objects.filter(username=payload["username"])) == 1
         ), f"User has not been created"
@@ -34,12 +32,14 @@ def test_ui_user_create_api_user(api_client, user_set_group1, role):
 
 
 @pytest.mark.django_db
-def test_ui_user_create_api_guest(api_client):
-    """Test DRS (API) get user creation by guest user."""
-    url = reverse("user-list")
+def test_ui_user_create_api_guest(client):
+    """Test HTML (UI) get user creation by guest user."""
+    url = reverse("user_create")
     payload = {"username": "new_user"}
-    response = api_client.post(url, payload, format="json")
-    assert response.status_code == 401, "Expected 401 for guest user"
+    response = client.post(url, payload, format="json")
+    assert (
+        response.status_code == 302
+    ), f"Expected 302 (redirect to list page) for user {user.username} ({role})"
     assert (
         len(User.objects.filter(username=payload["username"])) == 0
     ), f"User has been created"

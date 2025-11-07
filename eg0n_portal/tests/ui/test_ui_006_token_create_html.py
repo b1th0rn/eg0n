@@ -1,4 +1,4 @@
-"""Test API token creation."""
+"""Test HTML (UI) token creation."""
 
 from rest_framework.authtoken.models import Token
 import pytest
