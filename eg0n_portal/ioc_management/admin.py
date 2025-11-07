@@ -8,7 +8,7 @@ class EventsAdmin(admin.ModelAdmin):
     list_display = ["event_name", "publish_date", "author", "lastchange_author"]
     list_filter = ["publish_date"]
     search_fields = ["event_name", "author"]
-    prepopulated_fields = {"slug": ("name",)}
+    prepopulated_fields = {"slug": ("event_name",)}
     # author field
     readonly_fields = ("author", "lastchange_author")
     def save_model(self, request, obj, form, change):
