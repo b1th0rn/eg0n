@@ -1,7 +1,7 @@
 """Test HTML (UI) user update."""
 
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
 
 
@@ -21,13 +21,12 @@ def test_ui_user_update_html_admin(
             # Own profile update tested in profile tests
             continue
         url = reverse("user_update", kwargs={"pk": u.id})
-        payload = {
-            "username": u.username,
-            "first_name": f"First {u.username} Name"
-        }
+        payload = {"username": u.username, "first_name": f"First {u.username} Name"}
         response = client.post(url, payload, format="json")
         # Verify the response
-        assert response.status_code == 302, f"Expected 302 (redirect to detail) for user {user.username}"
+        assert (
+            response.status_code == 302
+        ), f"Expected 302 (redirect to detail) for user {user.username}"
         # Verify the database
         target_user = User.objects.get(username=u.username)
         assert (
@@ -55,10 +54,7 @@ def test_ui_user_update_html_staff(
             & u.groups.values_list("id", flat=True)
         )
         url = reverse("user_update", kwargs={"pk": u.id})
-        payload = {
-            "username": u.username,
-            "first_name": f"First {u.username} Name"
-        }
+        payload = {"username": u.username, "first_name": f"First {u.username} Name"}
         response = client.post(url, payload, format="json")
         if shared_groups and (u.is_superuser or u.is_staff):
             # Verify the response
@@ -70,7 +66,9 @@ def test_ui_user_update_html_staff(
             ), f"User {u.username} must not be updated by {user.username}"
         elif shared_groups:
             # Verify the response
-            assert response.status_code == 302, f"Expected 302 (redirect to detail) for user {user.username}"
+            assert (
+                response.status_code == 302
+            ), f"Expected 302 (redirect to detail) for user {user.username}"
             # Verify the database
             target_user = User.objects.get(username=u.username)
             assert (
@@ -108,10 +106,7 @@ def test_ui_user_update_html_user(
             & u.groups.values_list("id", flat=True)
         )
         url = reverse("user_update", kwargs={"pk": u.id})
-        payload = {
-            "username": u.username,
-            "first_name": f"First {u.username} Name"
-        }
+        payload = {"username": u.username, "first_name": f"First {u.username} Name"}
         response = client.post(url, payload, format="json")
         if shared_groups:
             assert response.status_code == 403, f"Expected 403 for user {user.username}"
@@ -136,9 +131,61 @@ def test_ui_user_update_html_guest(client, user_set_group1):
     """Test HTML (UI) user update by guest user."""
     for u in User.objects.all():
         url = reverse("user_update", kwargs={"pk": u.id})
-        payload = {
-            "username": u.username,
-            "first_name": f"First {u.username} Name"
-        }
+        payload = {"username": u.username, "first_name": f"First {u.username} Name"}
         response = client.post(url, payload, format="json")
         assert response.status_code == 302, "Expected 302 (redirect to list page)"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", ["admin", "staff", "user"])
+def test_ui_user_update_api_role(client, user_set_group1, role):
+    """Test DRF (API) role upgrade."""
+    user = user_set_group1[role]
+    client.force_login(user)
+    for u in User.objects.all():
+        payload = {"username": u.username, "is_superuser": True, "is_staff": True}
+        url = reverse("user_update", kwargs={"pk": u.id})
+        client.post(url, payload, format="json")
+        if role == "admin" and not u.is_superuser:
+            # Admins can upgrade users
+            v = User.objects.get(id=u.id)
+            assert v.is_superuser, f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user") and not u.is_superuser:
+            # Staff cannot upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                not v.is_superuser
+            ), f"User {u.username} cannot be upgraded by {user.username}"
+        if role in ("staff", "user") and not u.is_staff:
+            # Staff cannot upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                not v.is_staff
+            ), f"User {u.username} cannot be upgraded by {user.username}"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", ["admin", "staff", "user"])
+def test_ui_user_update_html_groups(client, user_set_group1, role):
+    """Test HTML (UI) groups change."""
+    new_group, _ = Group.objects.get_or_create(name="group_new")
+    user = user_set_group1[role]
+    client.force_login(user)
+    for u in User.objects.all():
+        group_ids = set(u.groups.all().values_list("id", flat=True))
+        payload = {"groups": list(group_ids) + [new_group.id]}
+        url = reverse("user_update", kwargs={"pk": u.id})
+        client.post(url, payload, format="json")
+        v = User.objects.get(id=u.id)
+        new_group_ids = set(v.groups.all().values_list("id", flat=True))
+        if role == "admin" and not u.is_superuser:
+            # Admins can upgrade users
+            v = User.objects.get(id=u.id)
+            assert (
+                set(payload["groups"]) == new_group_ids
+            ), f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user"):
+            # Staff cannot upgrade users
+            assert (
+                group_ids == new_group_ids
+            ), f"User {u.username} cannot be upgraded by {user.username}"
