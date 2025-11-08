@@ -25,12 +25,18 @@ def test_ui_user_update_api_admin(
         url = reverse("user-detail", kwargs={"pk": u.id})
         payload = {"first_name": f"First {u.username} Name"}
         response = api_client.patch(url, payload, format="json", headers=headers)
+        # Verify the response
         assert (
             response.status_code == 200
         ), f"Failed updating {u.username} by {user.username}"
         assert (
             response.data["first_name"] == payload["first_name"]
         ), f"Unexpected value for {u.username}"
+        # Verify the database
+        target_user = User.objects.get(username=u.username)
+        assert (
+            target_user.first_name == payload["first_name"]
+        ), f"User {target_user.username} has not been updated by {user.username}"
 
 
 @pytest.mark.django_db

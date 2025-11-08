@@ -27,6 +27,9 @@ def test_ui_user_delete_api_admin(
         assert (
             response.status_code == 204
         ), f"User {u.username} not found by {user.username}"
+        assert (
+            len(User.objects.filter(username=u.username)) == 0
+        ), f"User {u.username} has not been deleted by {user.username}"
 
 
 @pytest.mark.django_db
