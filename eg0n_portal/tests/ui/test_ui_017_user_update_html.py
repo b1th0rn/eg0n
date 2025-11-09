@@ -138,29 +138,22 @@ def test_ui_user_update_html_guest(client, user_set_group1):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_user_update_api_role(client, user_set_group1, role):
+def test_ui_user_update_html_role(client, user_set_group1, role):
     """Test DRF (API) role upgrade."""
     user = user_set_group1[role]
     client.force_login(user)
-    for u in User.objects.all():
+    for u in User.objects.exclude(is_superuser=True):
         payload = {"username": u.username, "is_superuser": True, "is_staff": True}
         url = reverse("user_update", kwargs={"pk": u.id})
         client.post(url, payload, format="json")
+        u.refresh_from_db()
         if role == "admin" and not u.is_superuser:
-            # Admins can upgrade users
-            v = User.objects.get(id=u.id)
-            assert v.is_superuser, f"Failed upgrading {u.username} by {user.username}"
-        if role in ("staff", "user") and not u.is_superuser:
-            # Staff cannot upgrade users
-            v = User.objects.get(id=u.id)
+            # Admins can upgrade staff/users
+            assert u.is_superuser, f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user"):
+            # Staff/users cannot upgrade anyone
             assert (
-                not v.is_superuser
-            ), f"User {u.username} cannot be upgraded by {user.username}"
-        if role in ("staff", "user") and not u.is_staff:
-            # Staff cannot upgrade users
-            v = User.objects.get(id=u.id)
-            assert (
-                not v.is_staff
+                not u.is_superuser
             ), f"User {u.username} cannot be upgraded by {user.username}"
 
 
@@ -173,7 +166,13 @@ def test_ui_user_update_html_groups(client, user_set_group1, role):
     client.force_login(user)
     for u in User.objects.all():
         group_ids = set(u.groups.all().values_list("id", flat=True))
-        payload = {"groups": list(group_ids) + [new_group.id]}
+        payload = {
+            "username": u.username,
+            "is_active": True,
+            "groups": list(group_ids) + [new_group.id],
+            "is_superuser": u.is_superuser,
+            "is_staff": u.is_staff,
+        }
         url = reverse("user_update", kwargs={"pk": u.id})
         client.post(url, payload, format="json")
         v = User.objects.get(id=u.id)

@@ -174,10 +174,6 @@ class UserForm(ObjectModelForm):
         if password1:  # only if set/modified
             obj.set_password(password1)
 
-        if self.user and self.user.is_superuser:
-            # Set groups only for admins
-            obj.groups.set(self.cleaned_data["groups"])
-
         if self.user and not self.user.is_superuser and obj.pk:
             # Disable field for non admins
             current_obj = User.objects.get(id=obj.id)
@@ -186,6 +182,11 @@ class UserForm(ObjectModelForm):
 
         if commit:
             obj.save()
+            # Set groups only for admins
+            if self.user.is_superuser:
+                obj.groups.set(Group.objects.filter(id__in=self.cleaned_data["groups"]))
+
+
         return obj
 
 
