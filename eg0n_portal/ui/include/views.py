@@ -307,6 +307,8 @@ class ObjectDetailView(ObjectMixin, DetailView):
         context = super().get_context_data(**kwargs)
         obj = self.object
         fields = obj._meta.fields
+        policy = self.policy_class()
+        user = self.request.user
 
         data = {}
 
@@ -331,6 +333,12 @@ class ObjectDetailView(ObjectMixin, DetailView):
             "description": self.attrs.get("description", ""),
         }
         context["model_name"] = self.model._meta.model_name
+        context["permissions"] = {
+            "can_create": policy.can(user, "POST"),
+            "can_read": True,
+            "can_update": policy.can(user, "PATCH", obj),
+            "can_delete": policy.can(user, "DELETE", obj),
+        }
         context["pk"] = obj.pk
         return context
 
@@ -384,9 +392,17 @@ class ObjectListView(ObjectMixin, SingleTableView, FilterView):
 
     def get_context_data(self, **kwargs):
         """Add model name to context for template rendering."""
+        policy = self.policy_class()
+        user = self.request.user
         context = super().get_context_data(**kwargs)
         # Add model_name to create URLs via views
         context["model_name"] = self.model._meta.model_name
+        context["permissions"] = {
+            "can_create": policy.can(user, "POST"),
+            "can_read": True,
+            "can_update": True,
+            "can_delete": True,
+        }
         # Add filters
         filterset = self.get_filterset(self.get_filterset_class())
         if filterset:
