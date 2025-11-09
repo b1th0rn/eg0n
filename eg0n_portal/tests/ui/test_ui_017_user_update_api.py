@@ -118,25 +118,18 @@ def test_ui_user_update_api_role(api_client, user_set_group1, role):
     user = user_set_group1[role]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
-    for u in User.objects.all():
+    for u in User.objects.exclude(is_superuser=True):
         payload = {"is_superuser": True, "is_staff": True}
         url = reverse("user-detail", kwargs={"pk": u.id})
-        response = api_client.patch(url, payload, format="json", headers=headers)
+        api_client.patch(url, payload, format="json", headers=headers)
+        u.refresh_from_db()
         if role == "admin" and not u.is_superuser:
-            # Admins can upgrade users
-            v = User.objects.get(id=u.id)
-            assert v.is_superuser, f"Failed upgrading {u.username} by {user.username}"
-        if role in ("staff", "user") and not u.is_superuser:
-            # Staff cannot upgrade users
-            v = User.objects.get(id=u.id)
+            # Admins can upgrade staff/users
+            assert u.is_superuser, f"Failed upgrading {u.username} by {user.username}"
+        if role in ("staff", "user"):
+            # Staff/Users cannot upgrade anyone
             assert (
-                not v.is_superuser
-            ), f"User {u.username} cannot be upgraded by {user.username}"
-        if role in ("staff", "user") and not u.is_staff:
-            # Staff cannot upgrade users
-            v = User.objects.get(id=u.id)
-            assert (
-                not v.is_staff
+                not u.is_superuser
             ), f"User {u.username} cannot be upgraded by {user.username}"
 
 

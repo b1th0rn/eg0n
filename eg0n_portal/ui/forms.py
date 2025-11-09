@@ -131,12 +131,13 @@ class UserForm(ObjectModelForm):
         """
         Initialize the form and pre-fill the 'groups' field for existing users.
         """
-        user = kwargs.pop("user", None)
+        # self.user = kwargs.pop("request_user", None)
+        # self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
         # Pre-populate groups if user exists
         if self.instance.pk:
             self.fields["groups"].initial = self.instance.groups.all()
-        if user and not user.is_superuser:
+        if self.user and not self.user.is_superuser:
             # Disable field for non admins
             self.fields["groups"].disabled = True
             self.fields["is_staff"].disabled = True
@@ -147,19 +148,13 @@ class UserForm(ObjectModelForm):
         Check that password1 and password2 match.
         """
         cleaned_data = super().clean()
-        user = getattr(self, "current_user", None)
+        # user = getattr(self, "current_user", None)
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
         if password1 or password2:  # if one of the two is filled in
             if password1 != password2:
                 raise forms.ValidationError(messages.PASSWORD_ERROR)
-
-        if user and not user.is_superuser and self.instance.pk:
-            # Disable field for non admins
-            cleaned_data["is_staff"] = getattr(self.instance, "is_staff")
-            cleaned_data["is_superuser"] = getattr(self.instance, "is_superuser")
-            cleaned_data["groups"] = getattr(self.instance, "is_superuser")
 
         return cleaned_data
 
@@ -173,16 +168,25 @@ class UserForm(ObjectModelForm):
         Returns:
             User: The saved user instance.
         """
-        user = super().save(commit=False)
+        obj = super().save(commit=False)
 
         password1 = self.cleaned_data.get("password1")
         if password1:  # only if set/modified
-            user.set_password(password1)
+            obj.set_password(password1)
+
+        if self.user and self.user.is_superuser:
+            # Set groups only for admins
+            obj.groups.set(self.cleaned_data["groups"])
+
+        if self.user and not self.user.is_superuser and obj.pk:
+            # Disable field for non admins
+            current_obj = User.objects.get(id=obj.id)
+            obj.is_superuser = current_obj.is_superuser
+            obj.is_staff = current_obj.is_staff
 
         if commit:
-            user.save()
-            user.groups.set(self.cleaned_data["groups"])
-        return user
+            obj.save()
+        return obj
 
 
 
