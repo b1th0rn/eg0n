@@ -4,6 +4,63 @@ from rest_framework.permissions import BasePermission
 
 
 #############################################################################
+# Group
+#############################################################################
+
+
+class GroupPermissionPolicy:
+    """UI and DRF (API) permisson policy for Group objects."""
+
+    def can(self, user, method, target=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        if not target and method in (
+            "GET",
+            "OPTIONS",
+            "HEAD",
+            "PUT",
+            "PATCH",
+            "DELETE",
+        ):
+            # Without target object, return True with safe methods
+            return True
+
+        # === ADMIN RULES ===
+        if user.is_superuser:
+            # Admin can do everything
+            return True
+
+        # === STAFF RULES ===
+        return method in ("GET")
+
+
+class GroupPermission(BasePermission):
+    """DRF permission class using the shared GroupPermissionPolicy."""
+
+    def has_permission(self, request, view):
+        """List/create permissions, called before accessing the queryset."""
+        policy_class = getattr(view, "policy_class")
+        policy = policy_class()
+        user = request.user
+        method = request.method
+        return policy.can(user, method, None)
+
+    def has_object_permission(self, request, view, obj):
+        """Permissions for single-object operations."""
+        policy_class = getattr(view, "policy_class")
+        policy = policy_class()
+        user = request.user
+        method = request.method
+        return policy.can(user, method, obj)
+
+
+#############################################################################
 # User
 #############################################################################
 

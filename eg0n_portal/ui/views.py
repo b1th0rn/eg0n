@@ -3,7 +3,6 @@
 from constance import config
 from django.contrib import messages as django_msgs
 from django.contrib.auth.models import Group, User
-from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
@@ -23,7 +22,14 @@ from ui.include.views import (
     ObjectListView,
     TemplateMixin,
 )
-from ui.permissions import UserPermissionPolicy, UserPermission, TokenPermission, TokenPermissionPolicy
+from ui.permissions import (
+    GroupPermission,
+    GroupPermissionPolicy,
+    TokenPermission,
+    TokenPermissionPolicy,
+    UserPermission,
+    UserPermissionPolicy,
+)
 from ui.serializers import GroupSerializer, UserSerializer
 from ui.tables import GroupTable, TokenTable, UserTable
 
@@ -140,7 +146,7 @@ class ConstanceUpdateView(TemplateView):
 
 
 class GroupQueryMixin:
-    """Mixin encapsulating common queryset and permission logic for `Group`.
+    """Mixin encapsulating common queryset and permission logic for Group objects.
 
     Used by both HTML views and API views.
     """
@@ -148,16 +154,10 @@ class GroupQueryMixin:
     filterset_class = GroupFilter
     form_class = GroupForm
     model = Group
+    permission_classes = [GroupPermission]  # Required for API
+    policy_class = GroupPermissionPolicy
     serializer_class = GroupSerializer
     table_class = GroupTable
-
-    def test_func(self):
-        # Define who can GET/HEAD/OPTION/DELETE/PATCH/POST/PUT
-        user = self.request.user
-        method = self.request.method.upper()
-        if method in ("GET", "HEAD", "OPTIONS"):
-            return user.is_authenticated
-        return user.is_authenticated and user.is_superuser
 
     def get_queryset(self):
         """Return the queryset of `Group` objects accessible to the current user.
@@ -172,25 +172,6 @@ class GroupQueryMixin:
             return qs
         # Non-admin users can only see the `Group` objects they belong to
         return qs.filter(user=user)
-
-    def get_object(self):
-        """Return a `Group` object only if the user has permission.
-
-        - Superusers can access any `Group`.
-        - Non-superusers can only access `Group` objects they belong to.
-
-        Raises:
-            PermissionDenied: If the user does not have access.
-        """
-        obj = super().get_object()
-        user = self.request.user
-        if user.is_superuser:
-            # Admin users can see all `Group` objects
-            return obj
-        if user in obj.user_set.all():
-            # Non-admin users can only see the `Group` objects they belong to
-            return obj
-        raise PermissionDenied(messages.PERMISSION_DENIED)
 
 
 class GroupAPIViewSet(GroupQueryMixin, APICRUDViewSet):
@@ -356,6 +337,7 @@ class UserListView(UserQueryMixin, ObjectListView):
 # Token
 #############################################################################
 
+
 class TokenQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Token objects.
 
@@ -380,7 +362,6 @@ class TokenQueryMixin:
             return qs
         # Staff and standard users can only see their own Token
         return qs.filter(user__username=user.username)
-
 
 
 class TokenBulkDeleteView(TokenQueryMixin, ObjectBulkDeleteView):
