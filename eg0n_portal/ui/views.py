@@ -165,7 +165,8 @@ class GroupQueryMixin:
         - Superusers can access all `Group` objects.
         - Non-superusers can only access `Group` objects they belong to.
         """
-        qs = Group.objects.all()
+        # order_by is required to aboid UnorderedObjectListWarning warning
+        qs = Group.objects.all().order_by("name")
         user = self.request.user
         if user.is_superuser:
             # Admin users can see all `Group` objects
