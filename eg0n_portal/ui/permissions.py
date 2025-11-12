@@ -4,6 +4,30 @@ from rest_framework.permissions import BasePermission
 
 
 #############################################################################
+# Constance
+#############################################################################
+
+
+class ConstancePermissionPolicy:
+    """
+    Policy per TemplateView.
+    """
+
+    def can(self, user, method):
+        """
+        Restituisce:
+        - True: ha permesso → mostra la view
+        - False: utente autenticato ma senza permesso → 403
+        - None: utente anonimo → 401 / redirect
+        """
+        if not user.is_authenticated:
+            return None
+        if user.is_superuser:
+            return True
+        return False
+    
+
+#############################################################################
 # Group
 #############################################################################
 
@@ -182,3 +206,25 @@ class TokenPermission(BasePermission):
         user = request.user
         method = request.method
         return policy.can(user, method, obj)
+
+
+#############################################################################
+# Home
+#############################################################################
+
+
+class HomePermissionPolicy:
+    """
+    Policy per TemplateView.
+    """
+
+    def can(self, user, method):
+        """
+        Restituisce:
+        - True: ha permesso → mostra la view
+        - False: utente autenticato ma senza permesso → 403
+        - None: utente anonimo → 401 / redirect
+        """
+        if not user.is_authenticated:
+            return None
+        return True

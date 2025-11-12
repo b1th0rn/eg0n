@@ -23,8 +23,10 @@ from ui.include.views import (
     TemplateMixin,
 )
 from ui.permissions import (
+    ConstancePermissionPolicy,
     GroupPermission,
     GroupPermissionPolicy,
+    HomePermissionPolicy,
     TokenPermission,
     TokenPermissionPolicy,
     UserPermission,
@@ -39,7 +41,7 @@ from ui.tables import GroupTable, TokenTable, UserTable
 #############################################################################
 
 
-class ConstanceListView(TemplateView):
+class ConstanceListView(TemplateMixin, TemplateView):
     """
     View to display Constance settings as a list.
 
@@ -48,7 +50,7 @@ class ConstanceListView(TemplateView):
         TemplateView
     """
 
-    permission_classes = [IsAdmin]
+    policy_class = ConstancePermissionPolicy
     template_name = "ui/settings_list.html"
 
     def get_variables(self):
@@ -72,7 +74,7 @@ class ConstanceListView(TemplateView):
         return context
 
 
-class ConstanceUpdateView(TemplateView):
+class ConstanceUpdateView(TemplateMixin, TemplateView):
     """
     View to display and update Constance settings via a form.
 
@@ -81,8 +83,8 @@ class ConstanceUpdateView(TemplateView):
         TemplateView
     """
 
+    policy_class = ConstancePermissionPolicy
     template_name = "ui/settings_form.html"
-    permission_classes = [IsAdmin]
 
     def get_variables(self):
         """
@@ -394,23 +396,6 @@ class TokenListView(TokenQueryMixin, ObjectListView):
 #############################################################################
 # Home
 #############################################################################
-
-
-class HomePermissionPolicy:
-    """
-    Policy per TemplateView.
-    """
-
-    def can(self, user, method):
-        """
-        Restituisce:
-        - True: ha permesso → mostra la view
-        - False: utente autenticato ma senza permesso → 403
-        - None: utente anonimo → 401 / redirect
-        """
-        if not user.is_authenticated:
-            return None
-        return True
 
 
 class HomeView(TemplateMixin, TemplateView):
