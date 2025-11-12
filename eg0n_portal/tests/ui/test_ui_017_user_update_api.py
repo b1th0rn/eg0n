@@ -47,7 +47,7 @@ def test_ui_user_update_api_staff(
     user_set_ungrouped,
     user_set_single,
 ):
-    """Test DRF (API) user detail view by staffs."""
+    """Test DRF (API) user update by staffs."""
     user = user_set_group_multiple["staff1"]
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
@@ -109,6 +109,16 @@ def test_ui_user_update_api_user(
             assert (
                 response.status_code == 404
             ), f"User {u.username} must not be updated by {user.username}"
+
+
+@pytest.mark.django_db
+def test_ui_user_update_api_guest(client, user_set_group1):
+    """Test DRF (API) user update by guest user."""
+    for u in User.objects.all():
+        url = reverse("user_update", kwargs={"pk": u.id})
+        payload = {"username": u.username, "first_name": f"First {u.username} Name"}
+        response = client.post(url, payload, format="json")
+        assert response.status_code == 403, "Expected 403 for guest user"
 
 
 @pytest.mark.django_db
