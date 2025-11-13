@@ -332,7 +332,7 @@ class ObjectDetailView(ObjectMixin, DetailView):
 
         context["object"] = data
         context["attrs"] = {
-            "title": self.attrs.get("title", ""),
+            "title": self.attrs.get("title", str(obj)),
             "description": self.attrs.get("description", ""),
             "fields": {},
         }

@@ -2,58 +2,57 @@
 
 import requests
 import sys
+import random
 
 
 # from django.contrib.auth.models import Group, User
 
-token="7d0357c974b6f6bce5fb4bd37a74b640d1e19399" # admin
-header = {
-    "Authorization": f"Token {token}"
-}
-url = f"http://localhost:9000/api/user/"
+# token="7d0357c974b6f6bce5fb4bd37a74b640d1e19399" # admin
+# header = {
+#     "Authorization": f"Token {token}"
+# }
+# url = f"http://localhost:9000/api/user/"
 
-res = requests.post(url, headers=header, json={"username": "ciao", "first_name": "ciao"})
-print(res.status_code)
-print(res.text)
+# res = requests.post(url, headers=header, json={"username": "ciao", "first_name": "ciao"})
+# print(res.status_code)
+# print(res.text)
 
-sys.exit()
+# sys.exit()
 
-# Admin
-token="7d0357c974b6f6bce5fb4bd37a74b640d1e19399"
-header = {
-    "Authorization": f"Token {token}"
-}
+# # Admin
+# token="7d0357c974b6f6bce5fb4bd37a74b640d1e19399"
+# header = {
+#     "Authorization": f"Token {token}"
+# }
 
-url = "http://localhost:9000/api/user/206/"
-payload = {
-    "is_staff": True,
-    "is_superadmin": False,
-    "groups":[],
-}
-res = requests.patch(url, json=payload, headers=header)
-print("#" * 70)
-print("# BEFORE")
-print("#" * 70)
-print(res.json())
-print("#" * 70)
+# url = "http://localhost:9000/api/user/206/"
+# payload = {
+#     "is_staff": True,
+#     "is_superadmin": False,
+#     "groups":[],
+# }
+# res = requests.patch(url, json=payload, headers=header)
+# print("#" * 70)
+# print("# BEFORE")
+# print("#" * 70)
+# print(res.json())
+# print("#" * 70)
 
 # Staff
-token="e34ad91624c425b6b794e3cb242363c3fd3532e1"
-header = {
-    "Authorization": f"Token {token}"
-}
+# token="5b4600a3a09456b1f0716a3be753bb3d41ab7bd8"
+# header = {
+#     "Authorization": f"Token {token}"
+# }
 
-url = "http://localhost:9000/api/user/206/"
-payload = {
-    "groups": [1],
-}
-res = requests.patch(url, headers=header, json=payload)
+# url = "http://localhost:9000/api/group/"
+# payload = {
+#     "name": f"test{random.randint(100, 1000)}",
+# }
+# res = requests.post(url, headers=header, json=payload)
 
-print(res.status_code, res.text)
+# print(res.status_code, res.text)
 
-res = requests.get(url, headers=header)
-print("#" * 70)
-print("# AFTER")
-print("#" * 70)
-print(res.json())
-print("#" * 70)
+
+
+res = requests.post("http://localhost:9000/token/create")
+print(res.status_code)

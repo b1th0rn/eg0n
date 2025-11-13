@@ -315,7 +315,7 @@ class UserDeleteView(UserQueryMixin, ObjectDeleteView):
 class UserDetailView(UserQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a User."""
 
-    exclude = ["id", "password"]
+    exclude = ["id", "password", "groups"]
     sequence = [
         "username",
         "first_name",
@@ -324,6 +324,9 @@ class UserDetailView(UserQueryMixin, ObjectDetailView):
         "is_active",
         "is_superuser",
         "is_staff",
+        "groups_display",
+        "date_joined",
+        "last_login",
     ]
 
 
