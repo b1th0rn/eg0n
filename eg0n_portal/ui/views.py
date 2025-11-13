@@ -11,7 +11,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from ui.filters import GroupFilter, TokenFilter, UserFilter
 from ui.forms import GroupForm, UserForm, TokenForm
 from ui.include import messages
-from ui.include.permissions import IsAdmin
+from ui.include.permissions import ObjectPermission
 from ui.include.views import (
     APICRUDViewSet,
     ObjectBulkDeleteView,
@@ -24,12 +24,9 @@ from ui.include.views import (
 )
 from ui.permissions import (
     ConstancePermissionPolicy,
-    GroupPermission,
     GroupPermissionPolicy,
     HomePermissionPolicy,
-    TokenPermission,
     TokenPermissionPolicy,
-    UserPermission,
     UserPermissionPolicy,
 )
 from ui.serializers import GroupSerializer, UserSerializer
@@ -156,7 +153,7 @@ class GroupQueryMixin:
     filterset_class = GroupFilter
     form_class = GroupForm
     model = Group
-    permission_classes = [GroupPermission]  # Required for API
+    # permission_classes = [GroupPermission]  # Required for API
     policy_class = GroupPermissionPolicy
     serializer_class = GroupSerializer
     table_class = GroupTable
@@ -267,7 +264,7 @@ class UserQueryMixin:
     filterset_class = UserFilter
     form_class = UserForm
     model = User
-    permission_classes = [UserPermission]  # Required for API
+    # permission_classes = [UserPermission]  # Required for API
     policy_class = UserPermissionPolicy
     serializer_class = UserSerializer
     table_class = UserTable
@@ -350,7 +347,7 @@ class TokenQueryMixin:
     filterset_class = TokenFilter
     form_class = TokenForm
     model = Token
-    permission_classes = [TokenPermission]  # Required for API
+    # permission_classes = [TokenPermission]  # Required for API
     policy_class = TokenPermissionPolicy
     serializer_class = None
     table_class = TokenTable
@@ -375,6 +372,7 @@ class TokenBulkDeleteView(TokenQueryMixin, ObjectBulkDeleteView):
 
 class TokenCreateView(TokenQueryMixin, ObtainAuthToken):
     """HTML view for creating a new Token."""
+    permission_classes = [ObjectPermission]
 
     def post(self, request, *args, **kwargs):
         Token.objects.get_or_create(user=request.user)

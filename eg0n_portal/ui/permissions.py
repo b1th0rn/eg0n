@@ -64,26 +64,6 @@ class GroupPermissionPolicy:
         return method in ("GET")
 
 
-class GroupPermission(BasePermission):
-    """DRF permission class using the shared GroupPermissionPolicy."""
-
-    def has_permission(self, request, view):
-        """List/create permissions, called before accessing the queryset."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, None)
-
-    def has_object_permission(self, request, view, obj):
-        """Permissions for single-object operations."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, obj)
-
-
 #############################################################################
 # User
 #############################################################################
@@ -143,26 +123,6 @@ class UserPermissionPolicy:
         return method in ("GET")
 
 
-class UserPermission(BasePermission):
-    """DRF permission class using the shared UserPermissionPolicy."""
-
-    def has_permission(self, request, view):
-        """List/create permissions, called before accessing the queryset."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, None)
-
-    def has_object_permission(self, request, view, obj):
-        """Permissions for single-object operations."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, obj)
-
-
 #############################################################################
 # Token
 #############################################################################
@@ -186,26 +146,6 @@ class TokenPermissionPolicy:
 
         # Without target object, any method is safe
         return True
-
-
-class TokenPermission(BasePermission):
-    """DRF permission class using the shared TokenPermissionPolicy."""
-
-    def has_permission(self, request, view):
-        """List/create permissions, called before accessing the queryset."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, None)
-
-    def has_object_permission(self, request, view, obj):
-        """Permissions for single-object operations."""
-        policy_class = getattr(view, "policy_class")
-        policy = policy_class()
-        user = request.user
-        method = request.method
-        return policy.can(user, method, obj)
 
 
 #############################################################################

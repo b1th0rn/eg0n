@@ -19,6 +19,7 @@ from django_tables2 import SingleTableView
 from django_tables2.columns import Column
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from ui.include.permissions import ObjectPermission
 
 
 class APICRUDViewSet(ModelViewSet):
@@ -31,6 +32,7 @@ class APICRUDViewSet(ModelViewSet):
     filterset_class = None
     serializer_class = None
     queryset = None
+    permission_classes = [ObjectPermission]  # Required for API
 
 
 class APIRDViewSet(
@@ -45,6 +47,7 @@ class APIRDViewSet(
     filterset_class = None
     serializer_class = None
     queryset = None
+    permission_classes = [ObjectPermission]  # Required for API
 
 
 class APIRViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
@@ -57,6 +60,7 @@ class APIRViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     filterset_class = None
     serializer_class = None
     queryset = None
+    permission_classes = [ObjectPermission]  # Required for API
 
 
 class TemplateMixin:
@@ -92,6 +96,7 @@ class ObjectMixin:
     """
 
     policy_class = None  # da impostare nelle subclass o nei mixin specifici
+
 
     def dispatch(self, request, *args, **kwargs):
         """
