@@ -95,12 +95,13 @@ def test_ui_user_update_api_user(
         if u.id == user.id:
             # Own profile update tested in profile tests
             continue
+        payload = {"first_name": f"First {u.username} Name"}
         shared_groups = bool(
             user.groups.values_list("id", flat=True)
             & u.groups.values_list("id", flat=True)
         )
         url = reverse("user-detail", kwargs={"pk": u.id})
-        response = api_client.delete(url, headers=headers)
+        response = api_client.patch(url, payload, headers=headers)
         if shared_groups:
             assert (
                 response.status_code == 403
@@ -112,13 +113,15 @@ def test_ui_user_update_api_user(
 
 
 @pytest.mark.django_db
-def test_ui_user_update_api_guest(client, user_set_group1):
+def test_ui_user_update_api_guest(api_client, user_set_group1):
     """Test DRF (API) user update by guest user."""
     for u in User.objects.all():
         url = reverse("user_update", kwargs={"pk": u.id})
         payload = {"username": u.username, "first_name": f"First {u.username} Name"}
-        response = client.post(url, payload, format="json")
-        assert response.status_code == 403, "Expected 403 for guest user"
+        response = api_client.patch(url, payload, format="json")
+        assert (
+            response.status_code == 302
+        ), "Expected 302 (redirect to login) for guest user"
 
 
 @pytest.mark.django_db
