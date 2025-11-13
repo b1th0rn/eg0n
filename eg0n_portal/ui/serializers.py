@@ -97,9 +97,9 @@ class UserSerializer(ObjectSerializer):
 
     def get_fields(self):
         fields = super().get_fields()
-        user = self.context["request"].user
-        if not user.is_superuser:
-            # Disable field for non admins
+        request = self.context.get("request", None)
+        if request and request.user and not request.user.is_superuser:
+            # Web request -> disable field for non admins
             fields["groups"].read_only = True
             fields["is_staff"].read_only = True
             fields["is_superuser"].read_only = True

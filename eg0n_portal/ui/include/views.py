@@ -314,15 +314,13 @@ class ObjectDetailView(ObjectMixin, DetailView):
         fields = obj._meta.fields
         policy = self.policy_class()
         user = self.request.user
+        serializer = self.serializer_class(obj)
+        data = serializer.data
 
-        data = {}
-
-        for field in fields:
-            field_name = field.name
-            if field_name in self.exclude:
-                continue
-            value = getattr(obj, field_name)
-            data[field_name] = value
+        for field_name in self.exclude:
+            # Removing excluded fields
+            if field_name in data:
+                del data[field_name]
 
         # Sort by `sequence`, if present
         if self.sequence:
@@ -336,7 +334,14 @@ class ObjectDetailView(ObjectMixin, DetailView):
         context["attrs"] = {
             "title": self.attrs.get("title", ""),
             "description": self.attrs.get("description", ""),
+            "fields": {},
         }
+        for field in obj._meta.get_fields():
+            if field.concrete and not field.many_to_many and not field.auto_created:
+                context["attrs"]["fields"][field.name] = {
+                    "verbose_name": field.verbose_name,
+                    "help_text": field.help_text,
+                }
         context["model_name"] = self.model._meta.model_name
         context["permissions"] = {
             "can_create": policy.can(user, "POST"),
