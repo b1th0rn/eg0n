@@ -8,10 +8,16 @@ from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+import django_tables2 as tables
 from ui.filters import GroupFilter, TokenFilter, UserFilter
 from ui.forms import GroupForm, UserForm, TokenForm
 from ui.include import messages
 from ui.include.permissions import ObjectPermission
+from ui.include.tables import (
+    GreenBooleanColumn,
+    GreenRedReverseBooleanColumn,
+    GreenRedBooleanColumn,
+)
 from ui.include.views import (
     APICRUDViewSet,
     ObjectBulkDeleteView,
@@ -314,6 +320,18 @@ class UserDeleteView(UserQueryMixin, ObjectDeleteView):
 
 class UserDetailView(UserQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a User."""
+    # groups_display = "Groups"
+    is_active = GreenRedBooleanColumn()
+    is_staff = GreenRedReverseBooleanColumn(verbose_name="Staff")
+    is_superuser = GreenRedReverseBooleanColumn(verbose_name="Admin")
+    # date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
+    # last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    # is_active = GreenRedBooleanColumn()
+    # is_staff = GreenRedReverseBooleanColumn(verbose_name="Staff")
+    # is_superuser = GreenRedReverseBooleanColumn(verbose_name="Admin")
+    # date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
+    # last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     exclude = ["id", "password", "groups"]
     sequence = [

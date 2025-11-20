@@ -7,7 +7,7 @@ django-tables2, and django-filters.
 """
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, FieldDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
@@ -295,7 +295,7 @@ class ObjectDetailView(ObjectMixin, DetailView):
     model = None
     exclude = []
     sequence = []
-    attrs = {"title": "", "description": ""}
+    attrs = {}
     template_name = "ui/object_detail.html"
     list_view = None
 
@@ -311,7 +311,7 @@ class ObjectDetailView(ObjectMixin, DetailView):
         """Prepare context data for template rendering."""
         context = super().get_context_data(**kwargs)
         obj = self.object
-        fields = obj._meta.fields
+        # fields = obj._meta.fields
         policy = self.policy_class()
         user = self.request.user
         serializer = self.serializer_class(obj)
@@ -334,14 +334,42 @@ class ObjectDetailView(ObjectMixin, DetailView):
         context["attrs"] = {
             "title": self.attrs.get("title", str(obj)),
             "description": self.attrs.get("description", ""),
+            "name": str(obj),
             "fields": {},
         }
-        for field in obj._meta.get_fields():
-            if field.concrete and not field.many_to_many and not field.auto_created:
+        for field_name, value in data.items():
+            try:
+                field = obj._meta.get_field(field_name)
                 context["attrs"]["fields"][field.name] = {
                     "verbose_name": field.verbose_name,
                     "help_text": field.help_text,
                 }
+            except FieldDoesNotExist:
+                field = None
+            
+            custom_field = getattr(self, field_name, None)
+            if custom_field:
+                if custom_field.verbose_name:
+                    context["attrs"]["fields"][field.name]["verbose_name"] = custom_field.verbose_name
+                if custom_field.template_name:
+                    context["attrs"]["fields"][field.name]["template_name"] = custom_field.template_name
+
+            # else:
+            # print(help(obj._meta.get_field))
+
+
+        # for field in obj._meta.get_fields():
+        #     if field.concrete and not field.many_to_many and not field.auto_created:
+        #         context["attrs"]["fields"][field.name] = {
+        #             "verbose_name": field.verbose_name,
+        #             "help_text": field.help_text,
+        #         }
+        #         custom_field = getattr(self, field.name, None)
+        #         if custom_field:
+        #             context["attrs"]["fields"][field.name]["template_name"] = custom_field.template_name
+        #             if custom_field.verbose_name:
+        #                 # Override verbose name
+        #                 context["attrs"]["fields"][field.name]["verbose_name"] = custom_field.verbose_name
         context["model_name"] = self.model._meta.model_name
         context["permissions"] = {
             "can_create": policy.can(user, "POST"),
