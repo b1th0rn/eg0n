@@ -15,6 +15,7 @@ from ui.include import messages
 from ui.include.permissions import ObjectPermission
 from ui.include.tables import (
     GreenBooleanColumn,
+    GroupColumn,
     GreenRedReverseBooleanColumn,
     GreenRedBooleanColumn,
 )
@@ -324,16 +325,11 @@ class UserDetailView(UserQueryMixin, ObjectDetailView):
     is_active = GreenRedBooleanColumn()
     is_staff = GreenRedReverseBooleanColumn(verbose_name="Staff")
     is_superuser = GreenRedReverseBooleanColumn(verbose_name="Admin")
-    # date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
-    # last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
+    last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    groups = GroupColumn()
 
-    # is_active = GreenRedBooleanColumn()
-    # is_staff = GreenRedReverseBooleanColumn(verbose_name="Staff")
-    # is_superuser = GreenRedReverseBooleanColumn(verbose_name="Admin")
-    # date_joined = tables.DateColumn(orderable=True, format="Y-m-d")
-    # last_login = tables.DateColumn(orderable=True, format="Y-m-d H:i")
-
-    exclude = ["id", "password", "groups"]
+    exclude = ["id", "password"]
     sequence = [
         "username",
         "first_name",
@@ -342,7 +338,8 @@ class UserDetailView(UserQueryMixin, ObjectDetailView):
         "is_active",
         "is_superuser",
         "is_staff",
-        "groups_display",
+        # "groups_display",
+        "groups",
         "date_joined",
         "last_login",
     ]

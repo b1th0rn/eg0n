@@ -17,6 +17,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django_filters.views import FilterView
 from django_tables2 import SingleTableView
 from django_tables2.columns import Column
+from django_tables2 import RequestConfig
+import django_tables2 as tables
 from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from ui.include.permissions import ObjectPermission
@@ -317,42 +319,59 @@ class ObjectDetailView(ObjectMixin, DetailView):
         serializer = self.serializer_class(obj)
         data = serializer.data
 
-        for field_name in self.exclude:
-            # Removing excluded fields
-            if field_name in data:
-                del data[field_name]
+        class SingleObjectTable(tables.Table):
+            class Meta:
+                model = self.model
+                template_name = "django_tables2/bootstrap.html"
+                # Se vuoi, puoi escludere campi dinamicamente
+                exclude = self.exclude
+                sequence = self.sequence
+                attrs = self.attrs
 
-        # Sort by `sequence`, if present
-        if self.sequence:
-            ordered_data = {k: data[k] for k in self.sequence if k in data}
-            for k in data:
-                if k not in ordered_data:
-                    ordered_data[k] = data[k]
-            data = ordered_data
+        for custom_field in self.get_column_fields().keys():
+            # custom_fields[custom_field] = getattr(self, custom_field)
+            SingleObjectTable.base_columns[custom_field] = getattr(self, custom_field)
+        table = SingleObjectTable([obj])
+        RequestConfig(self.request).configure(table)
+        # context["table"] = list(table.rows)[0]
 
-        context["object"] = data
+
+        # for field_name in self.exclude:
+        #     # Removing excluded fields
+        #     if field_name in data:
+        #         del data[field_name]
+
+        # # Sort by `sequence`, if present
+        # if self.sequence:
+        #     ordered_data = {k: data[k] for k in self.sequence if k in data}
+        #     for k in data:
+        #         if k not in ordered_data:
+        #             ordered_data[k] = data[k]
+        #     data = ordered_data
+
+        context["object"] = list(table.rows)[0]
         context["attrs"] = {
             "title": self.attrs.get("title", str(obj)),
             "description": self.attrs.get("description", ""),
             "name": str(obj),
-            "fields": {},
+            # "fields": {},
         }
-        for field_name, value in data.items():
-            try:
-                field = obj._meta.get_field(field_name)
-                context["attrs"]["fields"][field.name] = {
-                    "verbose_name": field.verbose_name,
-                    "help_text": field.help_text,
-                }
-            except FieldDoesNotExist:
-                field = None
+        # for field_name, value in data.items():
+        #     try:
+        #         field = obj._meta.get_field(field_name)
+        #         context["attrs"]["fields"][field.name] = {
+        #             "verbose_name": field.verbose_name,
+        #             "help_text": field.help_text,
+        #         }
+        #     except FieldDoesNotExist:
+        #         field = None
             
-            custom_field = getattr(self, field_name, None)
-            if custom_field:
-                if custom_field.verbose_name:
-                    context["attrs"]["fields"][field.name]["verbose_name"] = custom_field.verbose_name
-                if custom_field.template_name:
-                    context["attrs"]["fields"][field.name]["template_name"] = custom_field.template_name
+        #     custom_field = getattr(self, field_name, None)
+        #     if custom_field:
+        #         if custom_field.verbose_name:
+        #             context["attrs"]["fields"][field.name]["verbose_name"] = custom_field.verbose_name
+        #         if custom_field.template_name:
+        #             context["attrs"]["fields"][field.name]["template_name"] = custom_field.template_name
 
             # else:
             # print(help(obj._meta.get_field))

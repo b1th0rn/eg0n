@@ -17,33 +17,17 @@
             </div>
             {% endif %}
             <div class="card-body">
-                {% for field, value in object.items %}
+                {% for column, cell in object.items %}
                 <div class="mb-3 row">
-                    {% with field=attrs.fields|get:field %}
                     <label class="col-3 col-form-label text-uppercase">
-                        {% if field and field.verbose_name %}
-                            {{ field.verbose_name }}
-                        {% else %}
-                            {{ field }}
-                        {% endif %}
+                        {{ column }}
                     </label>
                     <div class="col">
-                        {% if field.template_name %}
-                            {% include field.template_name %}
-                        {% else %}
-                            {{ value|safe }}
-                        {% endif %}
-                        <small id="id_{{ field.name }}_helptext" class="form-hint">
-                            {% if field and field.help_text %}
-                                {{ field.help_text }}
-                            {% endif %}
-                        </small>
+                        {{ cell }}
                     </div>
-                    {% endwith %}
                 </div>
                 {% endfor %}
             </div>
-
             <div class="card-footer">
                 <div class="text-end">
                     {% if permissions.can_delete %}
