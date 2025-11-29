@@ -14,3 +14,9 @@ wget -q -O- "${TABLER_CDN_URL}/js/tabler.min.js" > ${DJANGO_ROOT}/static/tabler/
 wget -q -O- "${TABLER_CDN_URL}/js/tabler.min.js.map" > ${DJANGO_ROOT}/static/tabler/js/tabler.min.js.map
 wget -q -O- "${TABLER_CDN_URL}/css/tabler.min.css" > ${DJANGO_ROOT}/static/tabler/css/tabler.min.css
 wget -q -O- "${TABLER_CDN_URL}/css/tabler.min.css.map" > ${DJANGO_ROOT}/static/tabler/css/tabler.min.css.map
+
+# UI
+rsync -a --exclude __pycache__ ../unetlab/unetlab/ui/  eg0n_portal/ui/
+rsync -a --exclude __pycache__ ../unetlab/unetlab/templates/ui/ eg0n_portal/_templates/ui/
+rsync -a --exclude __pycache__ ../unetlab/unetlab/static/ui/ eg0n_portal/static/ui/
+rsync -a --exclude __pycache__ ../unetlab/unetlab/tests/ui/ eg0n_portal/tests/ui/
