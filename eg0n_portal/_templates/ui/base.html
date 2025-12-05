@@ -1,16 +1,16 @@
 {% load i18n static %}
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<html lang="{{ LANGUAGE_CODE|default:'en-us' }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}" data-bs-theme="light">
 
 <head>
     <link rel="author" href="https://www.adainese.it" />
     <link rel="icon" href="{% static 'ui/favicon.ico' %}" type="image/x-icon" sizes="16x16" />
-    <title>{% block title %}eg0n{% endblock title %}</title>
+    <title>{% block title %}{{ site_meta.title }}{% endblock title %}</title>
     <meta charSet="utf-8" />
-    <meta name="author" content="Andrea Dainese, Rocco Sicilia" />
-    <meta name="description" content="eg0n.">
-    <meta name="keywords" content="eg0n, misp, cti">
+    <meta name="author" content="{% for author in site_meta.authors %}{{ author }}{% if not forloop.last %}, {% endif %}{% endfor %}" />
+    <meta name="description" content="{{ site_meta.description }}">
+    <meta name="keywords" content="{% for tag in site_meta.keywords %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}">
     <meta name="Content-Security-Policy"
         content="default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'" />
     <meta name="robots" content="noindex, nofollow">
@@ -18,20 +18,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <!-- CSS files -->
     <link href="{% static 'tabler/css/tabler.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'ui/css/main.css' %}" rel="stylesheet" />
+    <link href="{% static 'ui/css/ui.css' %}" rel="stylesheet" />
 </head>
 
 <body class="{% block bodyclass %}{% endblock bodyclass %}">
-    <!-- VIEW: {{ request.resolver_match.view_name }} -->
+    <!-- URL VIEW: {{ request.resolver_match.view_name }} -->
     <!-- Banner -->
     {% block banner %}
-    {% if messages %}
-    <ul>
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
     {% endblock banner %}
     {% block navbar %}
     <!-- Navbar -->
@@ -61,6 +54,10 @@
                 </div>
             </div>
             {% endblock body %}
+            <!-- Messages -->
+            {% block messages %}
+            {% include "ui/partials/messages.html" %}
+            {% endblock messages %}
             <!-- Footer -->
             {% block footer %}
             {% include "ui/partials/footer.html" %}
@@ -71,42 +68,7 @@
     <!-- JavaScript files -->
     <script src="{% static 'tabler/js/tabler.min.js' %}" defer></script>
     <script src="{% static 'alpinejs/js/alpinejs.min.js' %}" defer></script>
-    <script>
-        /**
-        * This script enables closing Bootstrap dropdowns by clicking on a close button inside them.
-        * It supports multiple dropdowns on the same page and ensures that only the correct dropdown is closed.
-        *
-        * Usage requirements:
-        * - Each dropdown toggle must have the attribute: data-bs-toggle="dropdown"
-        * - Each close button must have the attribute: data-bs-dismiss="dropdown"
-        * - The close button must be inside a .dropdown container
-        */
-
-        document.addEventListener("DOMContentLoaded", function () {
-            // Select all close buttons that should dismiss a dropdown
-            const closeButtons = document.querySelectorAll('.btn[data-bs-dismiss="dropdown"]');
-
-            closeButtons.forEach(closeBtn => {
-                closeBtn.addEventListener("click", function () {
-                    // Find the nearest parent dropdown container
-                    const dropdown = closeBtn.closest(".dropdown");
-
-                    if (!dropdown) return; // Exit if no dropdown parent is found
-
-                    // Find the toggle element that controls this dropdown (usually an <a> with data-bs-toggle)
-                    const toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-
-                    if (!toggle) return; // Exit if toggle is not found
-
-                    // Get the Bootstrap Dropdown instance or create one if it doesn't exist
-                    const dropdownInstance = bootstrap.Dropdown.getOrCreateInstance(toggle);
-
-                    // Programmatically hide the dropdown
-                    dropdownInstance.hide();
-                });
-            });
-        });
-    </script>
+    <script src="{% static 'ui/js/ui.js' %}" defer></script>
 </body>
 
 </html>
