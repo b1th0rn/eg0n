@@ -8,7 +8,7 @@
 class InstancePermissionPolicy:
     """UI and DRF (API) permisson policy for Instance objects."""
 
-    def can(self, user, method, target=None):
+    def can(self, user, method, target=None, payload=None):
         """Defines what the requesting user can do based on their role and HTTP method."""
 
         # === GUEST RULES ===

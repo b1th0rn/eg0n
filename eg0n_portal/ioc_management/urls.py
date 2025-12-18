@@ -14,36 +14,36 @@ from ioc_management.views import (
 
 # DRF router for API endpoints
 router = DefaultRouter()
-router.register(r"ioc_management", InstanceAPIViewSet, basename="ioc-management")
+router.register(r"instance", InstanceAPIViewSet, basename="instance")
 
 # URL patterns for class-based views and API endpoints
 urlpatterns = [
     #########################################################################
     # Instance views (HTML)
     #########################################################################
-    path("ioc_management/", InstanceListView.as_view(), name="ioc_management_list"),
+    path("instance/", InstanceListView.as_view(), name="instance_list"),
     path(
-        "ioc_management/create", InstanceCreateView.as_view(), name="ioc_management_create"
+        "instance/create", InstanceCreateView.as_view(), name="instance_create"
     ),
     path(
-        "ioc_management/delete",
+        "instance/delete",
         InstanceBulkDeleteView.as_view(),
-        name="ioc_management_bulkdelete",
+        name="instance_bulkdelete",
     ),
     path(
-        "ioc_management/<str:pk>/delete",
+        "instance/<str:pk>/delete",
         InstanceDeleteView.as_view(),
-        name="ioc_management_delete",
+        name="instance_delete",
     ),
     path(
-        "ioc_management/<str:pk>/update",
+        "instance/<str:pk>/update",
         InstanceChangeView.as_view(),
-        name="ioc_management_update",
+        name="instance_update",
     ),
     path(
-        "ioc_management/<str:pk>/",
+        "instance/<str:pk>/",
         InstanceDetailView.as_view(),
-        name="ioc_management_detail",
+        name="instance_detail",
     ),
     #########################################################################
     # API endpoints

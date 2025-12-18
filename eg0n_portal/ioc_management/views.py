@@ -32,6 +32,11 @@ class InstanceQueryMixin:
     serializer_class = InstanceSerializer
     table_class = InstanceTable
 
+    def get_queryset(self):
+        """Return the queryset of Instance objects accessible to the current user."""
+        qs = Instance.objects.all()
+        return qs
+
 
 class InstanceAPIViewSet(InstanceQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Instance model."""
