@@ -27,8 +27,8 @@ class InstanceAdmin(admin.ModelAdmin):
 
 # E== EVENTS ADMIN ==
 class EventsAdmin(admin.ModelAdmin):
-    list_display = ["name", "created", "author", "lastchange_author"]
-    list_filter = ["created"]
+    list_display = ["name", "created_at", "author", "lastchange_author"]
+    list_filter = ["created_at"]
     search_fields = ["name", "author"]
     prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("author", "lastchange_author")
@@ -46,8 +46,8 @@ class EventsAdmin(admin.ModelAdmin):
 
 # == VULNS ADMIN ==
 class VulnsAdmin(admin.ModelAdmin):
-    list_display = ["name", "cve", "cvss", "created", "lastchange_author"]
-    list_filter = ["created"]
+    list_display = ["name", "cve", "cvss", "created_at", "lastchange_author"]
+    list_filter = ["created_at"]
     search_fields = ["name", "name"]
     prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("author", "lastchange_author")

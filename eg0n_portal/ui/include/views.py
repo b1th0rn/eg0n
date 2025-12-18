@@ -83,13 +83,14 @@ class ObjectMixin:
         return HttpResponse(_("Generic permission error"), status=500)
 
     def has_permission(self):
-        """Verify view level permissions using normalized HTTP methods."""
+        """Verify view level permissions using normalized HTTP methods (HTML only)."""
         if not self.policy_class:
             # Access granted without policy_class
             return True
 
         policy = self.policy_class()
         user = self.request.user
+        payload = self.request.POST.dict()
 
         # HTTP method normalization
         method = self.request.method.upper()
@@ -127,7 +128,7 @@ class ObjectMixin:
             except Exception:
                 target = None
 
-        return policy.can(user, method, target)
+        return policy.can(user, method, target, payload)
 
     def get_context_data(self, **kwargs):
         """Add UI settings to all HTML views."""
@@ -293,10 +294,10 @@ class ObjectDetailView(ObjectMixin, DetailView):
         }
         context["model_name"] = self.model._meta.model_name
         context["permissions"] = {
-            "can_create": policy.can(user, "POST"),
+            "can_create": policy.can(user, "POST", None, None),
             "can_read": True,
-            "can_update": policy.can(user, "PATCH", obj),
-            "can_delete": policy.can(user, "DELETE", obj),
+            "can_update": policy.can(user, "PATCH", obj, None),
+            "can_delete": policy.can(user, "DELETE", obj, None),
         }
         context["pk"] = obj.pk
         return context
@@ -328,7 +329,7 @@ class ObjectListView(ObjectMixin, SingleTableView, FilterView):
         # Add model_name to create URLs via views
         context["model_name"] = self.model._meta.model_name
         context["permissions"] = {
-            "can_create": policy.can(user, "POST"),
+            "can_create": policy.can(user, "POST", None, None),
             "can_read": True,
             "can_update": True,
             "can_delete": True,
@@ -351,7 +352,7 @@ class TemplateMixin:
     def dispatch(self, request, *args, **kwargs):
         """Check permissions before processing the view."""
         policy = self.policy_class()
-        result = policy.can(request.user, request.method)
+        result = policy.can(request.user, request.method, None, None)
         if result is True:
             # Access granted
             return super().dispatch(request, *args, **kwargs)

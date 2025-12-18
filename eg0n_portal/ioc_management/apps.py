@@ -1,6 +1,8 @@
+"""App configuration."""
+
 from django.apps import AppConfig
 
 
 class IocManagementConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'ioc_management'
+    name = 'ioc_management' # Python path to the app
+    verbose_name = "IOC Management"  # Human-readable app name
