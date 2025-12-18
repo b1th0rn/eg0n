@@ -1,106 +1,156 @@
 from django.contrib import admin
-from .models import Vuln, IpAdd, FQDN, Hash, CodeSnippet, Review
+from .models import Event, Vuln, IpAdd, FQDN, Hash, CodeSnippet, Review, Instance
 from django.utils.html import format_html
 import random
 
-# Vulnerabilities: custom admin
-class VulnsAdmin(admin.ModelAdmin):
-    list_display = ["name", "cve", "cvss", "publish_date", "lastchange_author"]
-    list_filter = ["publish_date"]
-    search_fields = ["name", "name"]
+# == VULNS INLINE FOR EVENTS ADMIN ==
+class VulnsInline(admin.TabularInline):
+    model = Vuln
+    extra = 0
+    fields = ("cve", "cvss", "description")
+    readonly_fields = ("cve", "cvss", "description")
+    show_change_link = True
+
+# == IPADD INLINE FOR EVENTS ADMIN ==
+class IpAddInline(admin.TabularInline):
+    model = IpAdd
+    extra = 0
+    fields = ("ip_address", "confidence", "description")
+    readonly_fields = ("ip_address", "confidence", "description")
+    show_change_link = True
+
+# == INSTANCE ADMIN ==
+class InstanceAdmin(admin.ModelAdmin):
+    list_display = ["name", "id"]
+    class Meta:
+        model = Instance
+
+# E== EVENTS ADMIN ==
+class EventsAdmin(admin.ModelAdmin):
+    list_display = ["name", "created", "author", "lastchange_author"]
+    list_filter = ["created"]
+    search_fields = ["name", "author"]
     prepopulated_fields = {"slug": ("name",)}
-    # author field
     readonly_fields = ("author", "lastchange_author")
-    def save_model(self, request, obj, form, change):
-        if not change:
-            obj.author = request.user.username
-        obj.lastchange_author = request.user.username
-        return super().save_model(request, obj, form, change)
+    inlines = [VulnsInline, IpAddInline]
+
     class Meta:
         model = Vuln
 
-# CodeSnippet: custom admin
-class CodeAdmin(admin.ModelAdmin):
-    list_display = ["name", "language", "publish_date", "lastchange_author"]
-    list_filter = ["publish_date"]
-    search_fields = ["name", "language"]
-    # author field
-    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    # == override save model to set author and lastchange_author ==
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.username
-        obj.lastchange_author = request.user.username
+            obj.author = request.user
+        obj.lastchange_author = request.user
         return super().save_model(request, obj, form, change)
-    class Meta:
-        model = CodeSnippet
 
-# IP Address: custom admin
+# == VULNS ADMIN ==
+class VulnsAdmin(admin.ModelAdmin):
+    list_display = ["name", "cve", "cvss", "created", "lastchange_author"]
+    list_filter = ["created"]
+    search_fields = ["name", "name"]
+    prepopulated_fields = {"slug": ("name",)}
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
+
+# == IPADD ADMIN ==
 class IpAdmin(admin.ModelAdmin):
-    list_display = ["ip_address", "url", "publish_date", "expire_date", "lastchange_author"]
-    list_filter = ["publish_date"]
+    list_display = ["ip_address", "url", "created", "expire_date", "lastchange_author"]
+    list_filter = ["created"]
     search_fields = ["ip_address", "url"]
-# author field
-    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.username
-        obj.lastchange_author = request.user.username
-        return super().save_model(request, obj, form, change)
-    def link(self, obj):
-        if obj.url:
-            return format_html("<a href='{url}' target='_blank'>{url}</a>", url=obj.url)
-        else:
-            return "n/a"
-    class Meta:
-        model = IpAdd
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
 
-#FQDN : custom admin.
+# == CODESNIPPET ADMIN ==
+class CodeAdmin(admin.ModelAdmin):
+    list_display = ["name", "language", "created", "lastchange_author"]
+    list_filter = ["created"]
+    search_fields = ["name", "language"]
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
+
+# == FQDN ADMIN ==
 class FQDNAdmin(admin.ModelAdmin):
-    list_display = ["fqdn", "publish_date", "expire_date", "lastchange_author"]
-    list_filter = ["publish_date"]
+    list_display = ["fqdn", "created", "expire_date", "lastchange_author"]
+    list_filter = ["created"]
     search_fields = ["fqdn"]
-    # author field
-    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.username
-        obj.lastchange_author = request.user.username
-        return super().save_model(request, obj, form, change)
-    class Meta:
-        model = FQDN
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
 
-# Hashes: custom admin
+# == HASH ADMIN ==
 class HashAdmin(admin.ModelAdmin):
-    list_display = ["filename", "platform", "website", "sha256", "sha1", "md5", "publish_date", "expire_date", "lastchange_author"]
-    list_filter = ["publish_date"]
-    search_fields = ["sha256", "sha1","md5"]
-    # author field
-    readonly_fields = ("misp_attribute_id", "misp_event_id", "author", "lastchange_author")
+    list_display = ["filename", "platform", "sha256", "expire_date", "lastchange_author"]
+    list_filter = ["created"]
+    search_fields = ["sha256", "sha1", "md5"]
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.username
-        obj.lastchange_author = request.user.username
-        return super().save_model(request, obj, form, change)
-    class Meta:
-        model = Hash
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
 
+# == REVIEW ADMIN ==
 class ReviewAdmin(admin.ModelAdmin):
-    # admin view
-    list_display = ["review_name", "ref_IpAdd", "ref_FQDN", "ref_Hash", "ref_CodeSnippet", "publish_date", "author"]
-    list_filter = ["publish_date"]
-    search_fields = ["review_name", "author"]
-    # author field
-    readonly_fields = ("author", "lastchange_author", "review_name" )
+    list_display = ["name", "created", "author"]
+    list_filter = ["created"]
+    search_fields = ["name", "author"]
+    readonly_fields = ("author", "lastchange_author")
+
+    class Meta:
+        model = Vuln
+
+    # == override save model to set author and lastchange_author ==
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.author = request.user.username
-            obj.review_name = "Rev_{}".format(random.randint(100, 999))
-        obj.lastchange_author = request.user.username
+            obj.author = request.user
+        obj.lastchange_author = request.user
+        super().save_model(request, obj, form, change)
         return super().save_model(request, obj, form, change)
-    class Meta:
-        model = Review
 
-# Register
+# == REGISTER MODELS TO ADMIN SITE ==
+admin.site.register(Instance, InstanceAdmin)
+admin.site.register(Event, EventsAdmin)
 admin.site.register(Vuln, VulnsAdmin)
 admin.site.register(IpAdd, IpAdmin)
 admin.site.register(FQDN, FQDNAdmin)
