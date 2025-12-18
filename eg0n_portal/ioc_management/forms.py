@@ -1,7 +1,6 @@
 """Forms definitions for UI app."""
 
-from django import forms
-from ioc_management.models import Instance
+from ioc_management.models import Event, Instance
 from ui.include.forms import ObjectModelForm
 
 
@@ -17,3 +16,19 @@ class InstanceForm(ObjectModelForm):
 
         fields = ("name",)
         model = Instance
+
+
+#############################################################################
+# Event
+#############################################################################
+
+
+class EventForm(ObjectModelForm):
+    """Form for the Event model."""
+
+    class Meta:
+        """Meta options."""
+
+        fields = ("name", "description")
+        model = Event
+    
