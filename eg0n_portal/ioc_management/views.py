@@ -1,5 +1,6 @@
 """Views for Instance app."""
 
+import django_tables2 as tables
 from ioc_management.filters import InstanceFilter
 from ioc_management.forms import InstanceForm
 from ioc_management.models import Instance
@@ -71,8 +72,11 @@ class InstanceDeleteView(InstanceQueryMixin, ObjectDeleteView):
 class InstanceDetailView(InstanceQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Instance."""
 
-    pass
 
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    # exclude = ("id",)
+    sequence = ("id", "name", "created_at", "updated_at")
 
 class InstanceListView(InstanceQueryMixin, ObjectListView):
     """HTML view for displaying a table of Instance objects."""

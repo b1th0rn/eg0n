@@ -2,11 +2,7 @@
 
 import django_tables2 as tables
 from ioc_management.models import Instance
-from ui.include.tables import (
-    GreenRedBooleanColumn,
-    GreenRedReverseBooleanColumn,
-    ObjectTable,
-)
+from ui.include.tables import ObjectTable
 
 #############################################################################
 # Instance
@@ -16,18 +12,17 @@ from ui.include.tables import (
 class InstanceTable(ObjectTable):
     """Table definition for the Instance model."""
 
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
     class Meta:
         """Meta options."""
 
         model = Instance
-        # exclude = ("id", "password", "date_joined", "last_login")
-        # sequence = (
-        #     "username",
-        #     "first_name",
-        #     "last_name",
-        #     "email",
-        #     "is_active",
-        #     "is_superuser",
-        #     "is_staff",
-        # )
-        # order_by = "username"
+        # exclude = ("id",)
+        sequence = (
+            "name",
+            "created_at",
+            "updated_at",
+        )
+        order_by = "name"
