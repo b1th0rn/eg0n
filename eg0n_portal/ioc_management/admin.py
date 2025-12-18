@@ -64,8 +64,8 @@ class VulnsAdmin(admin.ModelAdmin):
 
 # == IPADD ADMIN ==
 class IpAdmin(admin.ModelAdmin):
-    list_display = ["ip_address", "url", "created", "expire_date", "lastchange_author"]
-    list_filter = ["created"]
+    list_display = ["ip_address", "url", "created_at", "expire_date", "lastchange_author"]
+    list_filter = ["created_at"]
     search_fields = ["ip_address", "url"]
     readonly_fields = ("author", "lastchange_author")
 
@@ -81,8 +81,8 @@ class IpAdmin(admin.ModelAdmin):
 
 # == CODESNIPPET ADMIN ==
 class CodeAdmin(admin.ModelAdmin):
-    list_display = ["name", "language", "created", "lastchange_author"]
-    list_filter = ["created"]
+    list_display = ["name", "language", "created_at", "lastchange_author"]
+    list_filter = ["created_at"]
     search_fields = ["name", "language"]
     readonly_fields = ("author", "lastchange_author")
 
@@ -98,8 +98,8 @@ class CodeAdmin(admin.ModelAdmin):
 
 # == FQDN ADMIN ==
 class FQDNAdmin(admin.ModelAdmin):
-    list_display = ["fqdn", "created", "expire_date", "lastchange_author"]
-    list_filter = ["created"]
+    list_display = ["fqdn", "created_at", "expire_date", "lastchange_author"]
+    list_filter = ["created_at"]
     search_fields = ["fqdn"]
     readonly_fields = ("author", "lastchange_author")
 
@@ -116,7 +116,7 @@ class FQDNAdmin(admin.ModelAdmin):
 # == HASH ADMIN ==
 class HashAdmin(admin.ModelAdmin):
     list_display = ["filename", "platform", "sha256", "expire_date", "lastchange_author"]
-    list_filter = ["created"]
+    list_filter = ["created_at"]
     search_fields = ["sha256", "sha1", "md5"]
     readonly_fields = ("author", "lastchange_author")
 
@@ -132,8 +132,8 @@ class HashAdmin(admin.ModelAdmin):
 
 # == REVIEW ADMIN ==
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["name", "created", "author"]
-    list_filter = ["created"]
+    list_display = ["name", "created_at", "author"]
+    list_filter = ["created_at"]
     search_fields = ["name", "author"]
     readonly_fields = ("author", "lastchange_author")
 
