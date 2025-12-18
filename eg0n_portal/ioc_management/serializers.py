@@ -16,6 +16,7 @@ class InstanceSerializer(serializers.ModelSerializer):
         model = Instance
         fields = "__all__"
         read_only_fields = (
+            "id",
             "created_at",
             "updated_at",
         )
@@ -33,6 +34,10 @@ class EventSerializer(serializers.ModelSerializer):
         model = Event
         fields = "__all__"
         read_only_fields = (
+            "id",
+            "author",
+            "instance",
+            "lastchange_author",
             "created_at",
             "updated_at",
         )
