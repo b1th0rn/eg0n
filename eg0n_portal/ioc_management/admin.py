@@ -19,15 +19,47 @@ class IpAddInline(admin.TabularInline):
     readonly_fields = ("ip_address", "confidence", "description")
     show_change_link = True
 
+# == FQDN INLINE FOR EVENTS ADMIN ==
+class FQDNInLine(admin.TabularInline):
+    model = FQDN
+    extra = 0
+    fields = ("fqdn", "confidence", "description")
+    readonly_fields = ("fqdn", "confidence", "description")
+    show_change_link = True
 
-# E== EVENTS ADMIN ==
+# == HASH INLINE FOR EVENTS ADMIN ==
+class HashInLine(admin.TabularInline):
+    model = Hash
+    extra = 0
+    fields = ("filename", "confidence", "description")
+    readonly_fields = ("filename", "confidence", "description")
+    show_change_link = True
+
+# == CodeSnippet INLINE FOR EVENTS ADMIN ==
+class CodeSnippetInLine(admin.TabularInline):
+    model = CodeSnippet
+    extra = 0
+    fields = ("name", "confidence", "description")
+    readonly_fields = ("name", "confidence", "description")
+    show_change_link = True
+
+# == Review INLINE FOR EVENTS ADMIN ==
+class ReviewInLine(admin.TabularInline):
+    model = Review
+    extra = 0
+    fields = ("name", "review", "created_at")
+    readonly_fields = ("name", "review", "created_at")
+    show_change_link = True
+
+
+# == EVENTS ADMIN ==
 class EventsAdmin(admin.ModelAdmin):
     list_display = ["name", "created_at", "author"]
     list_filter = ["created_at"]
     search_fields = ["name", "author"]
     # prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("author",)
-    inlines = [VulnsInline, IpAddInline]
+    inlines = [VulnsInline, IpAddInline, FQDNInLine, HashInLine, CodeSnippetInLine, ReviewInLine]
 
     class Meta:
         model = Vuln

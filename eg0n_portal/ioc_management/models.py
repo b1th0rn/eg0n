@@ -35,6 +35,7 @@ class Event(models.Model):
     """
 
     id = models.UUIDField(editable=False, default=uuid.uuid4, primary_key=True)
+    name = models.CharField(max_length=64, null=False, unique=True)
     author = models.ForeignKey(
         User,
         editable=False,
@@ -48,7 +49,6 @@ class Event(models.Model):
         editable=False,
         related_name="contributed_events",
     )
-    name = models.CharField(max_length=64, null=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -80,6 +80,7 @@ class Vuln(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32, unique=False)
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -90,6 +91,7 @@ class Vuln(models.Model):
     cve = models.CharField(max_length=32, unique=False)
     cvss = models.FloatField(default=0, null=True)
     description = models.TextField()
+    exploitation_details = models.TextField(blank=True)
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
@@ -102,7 +104,6 @@ class Vuln(models.Model):
         editable=False,
         related_name="contributed_vulns",
     )
-    name = models.CharField(max_length=32, unique=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -407,3 +408,56 @@ class Review(models.Model):
     def get_absolute_url(self):
         """Return the absolute url."""
         return reverse("review-detail-view", args=[str(self.pk)])
+
+
+#############################################################################
+# Review
+#############################################################################
+
+
+class Exploit(models.Model):
+    """
+    Model for exploit and payload.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32, unique=False)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        editable=False,
+        related_name="exploits",
+        null=True,
+    )
+    cve = models.ForeignKey(
+        Vuln,
+        on_delete=models.SET_NULL,
+        editable=True,
+        related_name="exploits_cve",
+        null=True,
+    )
+    description = models.TextField()
+    payload = models.TextField()
+    contributors_authors = models.ManyToManyField(
+        User,
+        editable=False,
+        related_name="exploits_author",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Database metadata."""
+
+        verbose_name = "07 :: Exploit"
+        verbose_name_plural = "07 :: Exploits"
+        db_table = "exploits"
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        """Return a human readable name when the object is printed."""
+        return self.name
+
+    def get_absolute_url(self):
+        """Return the absolute url."""
+        return reverse("vuln-detail-view", args=[str(self.pk)])
