@@ -72,7 +72,7 @@ class EventDeleteView(EventQueryMixin, ObjectDeleteView):
 class EventDetailView(EventQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Event."""
 
-
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
     exclude = ("id",)

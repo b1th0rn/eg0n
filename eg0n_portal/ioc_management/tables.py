@@ -13,6 +13,8 @@ from ui.include.tables import ObjectTable
 class EventTable(ObjectTable):
     """Table definition for the Event model."""
 
+    name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
