@@ -1,43 +1,35 @@
 """Serializers, called by API View."""
 
 from rest_framework import serializers
-from ioc_management.models import Event, Instance
+from node.models import Node, NodeTemplate
 
 
-#############################################################################
-# Instance
-#############################################################################
-
-
-class InstanceSerializer(serializers.ModelSerializer):
-    """Serializer for Instance model."""
+class NodeTemplateSerializer(serializers.ModelSerializer):
+    """Serializer for Template model."""
 
     class Meta:
-        model = Instance
+        model = NodeTemplate
         fields = "__all__"
-        read_only_fields = (
-            "id",
+        read_only_fields = [
             "created_at",
             "updated_at",
-        )
+        ]  # Make some fields read-only
 
 
-#############################################################################
-# Event
-#############################################################################
+class DiskTemplateSerializer(serializers.Serializer):
+    file = serializers.FileField()
 
 
-class EventSerializer(serializers.ModelSerializer):
-    """Serializer for Event model."""
+class NodeSerializer(serializers.ModelSerializer):
+    """Serializer for Node model."""
+
+    disks = DiskTemplateSerializer(read_only=True)
+    template = NodeTemplateSerializer(read_only=True)
 
     class Meta:
-        model = Event
+        model = Node
         fields = "__all__"
-        read_only_fields = (
-            "id",
-            "author",
-            "instance",
-            "lastchange_author",
+        read_only_fields = [
             "created_at",
             "updated_at",
-        )
+        ]  # Make some fields read-only
