@@ -6,7 +6,7 @@ from ioc_management.models import IpAdd
 urlpatterns = [
 
     # Home page
-    path('', ioc_views.home, name='Home'),
+    # path('', ioc_views.home, name='Home'),
 
     # IP list
     # path('ip_list/', ioc_views.ip_list, name='IP Address List'),

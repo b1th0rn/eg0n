@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 # base view
-def home(request):
-    return render(request, 'home.html')
+# def home(request):
+#     return render(request, 'home.html')
 
 '''
 def ip_list(request):
