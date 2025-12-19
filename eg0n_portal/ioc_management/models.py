@@ -23,37 +23,6 @@ VALIDATION_CHOICES = [
     ("suspended", "suspended"),
 ]
 
-#############################################################################
-# Instance
-#############################################################################
-
-
-class Instance(models.Model):
-    """
-    Model for eg0n instances.
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=64, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        """Database metadata."""
-
-        db_table = "instance"
-        ordering = ("name",)
-        verbose_name = "Instance Information"
-        verbose_name_plural = "Instance Information"
-
-    def __str__(self):
-        """Return a human readable name when the object is printed."""
-        return self.name
-
-    def get_absolute_url(self):
-        """Return the absolute url."""
-        return reverse("instance-detail-view", args=[str(self.pk)])
-
 
 #############################################################################
 # Event
@@ -74,18 +43,12 @@ class Event(models.Model):
         related_name="events",
     )
     description = models.TextField()
-    instance = models.ForeignKey(
-        Instance, on_delete=models.CASCADE, related_name="events"
-    )
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
         editable=False,
-        null=True,
-        on_delete=models.SET_NULL,
         related_name="contributed_events",
     )
     name = models.CharField(max_length=64, null=False, unique=True)
-    slug = models.SlugField(max_length=128, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -134,15 +97,12 @@ class Vuln(models.Model):
         related_name="vulns",
         null=True,
     )
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_vulns",
-        null=True,
     )
     name = models.CharField(max_length=32, unique=False)
-    slug = models.SlugField(max_length=128, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -195,12 +155,10 @@ class IpAdd(models.Model):
     expire_date = models.DateField(default=timezone.now)
     fqdn = models.CharField(max_length=32, blank=True, default="none")
     ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_ipadds",
-        null=True,
     )
     url = models.CharField(max_length=32, blank=True, default="none")
     validation_status = models.CharField(
@@ -259,12 +217,10 @@ class CodeSnippet(models.Model):
     expire_date = models.DateField(default=timezone.now)
     language = models.CharField(max_length=16, choices=LANGUAGES, default="python")
     name = models.CharField(max_length=56)
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_codesnippets",
-        null=True,
     )
     validation_status = models.CharField(
         max_length=32, choices=VALIDATION_CHOICES, default="new"
@@ -317,12 +273,10 @@ class FQDN(models.Model):
     )
     fqdn = models.CharField(max_length=32, unique=False)
     ip_address = models.GenericIPAddressField(default="0.0.0.0", unpack_ipv4=True)
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_fqdns",
-        null=True,
     )
     validation_status = models.CharField(
         max_length=32, choices=VALIDATION_CHOICES, default="new"
@@ -372,12 +326,10 @@ class Hash(models.Model):
         Event, on_delete=models.CASCADE, default=None, related_name="hashes", null=True
     )
     filename = models.CharField(max_length=56, blank=True, default="none")
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_hashes",
-        null=True,
     )
     md5 = models.CharField(max_length=32, blank=True, default="none")
     platform = models.CharField(max_length=16, choices=PLATFORM, default="windows")
@@ -427,12 +379,10 @@ class Review(models.Model):
         related_name="reviews",
         null=True,
     )
-    lastchange_author = models.ForeignKey(
+    contributors_authors = models.ManyToManyField(
         User,
-        on_delete=models.SET_NULL,
         editable=False,
         related_name="contributed_reviews",
-        null=True,
     )
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, default=None, related_name="reviews", null=True

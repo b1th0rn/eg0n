@@ -1,23 +1,12 @@
-"""Views, called by URLs."""
+"""Views for Instance app."""
 
-import hashlib
-from django.core.files.storage import default_storage
 import django_tables2 as tables
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from ioc_management.permissions import NodeTemplatePermissionPolicy
-from ioc_management.filters import NodeFilter, NodeTemplateFilter
-from ioc_management.models import Node, NodeTemplate
-from ioc_management.serializers import (
-    NodeSerializer,
-    NodeTemplateSerializer,
-    DiskTemplateSerializer,
-)
-from ioc_management.tables import NodeTable, NodeTemplateTable
-from ioc_management.forms import NodeForm, NodeTemplateForm
-from ui.include.permissions import IsAdmin, IsAdminOrStaff
+from ioc_management.filters import EventFilter
+from ioc_management.forms import EventForm
+from ioc_management.models import Event
+from ioc_management.permissions import EventPermissionPolicy
+from ioc_management.serializers import EventSerializer
+from ioc_management.tables import EventTable
 from ui.include.views import (
     APICRUDViewSet,
     ObjectBulkDeleteView,
@@ -30,193 +19,66 @@ from ui.include.views import (
 
 
 #############################################################################
-# Nodes
+# Event
 #############################################################################
 
 
-class NodeQueryMixin:
-    """Mixin to encapsulate common Template queryset and permissions logic.
+class EventQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for Event objects."""
 
-    Used by both UI and API views.
-    """
+    filterset_class = EventFilter
+    form_class = EventForm
+    model = Event
+    policy_class = EventPermissionPolicy
+    serializer_class = EventSerializer
+    table_class = EventTable
 
-
-class NodeAPIViewSet(NodeQueryMixin, APICRUDViewSet):
-    """REST API endpoints for Template model."""
-
-    serializer_class = NodeSerializer
-    filterset_class = NodeFilter
-
-    @action(detail=False, methods=["post"])
-    def stop(self, request):
-        # do_rescan(username=request.user.username)
-        return Response({}, status=status.HTTP_202_ACCEPTED)
-
-    @action(detail=False, methods=["post"])
-    def start(self, request):
-        # do_rescan(username=request.user.username)
-        return Response({}, status=status.HTTP_202_ACCEPTED)
-
-    @action(detail=False, methods=["post"])
-    def wipe(self, request):
-        # do_rescan(username=request.user.username)
-        return Response({}, status=status.HTTP_202_ACCEPTED)
+    def get_queryset(self):
+        """Return the queryset of Event objects accessible to the current user."""
+        qs = Event.objects.all()
+        return qs
 
 
-class NodeBulkDeleteView(ObjectBulkDeleteView):
-    """HTML view for deleting multiple `Group` objects at once."""
-
-    model = Node
-    permission_classes = [IsAdmin]
-
-
-class NodeChangeView(ObjectChangeView):
-    model = Node
-    form_class = NodeForm
-    permission_classes = [IsAdmin]
-
-
-class NodeCreateView(ObjectCreateView):
-    model = Node
-    form_class = NodeForm
-
-
-class NodeDeleteView(ObjectDeleteView):
-    """HTML view for deleting a single `Group`."""
-
-    model = Node
-    permission_classes = [IsAdmin]
-
-
-class NodeDetailView(ObjectDetailView):
-    model = Node
-    exclude = ["id"]
-    sequence = ["name", "created_at", "description"]
-
-
-class NodeListView(ObjectListView):
-    model = Node
-    table_class = NodeTable
-    filterset_class = NodeFilter
-
-
-#############################################################################
-# Templates
-#############################################################################
-
-
-class NodeTemplateQueryMixin:
-    """Mixin to encapsulate common Template queryset and permissions logic.
-
-    Used by both UI and API views.
-    """
-
-    filterset_class = NodeTemplateFilter
-    form_class = NodeTemplateForm
-    model = NodeTemplate
-    policy_class = NodeTemplatePermissionPolicy
-    serializer_class = NodeTemplateSerializer
-    table_class = NodeTemplateTable
-
-
-class NodeTemplateAPIViewSet(NodeTemplateQueryMixin, APICRUDViewSet):
-    """REST API endpoints for Template model."""
-
-    @action(detail=False, methods=["post"])
-    def build(self, request):
-        # do_rescan(username=request.user.username)
-        return Response({}, status=status.HTTP_202_ACCEPTED)
-
-
-class NodeTemplateBulkDeleteView(NodeTemplateQueryMixin, ObjectBulkDeleteView):
-    """HTML view for deleting multiple `Group` objects at once."""
+class EventAPIViewSet(EventQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the Event model."""
 
     pass
 
 
-class NodeTemplateChangeView(NodeTemplateQueryMixin, ObjectChangeView):
+class EventBulkDeleteView(EventQueryMixin, ObjectBulkDeleteView):
+    """HTML view for deleting multiple Event objects at once."""
 
     pass
 
 
-class NodeTemplateCreateView(NodeTemplateQueryMixin, ObjectCreateView):
+class EventChangeView(EventQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing Event."""
 
     pass
 
 
-class NodeTemplateDeleteView(NodeTemplateQueryMixin, ObjectDeleteView):
-    """HTML view for deleting a single `Group`."""
+class EventCreateView(EventQueryMixin, ObjectCreateView):
+    """HTML view for creating a new Event."""
 
     pass
 
 
-class NodeTemplateDetailView(NodeTemplateQueryMixin, ObjectDetailView):
-    created = tables.DateColumn(orderable=True, format="Y-m-d")
-    updated = tables.DateColumn(orderable=True, format="Y-m-d H:i")
-
-    exclude = ["id"]
-    sequence = ["name", "created"]
-
-
-class NodeTemplateListView(NodeTemplateQueryMixin, ObjectListView):
+class EventDeleteView(EventQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single Event."""
 
     pass
 
 
-#############################################################################
-# Disks
-#############################################################################
+class EventDetailView(EventQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a Event."""
 
 
-class DiskTemplateAPIViewSet(viewsets.GenericViewSet):
-    """Add disk."""
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    exclude = ("id",)
+    sequence = ("name", "created_at", "updated_at")
 
-    permission_classes = [IsAdminOrStaff]
+class EventListView(EventQueryMixin, ObjectListView):
+    """HTML view for displaying a table of Event objects."""
 
-    def create(self, request, template_pk):
-        template = NodeTemplate.objects.filter(pk=template_pk).first()
-        # TODO
-        # if not template:
-        #     return Response({"detail": "Template non trovato"}, status=status.HTTP_404_NOT_FOUND)
-        # return Response({"status": "rescan triggered"})
-
-        serializer = DiskTemplateSerializer(data=request.data)
-        # TODO
-        serializer.is_valid()
-        # if not serializer.is_valid():
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        f = serializer.validated_data["file"]
-        checksum = hashlib.md5()  # nosec B324 # not used for security
-        for chunk in f.chunks():
-            checksum.update(chunk)
-        f.seek(0)
-
-        disk_filename = f"{template.name}.vma"
-        path = default_storage.save(
-            f"{template.vendor}-{template.os}/{disk_filename}".lower(), f
-        )
-        url = default_storage.url(path)
-
-        disk = {"filename": disk_filename, "checksum": checksum.hexdigest(), "url": url}
-
-        # Upload
-        # curl -X POST -H "Authorization: Token c3ba14c234d1f079601e27ee953db87c1a724d17" -F "file=@repositories/vyos/vyos/vzdump-qemu-vyos-vyos-2025.07.28-0022.vma" http://localhost:8000/api/template/6/disk/
-        # Download
-        # curl -L -X GET -H "Authorization: Token c3ba14c234d1f079601e27ee953db87c1a724d17" http://localhost:8000/files/vyos-vyos/template-local-vyos-vyos-2025.07.28-0022-unl.vma --output a
-
-        # Aggiorna la lista disks del template (aggiunge il nuovo file)
-        template.disk_checksum = checksum.hexdigest()
-        template.save()
-
-        return Response({"disk": disk}, status=status.HTTP_201_CREATED)
-
-    def destroy(self, request, template_pk=None, checksum=None):
-        """
-        Elimina un disco specifico associato al template.
-        pk = ID del disco
-        """
-        template = get_object_or_404(NodeTemplate, pk=template_pk)
-        disk = get_object_or_404(template.disks, pk=pk)  # assuming related_name='disks'
-        disk.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    pass
