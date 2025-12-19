@@ -18,8 +18,11 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "author",
-            "instance",
             "lastchange_author",
             "created_at",
             "updated_at",
         )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new event."""
+        serializer.save(author=self.request.user)

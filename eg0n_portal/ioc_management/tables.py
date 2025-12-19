@@ -22,7 +22,6 @@ class EventTable(ObjectTable):
         model = Event
         exclude = ("id", "description", "lastchange_author")
         sequence = (
-            "instance",
             "name",
             "author",   
             "created_at",

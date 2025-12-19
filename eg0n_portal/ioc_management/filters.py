@@ -43,6 +43,8 @@ class EventFilter(SearchFilterSet):
     class Meta:
         model = Event
         fields = (
+            "author",
+            "contributors_authors",
             "created_at__gte",
             "created_at__lte",
             "updated_at__gte",

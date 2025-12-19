@@ -17,4 +17,12 @@ class EventForm(ObjectModelForm):
 
         fields = ("name", "description")
         model = Event
-    
+
+    def save(self, commit=True):
+        """On form save."""
+        instance = super().save(commit=False)
+
+        instance.author = self.user
+        if commit:
+            instance.save()
+        return instance
