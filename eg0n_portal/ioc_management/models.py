@@ -429,11 +429,20 @@ class Exploit(models.Model):
         related_name="exploits",
         null=True,
     )
-    cve = models.ForeignKey(
-        Vuln,
+    # associate exploit to EVENT
+    event = models.ForeignKey(
+        "Event",
         on_delete=models.SET_NULL,
         editable=True,
-        related_name="exploits_cve",
+        related_name="exploits",
+        null=True,
+    )
+    # associate exploit to VULN
+    vuln = models.ForeignKey(
+        "Vuln",
+        on_delete=models.SET_NULL,
+        editable=True,
+        related_name="exploits",
         null=True,
     )
     description = models.TextField()
