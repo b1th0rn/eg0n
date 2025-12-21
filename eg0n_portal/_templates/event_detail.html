@@ -1,0 +1,151 @@
+{% extends "ui/base.html" %}
+{% load ui_tags %}
+{% load i18n static %}
+{% block title %}{{ site_meta.title }} | {{ model_name|title }} > Detail{% endblock title %}
+{% block page_title %}{{ model_name|title }} > Detail{% endblock page_title %}
+{% block page_body %}
+<div class="col-lg-12" data-pk="{{ pk }}">
+    <div class="card card-lg">
+        <div class="card-body markdown">
+            <div class="row align-items-center">
+                <div class="col"></div>
+
+                <div class="col-auto">
+                    <a class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#attributeModal">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                        Attribute
+                    </a>
+                </div>
+
+                <div class="col-auto">
+                    <a href="{% url model_name|add:'_delete' pk %}" class="btn">Delete</a>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url model_name|add:'_update' pk %}" class="btn btn-primary">Edit</a>
+                </div>
+            </div>
+
+            <h1>Event {{ object.record.name }}</h1>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"name" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"name" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"author" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"author" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"contributors_authors" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"contributors_authors" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"created_at" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"created_at" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"updated_at" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"updated_at" }}</div>
+                </div>
+
+            <h2>{{ object.record|get_object_label:"description"|title }}</h2>
+            {{ object.record|get_object_value:"description" }}
+
+            <h2>Code Snippets</h2>
+            <h2>FQDNs</h2>
+            <h2>Hashes</h2>
+            <h2>IP Addresses</h2>
+            <h2>Vulnerabilities</h2>
+        </div>
+    </div>
+</div>
+{% endblock page_body %}
+
+{% block modal %}
+<div class="modal" id="attributeModal" tabindex="-1" x-data="attributeCrud()">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">New attribute</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+
+                <!-- Type -->
+                <div class="mb-3">
+                    <label class="form-label required">Type</label>
+                    <select class="form-select" x-model="select_type">
+                        <option value="codesnippet">Code Snippet</option>
+                        <option value="fqdn">FQDN</option>
+                        <option value="hash">Hash</option>
+                        <option value="ipadd">IP Address</option>
+                        <option value="review">Review</option>
+                        <option value="vuln">Vulnerability</option>
+                    </select>
+                </div>
+
+                <!-- Template: Code Snippet -->
+                <template x-if="select_type === 'codesnippet'">
+                    <div class="mb-3">
+                        <label class="form-label">Code</label>
+                        <textarea class="form-control"></textarea>
+                    </div>
+                </template>
+
+                <!-- Template: IP Address -->
+                <template x-if="select_type === 'ipadd'">
+                    <div class="mb-3">
+                        <label class="form-label">IP Address</label>
+                        <input type="text" class="form-control" placeholder="169.254.0.1">
+                    </div>
+                </template>
+
+                <!-- Template: Vulnerability -->
+                <template x-if="select_type === 'vuln'">
+                    <div>
+                        <div class="mb-3">
+                            <label class="form-label required">CVE</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="CVE-2025-9997" x-model="vuln.cve">
+                                <button class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" type="button" @click="readCve()">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cloud-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4" /><path d="M12 13l0 9" /><path d="M9 19l3 3l3 -3" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Name</label>
+                            <input type="text" class="form-control" placeholder="Schneider Electric SE" x-model="vuln.name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">CVSS</label>
+                            <input type="text" class="form-control" placeholder="5.8" x-model="vuln.cvss">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label required">Description</label>
+                            <textarea class="form-control" rows="10" placeholder="CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability exists that could cause command injection in BLMon that is executed in the operating system console when in a SSH session." x-model="vuln.description"></textarea>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Expiration -->
+                <div class="mb-3">
+                    <label class="form-label">Expiration date</label>
+                    <input type="date" class="form-control">
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="createAttribute()">Create</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock modal %}

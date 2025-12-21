@@ -77,6 +77,7 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
     exclude = ("id",)
     sequence = ("name", "created_at", "updated_at")
+    template_name = "event_detail.html"
 
 class EventListView(EventQueryMixin, ObjectListView):
     """HTML view for displaying a table of Event objects."""

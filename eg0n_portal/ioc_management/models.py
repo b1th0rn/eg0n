@@ -87,8 +87,8 @@ class Vuln(models.Model):
         related_name="vulns",
         null=True,
     )
-    cve = models.CharField(max_length=32, unique=False)
-    cvss = models.FloatField(default=0, null=True)
+    cve = models.CharField(max_length=32)
+    cvss = models.FloatField()
     description = models.TextField()
     event = models.ForeignKey(
         Event,
@@ -102,7 +102,7 @@ class Vuln(models.Model):
         editable=False,
         related_name="contributed_vulns",
     )
-    name = models.CharField(max_length=32, unique=False)
+    name = models.CharField(max_length=32)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
