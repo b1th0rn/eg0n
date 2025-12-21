@@ -47,13 +47,13 @@ class CodeSnippetTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        # exclude = ("id", "description", "lastchange_author")
-        # sequence = (
-        #     "name",
-        #     "author",   
-        #     "created_at",
-        #     "updated_at",
-        # )
+        exclude = ("id", "author", "description", "code", "confidence", "validation_status", "event", "expire_date")
+        sequence = (
+            "name",
+            "language",
+            "created_at",
+            "updated_at",
+        )
         order_by = "-updated_at"
         attrs = {
             "search": False,
