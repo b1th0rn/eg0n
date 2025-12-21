@@ -61,89 +61,91 @@
 {% endblock page_body %}
 
 {% block modal %}
-<div class="modal" id="attributeModal" tabindex="-1" x-data="attributeCrud()">
+<div class="modal" id="attributeModal" tabindex="-1" x-data="attributeCrud()" data-event_pk="{{ pk }}">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
+            <form method="POST">
 
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title">New attribute</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-
-                <!-- Type -->
-                <div class="mb-3">
-                    <label class="form-label required">Type</label>
-                    <select class="form-select" x-model="select_type">
-                        <option value="codesnippet">Code Snippet</option>
-                        <option value="fqdn">FQDN</option>
-                        <option value="hash">Hash</option>
-                        <option value="ipadd">IP Address</option>
-                        <option value="review">Review</option>
-                        <option value="vuln">Vulnerability</option>
-                    </select>
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">New attribute</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- Template: Code Snippet -->
-                <template x-if="select_type === 'codesnippet'">
-                    <div class="mb-3">
-                        <label class="form-label">Code</label>
-                        <textarea class="form-control"></textarea>
-                    </div>
-                </template>
+                <!-- Modal Body -->
+                <div class="modal-body">
 
-                <!-- Template: IP Address -->
-                <template x-if="select_type === 'ipadd'">
+                    <!-- Type -->
                     <div class="mb-3">
-                        <label class="form-label">IP Address</label>
-                        <input type="text" class="form-control" placeholder="169.254.0.1">
+                        <label class="form-label required">Type</label>
+                        <select class="form-select" x-model="attribute_type">
+                            <option value="codesnippet">Code Snippet</option>
+                            <option value="fqdn">FQDN</option>
+                            <option value="hash">Hash</option>
+                            <option value="ipadd">IP Address</option>
+                            <option value="review">Review</option>
+                            <option value="vuln">Vulnerability</option>
+                        </select>
                     </div>
-                </template>
 
-                <!-- Template: Vulnerability -->
-                <template x-if="select_type === 'vuln'">
-                    <div>
+                    <!-- Template: Code Snippet -->
+                    <template x-if="attribute_type === 'codesnippet'">
                         <div class="mb-3">
-                            <label class="form-label required">CVE</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="CVE-2025-9997" x-model="vuln.cve">
-                                <button class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" type="button" @click="readCve()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cloud-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4" /><path d="M12 13l0 9" /><path d="M9 19l3 3l3 -3" /></svg>
-                                </button>
+                            <label class="form-label">Code</label>
+                            <textarea class="form-control"></textarea>
+                        </div>
+                    </template>
+
+                    <!-- Template: IP Address -->
+                    <template x-if="attribute_type === 'ipadd'">
+                        <div class="mb-3">
+                            <label class="form-label">IP Address</label>
+                            <input type="text" class="form-control" placeholder="169.254.0.1">
+                        </div>
+                    </template>
+
+                    <!-- Template: Vulnerability -->
+                    <template x-if="attribute_type === 'vuln'">
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label required">CVE</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="CVE-2025-9997" x-model="attribute_data.vuln.cve">
+                                    <button class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" type="button" @click="readCve()">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cloud-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4" /><path d="M12 13l0 9" /><path d="M9 19l3 3l3 -3" /></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Name</label>
+                                <input type="text" class="form-control" placeholder="Schneider Electric SE" x-model="attribute_data.vuln.name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">CVSS</label>
+                                <input type="text" class="form-control" placeholder="5.8" x-model="attribute_data.vuln.cvss">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Description</label>
+                                <textarea class="form-control" rows="10" placeholder="CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability exists that could cause command injection in BLMon that is executed in the operating system console when in a SSH session." x-model="attribute_data.vuln.description"></textarea>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label required">Name</label>
-                            <input type="text" class="form-control" placeholder="Schneider Electric SE" x-model="vuln.name">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label required">CVSS</label>
-                            <input type="text" class="form-control" placeholder="5.8" x-model="vuln.cvss">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label required">Description</label>
-                            <textarea class="form-control" rows="10" placeholder="CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability exists that could cause command injection in BLMon that is executed in the operating system console when in a SSH session." x-model="vuln.description"></textarea>
-                        </div>
-                    </div>
-                </template>
+                    </template>
 
-                <!-- Expiration -->
-                <div class="mb-3">
-                    <label class="form-label">Expiration date</label>
-                    <input type="date" class="form-control">
+                    <!-- Expiration -->
+                    <div class="mb-3">
+                        <label class="form-label">Expiration date</label>
+                        <input type="date" class="form-control">
+                    </div>
+
                 </div>
 
-            </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="create()">Create</button>
+                </div>
 
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="createAttribute()">Create</button>
-            </div>
-
+            </form>
         </div>
     </div>
 </div>

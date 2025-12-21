@@ -5,12 +5,48 @@ export function attributeCrud() {
     return {
         // 🔹 STATE
         loading: false, // Track requests
-        select_type: 'ipadd', // Default option
-        vuln: {
-            name: '',
-            cve: '',
-            cvss: '',
-            description: '',
+        attribute_type: 'vuln', // Default option
+        attribute_data: {
+            codesnippet: {
+                code: '',
+                confidence: '',
+                description: '',
+                language: '',
+                name: '', // URL ?
+                // validation_status: '', // Missing?
+            },
+            fqdn: {
+                confidence: '',
+                description: '',
+                fqdn: '',
+                ip_address: '', // ?
+                validation_status: '',
+            },
+            hash: {
+                confidence: '',
+                description: '',
+                filename: '',
+                md5: '',
+                platform: '',
+                sha1: '',
+                sha256: '',
+                validation_status: '',
+                website: '', // -> URL
+            },
+            ipadd: {
+                confidence: '',
+                description: '',
+                fqdn: '', // ?
+                ip_address: '',
+                url: '', // ?
+                validation_status: '',
+            },
+            vuln: {
+                cve: '',
+                cvss: '',
+                description: '',
+                name: '', // ?
+            },
         },
 
         // 🔹 Attribute CRUD
@@ -18,6 +54,12 @@ export function attributeCrud() {
             if (this.loading) return
             this.loading = true
             console.log('➕ Create a new attribute')
+            const url = `/${this.attribute_type}/create`
+            const payload = this.attribute_data[this.attribute_type]
+            const event_pk = this.$root.dataset.event_pk
+            payload.event_id = parseInt(event_pk, 10)
+            const response = await api.post('/attribute/create', payload)
+
             this.loading = false
         },
         // async read() {
