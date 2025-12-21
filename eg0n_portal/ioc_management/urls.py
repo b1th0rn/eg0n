@@ -4,6 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from ioc_management.views import (
     CodeSnippetAPIViewSet,
+    CodeSnippetListView,
     EventAPIViewSet,
     EventBulkDeleteView,
     EventChangeView,
@@ -12,9 +13,13 @@ from ioc_management.views import (
     EventDetailView,
     EventListView,
     FQDNAPIViewSet,
+    FQDNListView,
     HashAPIViewSet,
+    HashListView,
     IpAddAPIViewSet,
+    IpAddListView,
     VulnAPIViewSet,
+    VulnListView,
 )
 
 # DRF router for API endpoints
@@ -55,6 +60,26 @@ urlpatterns = [
         EventDetailView.as_view(),
         name="event_detail",
     ),
+    #########################################################################
+    # CodeSnippet
+    #########################################################################
+    path("codesnippet/", CodeSnippetListView.as_view(), name="codesnippet_list"),
+    #########################################################################
+    # FQDN
+    #########################################################################
+    path("fqdn/", FQDNListView.as_view(), name="fqdn_list"),
+    #########################################################################
+    # Hash
+    #########################################################################
+    path("hash/", HashListView.as_view(), name="hash_list"),
+    #########################################################################
+    # IpAdd
+    #########################################################################
+    path("ipadd/", IpAddListView.as_view(), name="ipadd_list"),
+    #########################################################################
+    # Vuln
+    #########################################################################
+    path("vuln/", VulnListView.as_view(), name="vuln_list"),
     #########################################################################
     # API endpoints
     #########################################################################

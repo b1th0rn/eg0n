@@ -20,9 +20,17 @@ from ioc_management.serializers import (
     IpAddSerializer,
     VulnSerializer,
 )
-from ioc_management.tables import EventTable
+from ioc_management.tables import (
+    EventTable,
+    CodeSnippetTable,
+    FQDNTable,
+    HashTable,
+    IpAddTable,
+    VulnTable,
+)
 from ui.include.views import (
     APICRUDViewSet,
+    APIRViewSet,
     ObjectBulkDeleteView,
     ObjectChangeView,
     ObjectCreateView,
@@ -108,12 +116,12 @@ class EventListView(EventQueryMixin, ObjectListView):
 class CodeSnippetQueryMixin:
     """Mixin encapsulating common queryset and permission logic for CodeSnippet objects."""
 
-    filterset_class = None  # API only
-    form_class = None  # API only
+    filterset_class = None
+    form_class = None
     model = CodeSnippet
     policy_class = CodeSnippetPermissionPolicy
     serializer_class = CodeSnippetSerializer
-    table_class = None  # API only
+    table_class = CodeSnippetTable
 
     def get_queryset(self):
         """Return the queryset of CodeSnippet objects accessible to the current user."""
@@ -121,8 +129,14 @@ class CodeSnippetQueryMixin:
         return qs
 
 
-class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
     """REST API ViewSet for the CodeSnippet model."""
+
+    pass
+
+
+class CodeSnippetListView(CodeSnippetQueryMixin, ObjectListView):
+    """HTML view for displaying a table of CodeSnippet objects."""
 
     pass
 
@@ -135,12 +149,12 @@ class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
 class FQDNQueryMixin:
     """Mixin encapsulating common queryset and permission logic for FQDN objects."""
 
-    filterset_class = None  # API only
-    form_class = None  # API only
+    filterset_class = None
+    form_class = None
     model = FQDN
     policy_class = FQDNPermissionPolicy
     serializer_class = FQDNSerializer
-    table_class = None  # API only
+    table_class = FQDNTable
 
     def get_queryset(self):
         """Return the queryset of FQDN objects accessible to the current user."""
@@ -148,8 +162,14 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class FQDNAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
     """REST API ViewSet for the FQDN model."""
+
+    pass
+
+
+class FQDNListView(FQDNQueryMixin, ObjectListView):
+    """HTML view for displaying a table of FQDN objects."""
 
     pass
 
@@ -162,12 +182,12 @@ class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
 class HashQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Hash objects."""
 
-    filterset_class = None  # API only
-    form_class = None  # API only
+    filterset_class = None
+    form_class = None
     model = Hash
     policy_class = HashPermissionPolicy
     serializer_class = HashSerializer
-    table_class = None  # API only
+    table_class = HashTable
 
     def get_queryset(self):
         """Return the queryset of Hash objects accessible to the current user."""
@@ -175,8 +195,14 @@ class HashQueryMixin:
         return qs
 
 
-class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
+class HashAPIViewSet(HashQueryMixin, APIRViewSet):
     """REST API ViewSet for the Hash model."""
+
+    pass
+
+
+class HashListView(HashQueryMixin, ObjectListView):
+    """HTML view for displaying a table of Hash objects."""
 
     pass
 
@@ -189,12 +215,12 @@ class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
 class IpAddQueryMixin:
     """Mixin encapsulating common queryset and permission logic for IpAdd objects."""
 
-    filterset_class = None  # API only
-    form_class = None  # API only
+    filterset_class = None
+    form_class = None
     model = IpAdd
     policy_class = IpAddPermissionPolicy
     serializer_class = IpAddSerializer
-    table_class = None  # API only
+    table_class = IpAddTable
 
     def get_queryset(self):
         """Return the queryset of IpAdd objects accessible to the current user."""
@@ -202,8 +228,14 @@ class IpAddQueryMixin:
         return qs
 
 
-class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
+class IpAddAPIViewSet(IpAddQueryMixin, APIRViewSet):
     """REST API ViewSet for the IpAdd model."""
+
+    pass
+
+
+class IpAddListView(IpAddQueryMixin, ObjectListView):
+    """HTML view for displaying a table of IpAdd objects."""
 
     pass
 
@@ -216,12 +248,12 @@ class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
 class VulnQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Vuln objects."""
 
-    filterset_class = None  # API only
-    form_class = None  # API only
+    filterset_class = None
+    form_class = None
     model = Vuln
     policy_class = VulnPermissionPolicy
     serializer_class = VulnSerializer
-    table_class = None  # API only
+    table_class = VulnTable
 
     def get_queryset(self):
         """Return the queryset of Vuln objects accessible to the current user."""
@@ -229,7 +261,13 @@ class VulnQueryMixin:
         return qs
 
 
-class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
+class VulnAPIViewSet(VulnQueryMixin, APIRViewSet):
     """REST API ViewSet for the Vuln model."""
+
+    pass
+
+
+class VulnListView(VulnQueryMixin, ObjectListView):
+    """HTML view for displaying a table of Vuln objects."""
 
     pass
