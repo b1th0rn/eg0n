@@ -1,4 +1,4 @@
-"""Table definitions for Instance app."""
+"""Table definitions for IoC Management app."""
 
 import django_tables2 as tables
 from ioc_management.models import Event

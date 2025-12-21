@@ -1,11 +1,25 @@
-"""Views for Instance app."""
+"""Views for IoC Management app."""
 
 import django_tables2 as tables
 from ioc_management.filters import EventFilter
 from ioc_management.forms import EventForm
-from ioc_management.models import Event
-from ioc_management.permissions import EventPermissionPolicy
-from ioc_management.serializers import EventSerializer
+from ioc_management.models import CodeSnippet, Event, FQDN, Hash, IpAdd, Vuln
+from ioc_management.permissions import (
+    CodeSnippetPermissionPolicy,
+    EventPermissionPolicy,
+    FQDNPermissionPolicy,
+    HashPermissionPolicy,
+    IpAddPermissionPolicy,
+    VulnPermissionPolicy,
+)
+from ioc_management.serializers import (
+    CodeSnippetSerializer,
+    EventSerializer,
+    FQDNSerializer,
+    HashSerializer,
+    IpAddSerializer,
+    VulnSerializer,
+)
 from ioc_management.tables import EventTable
 from ui.include.views import (
     APICRUDViewSet,
@@ -79,7 +93,143 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
     sequence = ("name", "created_at", "updated_at")
     template_name = "event_detail.html"
 
+
 class EventListView(EventQueryMixin, ObjectListView):
     """HTML view for displaying a table of Event objects."""
+
+    pass
+
+
+#############################################################################
+# CodeSnippet
+#############################################################################
+
+
+class CodeSnippetQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for CodeSnippet objects."""
+
+    filterset_class = None  # API only
+    form_class = None  # API only
+    model = CodeSnippet
+    policy_class = CodeSnippetPermissionPolicy
+    serializer_class = CodeSnippetSerializer
+    table_class = None  # API only
+
+    def get_queryset(self):
+        """Return the queryset of CodeSnippet objects accessible to the current user."""
+        qs = CodeSnippet.objects.all()
+        return qs
+
+
+class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the CodeSnippet model."""
+
+    pass
+
+
+#############################################################################
+# FQDN
+#############################################################################
+
+
+class FQDNQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for FQDN objects."""
+
+    filterset_class = None  # API only
+    form_class = None  # API only
+    model = FQDN
+    policy_class = FQDNPermissionPolicy
+    serializer_class = FQDNSerializer
+    table_class = None  # API only
+
+    def get_queryset(self):
+        """Return the queryset of FQDN objects accessible to the current user."""
+        qs = FQDN.objects.all()
+        return qs
+
+
+class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the FQDN model."""
+
+    pass
+
+
+#############################################################################
+# Hash
+#############################################################################
+
+
+class HashQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for Hash objects."""
+
+    filterset_class = None  # API only
+    form_class = None  # API only
+    model = Hash
+    policy_class = HashPermissionPolicy
+    serializer_class = HashSerializer
+    table_class = None  # API only
+
+    def get_queryset(self):
+        """Return the queryset of Hash objects accessible to the current user."""
+        qs = Hash.objects.all()
+        return qs
+
+
+class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the Hash model."""
+
+    pass
+
+
+#############################################################################
+# IpAdd
+#############################################################################
+
+
+class IpAddQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for IpAdd objects."""
+
+    filterset_class = None  # API only
+    form_class = None  # API only
+    model = IpAdd
+    policy_class = IpAddPermissionPolicy
+    serializer_class = IpAddSerializer
+    table_class = None  # API only
+
+    def get_queryset(self):
+        """Return the queryset of IpAdd objects accessible to the current user."""
+        qs = IpAdd.objects.all()
+        return qs
+
+
+class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the IpAdd model."""
+
+    pass
+
+
+#############################################################################
+# Vuln
+#############################################################################
+
+
+class VulnQueryMixin:
+    """Mixin encapsulating common queryset and permission logic for Vuln objects."""
+
+    filterset_class = None  # API only
+    form_class = None  # API only
+    model = Vuln
+    policy_class = VulnPermissionPolicy
+    serializer_class = VulnSerializer
+    table_class = None  # API only
+
+    def get_queryset(self):
+        """Return the queryset of Vuln objects accessible to the current user."""
+        qs = Vuln.objects.all()
+        return qs
+
+
+class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
+    """REST API ViewSet for the Vuln model."""
 
     pass

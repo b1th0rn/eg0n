@@ -1,1 +1,2 @@
-pytest-django
+pytest-django==4.11.1
+lorem-text==3.0

@@ -54,12 +54,12 @@ export function attributeCrud() {
             if (this.loading) return
             this.loading = true
             console.log('➕ Create a new attribute')
-            const url = `/${this.attribute_type}/create`
+            const url = `/${this.attribute_type}/`
             const payload = this.attribute_data[this.attribute_type]
             const event_pk = this.$root.dataset.event_pk
             payload.event_id = parseInt(event_pk, 10)
-            const response = await api.post('/attribute/create', payload)
-
+            const response = await api.post(url, payload)
+            // TODO: must handle response and add a toast
             this.loading = false
         },
         // async read() {

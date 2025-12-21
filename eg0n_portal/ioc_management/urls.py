@@ -1,8 +1,9 @@
-"""UNetLab URL Configuration for the proxmox app."""
+"""URL configuration for IoC Management app."""
 
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from ioc_management.views import (
+    CodeSnippetAPIViewSet,
     EventAPIViewSet,
     EventBulkDeleteView,
     EventChangeView,
@@ -10,11 +11,20 @@ from ioc_management.views import (
     EventDeleteView,
     EventDetailView,
     EventListView,
+    FQDNAPIViewSet,
+    HashAPIViewSet,
+    IpAddAPIViewSet,
+    VulnAPIViewSet,
 )
 
 # DRF router for API endpoints
 router = DefaultRouter()
+router.register(r"codesnippet", CodeSnippetAPIViewSet, basename="codesnippet")
 router.register(r"event", EventAPIViewSet, basename="event")
+router.register(r"fqdn", FQDNAPIViewSet, basename="fqdn")
+router.register(r"hash", HashAPIViewSet, basename="hash")
+router.register(r"ipadd", IpAddAPIViewSet, basename="ipadd")
+router.register(r"vuln", VulnAPIViewSet, basename="vuln")
 
 # URL patterns for class-based views and API endpoints
 urlpatterns = [

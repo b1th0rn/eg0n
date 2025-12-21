@@ -83,24 +83,180 @@
                             <option value="fqdn">FQDN</option>
                             <option value="hash">Hash</option>
                             <option value="ipadd">IP Address</option>
-                            <option value="review">Review</option>
                             <option value="vuln">Vulnerability</option>
                         </select>
                     </div>
 
                     <!-- Template: Code Snippet -->
                     <template x-if="attribute_type === 'codesnippet'">
-                        <div class="mb-3">
-                            <label class="form-label">Code</label>
-                            <textarea class="form-control"></textarea>
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label required">Name</label>
+                                <input type="text" class="form-control" x-model="attribute_data.codesnippet.name">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Language</label>
+                                <select class="form-select" x-model="attribute_data.codesnippet.language">
+                                    <option value="bash">Bash</option>
+                                    <option value="cmd">CMD</option>
+                                    <option value="powershell">PowerShell</option>
+                                    <option value="python">Python</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Code</label>
+                                <textarea class="form-control" x-model="attribute_data.codesnippet.code"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Confidence</label>
+                                <select class="form-select" x-model="attribute_data.codesnippet.confidence">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Validation Status</label>
+                                <select class="form-select" x-model="attribute_data.codesnippet.validation_status">
+                                    <option value="new">New</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Description</label>
+                                <textarea class="form-control" rows="10" x-model="attribute_data.codesnippet.description"></textarea>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Template: FQDN -->
+                    <template x-if="attribute_type === 'fqdn'">
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label required">FQDN</label>
+                                <input type="text" class="form-control" placeholder="www.example.com" x-model="attribute_data.fqdn.fqdn">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">IP Address</label>
+                                <input type="text" class="form-control" placeholder="169.254.0.1" x-model="attribute_data.fqdn.ip_address">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">URL</label>
+                                <input type="text" class="form-control" placeholder="https://www.example.com/" x-model="attribute_data.fqdn.url">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Confidence</label>
+                                <select class="form-select" x-model="attribute_data.fqdn.confidence">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Validation Status</label>
+                                <select class="form-select" x-model="attribute_data.fqdn.validation_status">
+                                    <option value="new">New</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Description</label>
+                                <textarea class="form-control" rows="10" x-model="attribute_data.fqdn.description"></textarea>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Template: Hash -->
+                    <template x-if="attribute_type === 'hash'">
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label">MD5</label>
+                                <input type="text" class="form-control" placeholder="0ca0950faede682c69fa68e4460c23d9" x-model="attribute_data.hash.md5">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">SHA1</label>
+                                <input type="text" class="form-control" placeholder="a0d0d8a7183687e193e9e35ba9a75aa1d66960bb" x-model="attribute_data.hash.sha1">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">SHA256</label>
+                                <input type="text" class="form-control" placeholder="e761f48d35267feb8ba361976f1c38d95f982ed1a52d831739b2e13e097c5415" x-model="attribute_data.hash.sha256">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Filename</label>
+                                <input type="text" class="form-control" placeholder="example.exe" x-model="attribute_data.hash.filename">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Platform</label>
+                                <select class="form-select" x-model="attribute_data.hash.platform">
+                                    <option value="linux">Linux</option>
+                                    <option value="macos">MacOS</option>
+                                    <option value="windows">Windows</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Website</label>
+                                <input type="text" class="form-control" placeholder="https://www.example.com/" x-model="attribute_data.hash.website">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Confidence</label>
+                                <select class="form-select" x-model="attribute_data.hash.confidence">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Validation Status</label>
+                                <select class="form-select" x-model="attribute_data.hash.validation_status">
+                                    <option value="new">New</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Description</label>
+                                <textarea class="form-control" rows="10" x-model="attribute_data.hash.description"></textarea>
+                            </div>
                         </div>
                     </template>
 
                     <!-- Template: IP Address -->
                     <template x-if="attribute_type === 'ipadd'">
-                        <div class="mb-3">
-                            <label class="form-label">IP Address</label>
-                            <input type="text" class="form-control" placeholder="169.254.0.1">
+                        <div>
+                            <div class="mb-3">
+                                <label class="form-label required">IP Address</label>
+                                <input type="text" class="form-control" placeholder="169.254.0.1" x-model="attribute_data.ipadd.ip_address">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">FQDN</label>
+                                <input type="text" class="form-control" placeholder="www.example.com" x-model="attribute_data.ipadd.fqdn">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">URL</label>
+                                <input type="text" class="form-control" placeholder="https://www.example.com/" x-model="attribute_data.ipadd.url">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Confidence</label>
+                                <select class="form-select" x-model="attribute_data.ipadd.confidence">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Validation Status</label>
+                                <select class="form-select" x-model="attribute_data.ipadd.validation_status">
+                                    <option value="new">New</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label required">Description</label>
+                                <textarea class="form-control" rows="10" x-model="attribute_data.ipadd.description"></textarea>
+                            </div>
                         </div>
                     </template>
 
@@ -110,7 +266,7 @@
                             <div class="mb-3">
                                 <label class="form-label required">CVE</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="CVE-2025-9997" x-model="attribute_data.vuln.cve">
+                                    <input type="text" class="form-control" placeholder="CVE-XXXX-YYYY" x-model="attribute_data.vuln.cve">
                                     <button class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" type="button" @click="readCve()">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cloud-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4" /><path d="M12 13l0 9" /><path d="M9 19l3 3l3 -3" /></svg>
                                     </button>
@@ -118,15 +274,15 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label required">Name</label>
-                                <input type="text" class="form-control" placeholder="Schneider Electric SE" x-model="attribute_data.vuln.name">
+                                <input type="text" class="form-control" x-model="attribute_data.vuln.name">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label required">CVSS</label>
-                                <input type="text" class="form-control" placeholder="5.8" x-model="attribute_data.vuln.cvss">
+                                <input type="text" class="form-control" x-model="attribute_data.vuln.cvss">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label required">Description</label>
-                                <textarea class="form-control" rows="10" placeholder="CWE-78: Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection') vulnerability exists that could cause command injection in BLMon that is executed in the operating system console when in a SSH session." x-model="attribute_data.vuln.description"></textarea>
+                                <textarea class="form-control" rows="10" x-model="attribute_data.vuln.description"></textarea>
                             </div>
                         </div>
                     </template>

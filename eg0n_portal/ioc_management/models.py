@@ -1,3 +1,5 @@
+"""Define ORM models for IoC Management app."""
+
 import uuid
 from django.db import models
 from django.urls import reverse
@@ -7,15 +9,15 @@ from django.utils import timezone
 
 CONFIDENCE_CHOICES = [("low", "low"), ("medium", "medium"), ("high", "high")]
 LANGUAGES = [
+    ("bash", "bash"),
     ("cmd", "cmd"),
     ("powershell", "powershell"),
-    ("bash", "bash"),
     ("python", "python"),
 ]
 PLATFORM = [
     ("linux", "linux"),
-    ("windows", "windows"),
     ("macos", "macos"),
+    ("windows", "windows"),
 ]
 VALIDATION_CHOICES = [
     ("new", "new"),

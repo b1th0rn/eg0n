@@ -1,4 +1,4 @@
-"""Filter definitions for Instance app."""
+"""Filter definitions for IoC Management app."""
 
 from django import forms
 import django_filters
