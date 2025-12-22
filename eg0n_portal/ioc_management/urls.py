@@ -4,6 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from ioc_management.views import (
     CodeSnippetAPIViewSet,
+    CodeSnippetDetailView,
     CodeSnippetListView,
     EventAPIViewSet,
     EventBulkDeleteView,
@@ -13,12 +14,16 @@ from ioc_management.views import (
     EventDetailView,
     EventListView,
     FQDNAPIViewSet,
+    FQDNDetailView,
     FQDNListView,
     HashAPIViewSet,
+    HashDetailView,
     HashListView,
     IpAddAPIViewSet,
+    IpAddDetailView,
     IpAddListView,
     VulnAPIViewSet,
+    VulnDetailView,
     VulnListView,
 )
 
@@ -64,22 +69,27 @@ urlpatterns = [
     # CodeSnippet
     #########################################################################
     path("codesnippet/", CodeSnippetListView.as_view(), name="codesnippet_list"),
+    path("codesnippet/<uuid:pk>/", CodeSnippetDetailView.as_view(),name="codesnippet_detail"),
     #########################################################################
     # FQDN
     #########################################################################
     path("fqdn/", FQDNListView.as_view(), name="fqdn_list"),
+    path("fqdn/<uuid:pk>/", FQDNDetailView.as_view(),name="fqdn_detail"),
     #########################################################################
     # Hash
     #########################################################################
     path("hash/", HashListView.as_view(), name="hash_list"),
+    path("hash/<str:pk>/", HashDetailView.as_view(),name="hash_detail"),
     #########################################################################
     # IpAdd
     #########################################################################
     path("ipadd/", IpAddListView.as_view(), name="ipadd_list"),
+    path("ipadd/<str:pk>/", IpAddDetailView.as_view(),name="ipadd_detail"),
     #########################################################################
     # Vuln
     #########################################################################
     path("vuln/", VulnListView.as_view(), name="vuln_list"),
+    path("vuln/<str:pk>/", VulnDetailView.as_view(),name="vuln_detail"),
     #########################################################################
     # API endpoints
     #########################################################################

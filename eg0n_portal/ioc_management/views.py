@@ -21,8 +21,10 @@ from ioc_management.serializers import (
     VulnSerializer,
 )
 from ioc_management.tables import (
-    EventTable,
+    CodeSnippetEmbeddedTable,
     CodeSnippetTable,
+    EventTable,
+    FQDNEmbeddedTable,
     FQDNTable,
     HashTable,
     IpAddTable,
@@ -101,6 +103,42 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
     sequence = ("name", "created_at", "updated_at")
     template_name = "event_detail.html"
 
+    def get_context_data(self, **kwargs):
+        """Add attributes  to context."""
+        context = super().get_context_data(**kwargs)
+        event_obj = self.object
+
+        # CodeSnippet table
+        codesnippet_qs = event_obj.codesnippets.all().order_by("-updated_at")
+        codesnippet_table = CodeSnippetEmbeddedTable(codesnippet_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(codesnippet_table)
+        context["codesnippet_table"] = codesnippet_table
+
+        # FQDN table
+        fqdn_qs = event_obj.fqdns.all().order_by("-updated_at")
+        fqdn_table = FQDNEmbeddedTable(fqdn_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(fqdn_table)
+        context["fqdn_table"] = fqdn_table
+
+        # Hash table
+        hash_qs = event_obj.hashes.all().order_by("-updated_at")
+        hash_table = HashTable(hash_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(hash_table)
+        context["hash_table"] = hash_table
+
+        # IpAdd table
+        ipadd_qs = event_obj.ipadds.all().order_by("-updated_at")
+        ipadd_table = IpAddTable(ipadd_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(ipadd_table)
+        context["ipadd_table"] = ipadd_table
+
+        # Vulon table
+        vuln_qs = event_obj.vulns.all().order_by("-updated_at")
+        vuln_table = VulnTable(vuln_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(vuln_table)
+        context["vuln_table"] = vuln_table
+
+        return context
 
 class EventListView(EventQueryMixin, ObjectListView):
     """HTML view for displaying a table of Event objects."""
@@ -131,6 +169,12 @@ class CodeSnippetQueryMixin:
 
 class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
     """REST API ViewSet for the CodeSnippet model."""
+
+    pass
+
+
+class CodeSnippetDetailView(CodeSnippetQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a CodeSnippet."""
 
     pass
 
@@ -168,6 +212,12 @@ class FQDNAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
     pass
 
 
+class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a FQDN."""
+
+    pass
+
+
 class FQDNListView(FQDNQueryMixin, ObjectListView):
     """HTML view for displaying a table of FQDN objects."""
 
@@ -197,6 +247,12 @@ class HashQueryMixin:
 
 class HashAPIViewSet(HashQueryMixin, APIRViewSet):
     """REST API ViewSet for the Hash model."""
+
+    pass
+
+
+class HashDetailView(EventQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a Hash."""
 
     pass
 
@@ -234,6 +290,12 @@ class IpAddAPIViewSet(IpAddQueryMixin, APIRViewSet):
     pass
 
 
+class IpAddDetailView(EventQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a IpAdd."""
+
+    pass
+
+
 class IpAddListView(IpAddQueryMixin, ObjectListView):
     """HTML view for displaying a table of IpAdd objects."""
 
@@ -263,6 +325,12 @@ class VulnQueryMixin:
 
 class VulnAPIViewSet(VulnQueryMixin, APIRViewSet):
     """REST API ViewSet for the Vuln model."""
+
+    pass
+
+
+class VulnDetailView(EventQueryMixin, ObjectDetailView):
+    """HTML view for displaying the details of a Vuln."""
 
     pass
 

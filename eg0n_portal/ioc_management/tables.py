@@ -40,6 +40,7 @@ class EventTable(ObjectTable):
 class CodeSnippetTable(ObjectTable):
     """Table definition for the CodeSnippet model."""
 
+    name = tables.LinkColumn("codesnippet_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -62,6 +63,31 @@ class CodeSnippetTable(ObjectTable):
         }
 
 
+class CodeSnippetEmbeddedTable(ObjectTable):
+    """Embedded table definition for the CodeSnippet model."""
+
+    name = tables.LinkColumn("codesnippet_detail", args=[tables.A("pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = CodeSnippet
+        exclude = ("select", "id", "author", "description", "code", "confidence", "validation_status", "event", "expire_date")
+        sequence = (
+            "name",
+            "language",
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
 #############################################################################
 # FQDN
 #############################################################################
@@ -70,6 +96,7 @@ class CodeSnippetTable(ObjectTable):
 class FQDNTable(ObjectTable):
     """Table definition for the FQDN model."""
 
+    fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -77,13 +104,39 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        # exclude = ("id", "description", "lastchange_author")
-        # sequence = (
-        #     "name",
-        #     "author",   
-        #     "created_at",
-        #     "updated_at",
-        # )
+        exclude = ("id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
+        sequence = (
+            "fqdn",
+            "ip_address",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+
+class FQDNEmbeddedTable(ObjectTable):
+    """Table definition for the FQDN model."""
+
+    fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = FQDN
+        exclude = ("select", "id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
+        sequence = (
+            "fqdn",
+            "ip_address",   
+            "created_at",
+            "updated_at",
+        )
         order_by = "-updated_at"
         attrs = {
             "search": False,

@@ -9,20 +9,20 @@ from django.utils import timezone
 
 CONFIDENCE_CHOICES = [("low", "low"), ("medium", "medium"), ("high", "high")]
 LANGUAGES = [
-    ("bash", "bash"),
-    ("cmd", "cmd"),
-    ("powershell", "powershell"),
-    ("python", "python"),
+    ("bash", "Bash"),
+    ("cmd", "CMD"),
+    ("powershell", "PowerShell"),
+    ("python", "Python"),
 ]
 PLATFORM = [
-    ("linux", "linux"),
-    ("macos", "macos"),
-    ("windows", "windows"),
+    ("linux", "Linux"),
+    ("macos", "MacOS"),
+    ("windows", "Windows"),
 ]
 VALIDATION_CHOICES = [
-    ("new", "new"),
-    ("approved", "approved"),
-    ("suspended", "suspended"),
+    ("new", "New"),
+    ("approved", "Approved"),
+    ("suspended", "Suspended"),
 ]
 
 

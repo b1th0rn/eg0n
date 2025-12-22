@@ -1,4 +1,5 @@
 {% extends "ui/base.html" %}
+{% load render_table from django_tables2 %}
 {% load ui_tags %}
 {% load i18n static %}
 {% block title %}{{ site_meta.title }} | {{ model_name|title }} > Detail{% endblock title %}
@@ -48,13 +49,38 @@
                 </div>
 
             <h2>{{ object.record|get_object_label:"description"|title }}</h2>
-            {{ object.record|get_object_value:"description" }}
+            {{ object.record|get_object_value:"description"|markdownify|safe }}
 
-            <h2>Code Snippets</h2>
-            <h2>FQDNs</h2>
-            <h2>Hashes</h2>
-            <h2>IP Addresses</h2>
-            <h2>Vulnerabilities</h2>
+            {% if codesnippet_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table codesnippet_table %}
+            </div>
+            {% endif %}
+
+            {% if fqdn_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table fqdn_table %}
+            </div>
+            {% endif %}
+
+            {% if hash_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table hash_table %}
+            </div>
+            {% endif %}
+
+            {% if ipadd_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table ipadd_table %}
+            </div>
+            {% endif %}
+
+            {% if vuln_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table vuln_table %}
+            </div>
+            {% endif %}
+
         </div>
     </div>
 </div>
