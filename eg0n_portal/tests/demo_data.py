@@ -7,9 +7,9 @@ python ./manage.py shell < tests/demo_data.py
 """
 
 import random
+import json
 from lorem_text import lorem
 from django.contrib.auth.models import Group, User
-
 # from django.contrib.auth.hashers import make_password
 from rest_framework.authtoken.models import Token
 from ioc_management.models import (
@@ -112,7 +112,6 @@ EVENTS = [
     "Cybersecurity Incident Reported",
     "Data Archival Activity",
     "Data Compression Activity",
-    "Data Exfiltration",
     "Data Exfiltration",
     "Data Theft",
     "Data Transfer Spike",
@@ -255,7 +254,6 @@ EVENTS = [
     "Vendor Breach",
     "VPN Login Detected",
     "Vulnerability Disclosure",
-    "Vulnerability Exploited",
     "Vulnerability Exploited",
     "Weak Encryption",
     "Weak Password Policy",
@@ -744,6 +742,10 @@ FQDNS = [
     "web080.company.org",
 ]
 
+with open('tests/ioc_management/nist-cves.json', 'r') as fh:
+    vulns_data = fh.read()
+    VULNS = json.loads(vulns_data)['vulnerabilities']
+
 
 # Create superuser
 admin_obj = get_or_none(User, username="admin")
@@ -841,4 +843,23 @@ for user_obj in user_list:
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
             attribute_obj = FQDN.objects.create(**payload)
+            attribute_obj.full_clean()
+
+        # Add Vuln
+        for _ in range(0, random.randint(0, 5)):
+            vuln_id = random.randint(0, len(VULNS) - 1)
+            cve = VULNS.pop(vuln_id)['cve']
+            if 'metrics' in cve and cve['metrics'].values():
+                cvss = float(list(cve['metrics'].values())[0][0]['cvssData']['baseScore'])
+            else:
+                cvss = 0
+            payload = {
+                "author_id": user_obj.id,
+                "cve": cve['id'],
+                "cvss": float(cvss),
+                "description": lorem.paragraphs(2).replace("\n", "\n\n"),
+                "event_id": str(event_obj.id),
+                "name": cve['id'],
+            }
+            attribute_obj = Vuln.objects.create(**payload)
             attribute_obj.full_clean()

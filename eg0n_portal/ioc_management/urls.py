@@ -79,17 +79,17 @@ urlpatterns = [
     # Hash
     #########################################################################
     path("hash/", HashListView.as_view(), name="hash_list"),
-    path("hash/<str:pk>/", HashDetailView.as_view(),name="hash_detail"),
+    path("hash/<uuid:pk>/", HashDetailView.as_view(),name="hash_detail"),
     #########################################################################
     # IpAdd
     #########################################################################
     path("ipadd/", IpAddListView.as_view(), name="ipadd_list"),
-    path("ipadd/<str:pk>/", IpAddDetailView.as_view(),name="ipadd_detail"),
+    path("ipadd/<uuid:pk>/", IpAddDetailView.as_view(),name="ipadd_detail"),
     #########################################################################
     # Vuln
     #########################################################################
     path("vuln/", VulnListView.as_view(), name="vuln_list"),
-    path("vuln/<str:pk>/", VulnDetailView.as_view(),name="vuln_detail"),
+    path("vuln/<uuid:pk>/", VulnDetailView.as_view(),name="vuln_detail"),
     #########################################################################
     # API endpoints
     #########################################################################

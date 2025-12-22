@@ -29,6 +29,7 @@ from ioc_management.tables import (
     HashTable,
     IpAddTable,
     VulnTable,
+    VulnEmbeddedTable,
 )
 from ui.include.views import (
     APICRUDViewSet,
@@ -132,9 +133,9 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
         tables.RequestConfig(self.request, paginate=False).configure(ipadd_table)
         context["ipadd_table"] = ipadd_table
 
-        # Vulon table
+        # Vuln table
         vuln_qs = event_obj.vulns.all().order_by("-updated_at")
-        vuln_table = VulnTable(vuln_qs)
+        vuln_table = VulnEmbeddedTable(vuln_qs)
         tables.RequestConfig(self.request, paginate=False).configure(vuln_table)
         context["vuln_table"] = vuln_table
 
@@ -329,7 +330,7 @@ class VulnAPIViewSet(VulnQueryMixin, APIRViewSet):
     pass
 
 
-class VulnDetailView(EventQueryMixin, ObjectDetailView):
+class VulnDetailView(VulnQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Vuln."""
 
     pass

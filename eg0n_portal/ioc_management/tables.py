@@ -213,6 +213,7 @@ class IpAddTable(ObjectTable):
 class VulnTable(ObjectTable):
     """Table definition for the Vuln model."""
 
+    name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -220,13 +221,40 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        # exclude = ("id", "description", "lastchange_author")
-        # sequence = (
-        #     "name",
-        #     "author",   
-        #     "created_at",
-        #     "updated_at",
-        # )
+        exclude = ("id", "description", "lastchange_author", "author", "event")
+        sequence = (
+            "name",
+            "cve",
+            "cvss",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+class VulnEmbeddedTable(ObjectTable):
+    """Table definition for the Vuln model."""
+
+    name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Vuln
+        exclude = ("id", "select", "description", "lastchange_author", "author", "event")
+        sequence = (
+            "name",
+            "cve",
+            "cvss",   
+            "created_at",
+            "updated_at",
+        )
         order_by = "-updated_at"
         attrs = {
             "search": False,

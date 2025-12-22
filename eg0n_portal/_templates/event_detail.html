@@ -51,6 +51,12 @@
             <h2>{{ object.record|get_object_label:"description"|title }}</h2>
             {{ object.record|get_object_value:"description"|markdownify|safe }}
 
+            {% if vuln_table.rows %}
+            <div class="col-lg-12 mt-5">
+                {% render_table vuln_table %}
+            </div>
+            {% endif %}
+            
             {% if codesnippet_table.rows %}
             <div class="col-lg-12 mt-5">
                 {% render_table codesnippet_table %}
@@ -72,12 +78,6 @@
             {% if ipadd_table.rows %}
             <div class="col-lg-12 mt-5">
                 {% render_table ipadd_table %}
-            </div>
-            {% endif %}
-
-            {% if vuln_table.rows %}
-            <div class="col-lg-12 mt-5">
-                {% render_table vuln_table %}
             </div>
             {% endif %}
 
