@@ -153,6 +153,7 @@ class FQDNEmbeddedTable(ObjectTable):
 class HashTable(ObjectTable):
     """Table definition for the Hash model."""
 
+    filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -160,13 +161,14 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        # exclude = ("id", "description", "lastchange_author")
-        # sequence = (
-        #     "name",
-        #     "author",   
-        #     "created_at",
-        #     "updated_at",
-        # )
+        exclude = ("id", "author", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
+        sequence = (
+            "filename",
+            "platform",
+            "website",
+            "created_at",
+            "updated_at",
+        )
         order_by = "-updated_at"
         attrs = {
             "search": False,

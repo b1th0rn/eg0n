@@ -253,7 +253,7 @@ class HashAPIViewSet(HashQueryMixin, APIRViewSet):
     pass
 
 
-class HashDetailView(EventQueryMixin, ObjectDetailView):
+class HashDetailView(HashQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Hash."""
 
     pass

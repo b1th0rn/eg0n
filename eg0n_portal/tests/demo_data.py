@@ -7,6 +7,7 @@ python ./manage.py shell < tests/demo_data.py
 """
 
 import random
+import hashlib
 import json
 from lorem_text import lorem
 from django.contrib.auth.models import Group, User
@@ -742,6 +743,140 @@ FQDNS = [
     "web080.company.org",
 ]
 
+FILENAMES = [
+  "account_alert.url",
+  "agenda_q2_review.xlsm",
+  "android_system_patch.apk",
+  "anti_lag_tool.exe",
+  "antivirus_trial.exe",
+  "audit_results.docm",
+  "backup_manager.exe",
+  "bank_statement_04_2025.exe",
+  "battery_optimizer.apk",
+  "billing_report.vbs",
+  "bitcoin_core_update.exe",
+  "blockchain_sync.exe",
+  "board_presentation.pptm",
+  "budget_forecast_2025.xlsm",
+  "camera_driver_update.exe",
+  "cheat_engine_pro.exe",
+  "chrome_security_fix.exe",
+  "cloud_storage_setup.exe",
+  "cloud_sync_tool.exe",
+  "company_directory_update.exe",
+  "compliance_checker.exe",
+  "confidential_report.iso",
+  "contract_signed.lnk",
+  "corporate_vpn_update.exe",
+  "cpu_optimizer.exe",
+  "crypto_miner.exe",
+  "crypto_price_tracker.exe",
+  "crypto_wallet.apk",
+  "cv_mario_rossi.pdf.exe",
+  "defi_dashboard.exe",
+  "delivery_note.wsf",
+  "disk_cleanup_tool.exe",
+  "dlc_unlocker.exe",
+  "document_scan.iso",
+  "driver_update_utility.exe",
+  "dropbox_fix.exe",
+  "email_attachment_001.exe",
+  "email_filter_tool.exe",
+  "email_security_update.exe",
+  "employee_benefits_update.exe",
+  "encrypted_message.exe",
+  "eth_node_setup.exe",
+  "family_pictures.zip",
+  "fax_message_urgent.exe",
+  "file_share_client.exe",
+  "firewall_configurator.exe",
+  "firmware_update.bin.exe",
+  "forensic_collector.exe",
+  "fps_booster.exe",
+  "free_game_installer.exe",
+  "free_vpn.apk",
+  "game_crack.exe",
+  "game_patch_v1_9.exe",
+  "google_drive_patch.exe",
+  "helpdesk_tool.exe",
+  "holiday_video.mp4.exe",
+  "hr_portal_access.exe",
+  "id_document.iso",
+  "incident_report_viewer.exe",
+  "internal_chat_client.exe",
+  "invoice_2024_urgent.exe",
+  "invoice_88321.html",
+  "invoice_scan.jpg.exe",
+  "iot_device_manager.exe",
+  "it_support_helper.exe",
+  "legal_notice.rtf.exe",
+  "log_analyzer.exe",
+  "mail_server_patch.exe",
+  "media_codec_pack.exe",
+  "meeting_minutes.docm",
+  "mining_optimizer.exe",
+  "mobile_cleaner.apk",
+  "mobile_security_update.apk",
+  "mod_manager.exe",
+  "nas_setup_tool.exe",
+  "nda_agreement.docm",
+  "network_diagnostic_tool.exe",
+  "network_scanner.exe",
+  "nft_viewer.exe",
+  "offer_letter.pdf.exe",
+  "onedrive_update.exe",
+  "online_launcher.exe",
+  "order_details.js",
+  "outlook_plugin_update.exe",
+  "passport_copy.png.exe",
+  "password_reset_tool.exe",
+  "payment_confirmation.hta",
+  "payment_portal.url",
+  "payment_receipt.scr",
+  "photo_2024_11_03.iso",
+  "photo_viewer_setup.exe",
+  "printer_driver_fix.exe",
+  "project_plan_final.docm",
+  "refund_form.hta",
+  "remote_access_tool.exe",
+  "remote_admin_console.exe",
+  "restore_tool.exe",
+  "risk_assessment_tool.exe",
+  "router_config_tool.exe",
+  "salary_review.docm",
+  "scanned_document_7421.exe",
+  "secure_backup.exe",
+  "secure_fax_viewer.exe",
+  "secure_login.html",
+  "secure_message.pdf.exe",
+  "security_alert_details.exe",
+  "security_awareness_training.exe",
+  "shipping_notice.zip",
+  "signal_voice_message.apk",
+  "smart_camera_update.exe",
+  "sms_backup.apk",
+  "steam_update_fix.exe",
+  "support_ticket_response.exe",
+  "sync_service.msi",
+  "system_health_check.exe",
+  "system_update.cmd",
+  "telegram_update.apk",
+  "threat_report_viewer.exe",
+  "timesheet_submission.exe",
+  "token_airdrop.exe",
+  "tracking_info.js",
+  "update_flash_player.exe",
+  "voice_mail_8832.iso",
+  "vpn_client_setup.msi",
+  "vulnerability_scanner.exe",
+  "wallet_connect.exe",
+  "wedding_album.scr",
+  "whatsapp_image_84722.apk",
+  "wifi_optimizer.exe",
+  "windows_patch_kb501.exe",
+]
+
+
 with open('tests/ioc_management/nist-cves.json', 'r') as fh:
     vulns_data = fh.read()
     VULNS = json.loads(vulns_data)['vulnerabilities']
@@ -843,6 +978,30 @@ for user_obj in user_list:
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
             attribute_obj = FQDN.objects.create(**payload)
+            attribute_obj.full_clean()
+
+        # Add Hash
+        for _ in range(0, random.randint(0, 5)):
+            filename_id = random.randint(0, len(FILENAMES) - 1)
+            filename = FILENAMES.pop(filename_id)
+            data = filename.encode("utf-8")
+            md5 = hashlib.md5(data).hexdigest()
+            sha1 = hashlib.sha1(data).hexdigest()
+            sha256 = hashlib.sha256(data).hexdigest()
+            payload = {
+                "author_id": user_obj.id,
+                "confidence": get_choice(CONFIDENCE_CHOICES),
+                "description": lorem.paragraphs(2).replace("\n", "\n\n"),
+                "event_id": str(event_obj.id),
+                "platform": get_choice(PLATFORM),
+                "filename": filename,
+                "md5": md5,
+                "sha1": sha1,
+                "sha256": sha256,
+                "website": "https://www.example.com/",
+                "validation_status": get_choice(VALIDATION_CHOICES),
+            }
+            attribute_obj = Hash.objects.create(**payload)
             attribute_obj.full_clean()
 
         # Add IpAdd
