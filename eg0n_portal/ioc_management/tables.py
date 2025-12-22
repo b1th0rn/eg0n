@@ -207,6 +207,33 @@ class IpAddTable(ObjectTable):
         }
 
 
+class IpAddEmbeddedTable(ObjectTable):
+    """Table definition for the IpAdd model."""
+
+    ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = IpAdd
+        exclude = ("id", "select", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
+        sequence = (
+            "ip_address",
+            "fqdn",
+            "url",
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+
 #############################################################################
 # Vuln
 #############################################################################

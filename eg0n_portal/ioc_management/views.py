@@ -28,6 +28,7 @@ from ioc_management.tables import (
     FQDNTable,
     HashTable,
     IpAddTable,
+    IpAddEmbeddedTable,
     VulnTable,
     VulnEmbeddedTable,
 )
@@ -129,7 +130,7 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
 
         # IpAdd table
         ipadd_qs = event_obj.ipadds.all().order_by("-updated_at")
-        ipadd_table = IpAddTable(ipadd_qs)
+        ipadd_table = IpAddEmbeddedTable(ipadd_qs)
         tables.RequestConfig(self.request, paginate=False).configure(ipadd_table)
         context["ipadd_table"] = ipadd_table
 
