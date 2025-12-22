@@ -1,8 +1,15 @@
 """Template tags for dynamic template behavior in Django."""
 
+import markdown
 from django import template
 
 register = template.Library()
+
+
+@register.filter
+def markdownify(text):
+    """Return HTML text from Markdown."""
+    return markdown.markdown(text)
 
 
 @register.simple_tag(takes_context=True)

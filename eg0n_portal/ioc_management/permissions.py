@@ -1,4 +1,4 @@
-"""Permissions for Instance app."""
+"""Permissions for IoC Management app."""
 
 #############################################################################
 # Event
@@ -17,21 +17,105 @@ class EventPermissionPolicy:
             return None
 
         # === COMMON RULES ===
-        if not target and method in (
-            "GET",
-            "OPTIONS",
-            "HEAD",
-            "PUT",
-            "PATCH",
-            "DELETE",
-        ):
-            # Without target object, return True with safe methods
-            return True
+        return True
 
-        # === ADMIN RULES ===
-        if user.is_superuser:
-            # Admin can do everything
-            return True
 
-        # === STAFF/USER RULES ===
-        return method in ("GET")
+#############################################################################
+# CodeSnippet
+#############################################################################
+
+
+class CodeSnippetPermissionPolicy:
+    """UI and DRF (API) permisson policy for CodeSnippet objects."""
+
+    def can(self, user, method, target=None, payload=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        return True
+    
+
+#############################################################################
+# FQDN
+#############################################################################
+
+
+class FQDNPermissionPolicy:
+    """UI and DRF (API) permisson policy for FQDN objects."""
+
+    def can(self, user, method, target=None, payload=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        return True
+    
+
+#############################################################################
+# Hash
+#############################################################################
+
+
+class HashPermissionPolicy:
+    """UI and DRF (API) permisson policy for Hash objects."""
+
+    def can(self, user, method, target=None, payload=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        return True
+
+
+#############################################################################
+# IpAdd
+#############################################################################
+
+
+class IpAddPermissionPolicy:
+    """UI and DRF (API) permisson policy for IpAdd objects."""
+
+    def can(self, user, method, target=None, payload=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        return True
+    
+
+#############################################################################
+# Vuln
+#############################################################################
+
+
+class VulnPermissionPolicy:
+    """UI and DRF (API) permisson policy for Vuln objects."""
+
+    def can(self, user, method, target=None, payload=None):
+        """Defines what the requesting user can do based on their role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest users are not allowed to do anything
+            return None
+
+        # === COMMON RULES ===
+        return True
+    

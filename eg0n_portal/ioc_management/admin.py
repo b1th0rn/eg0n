@@ -92,9 +92,9 @@ class VulnsAdmin(admin.ModelAdmin):
 
 # == IPADD ADMIN ==
 class IpAdmin(admin.ModelAdmin):
-    list_display = ["ip_address", "url", "created_at", "expire_date"]
+    list_display = ["ip_address", "created_at", "expire_date"]
     list_filter = ["created_at"]
-    search_fields = ["ip_address", "url"]
+    search_fields = ["ip_address", ]
     readonly_fields = ("author",)
 
     # == override save model to set author and lastchange_author ==

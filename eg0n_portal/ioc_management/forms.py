@@ -1,4 +1,4 @@
-"""Forms definitions for UI app."""
+"""Forms definitions for IoC Management app."""
 
 from ioc_management.models import Event
 from ui.include.forms import ObjectModelForm
