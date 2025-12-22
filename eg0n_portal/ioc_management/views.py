@@ -27,10 +27,10 @@ from ioc_management.tables import (
     FQDNEmbeddedTable,
     FQDNTable,
     HashTable,
-    IpAddTable,
     IpAddEmbeddedTable,
-    VulnTable,
+    IpAddTable,
     VulnEmbeddedTable,
+    VulnTable,
 )
 from ui.include.views import (
     APICRUDViewSet,
@@ -169,7 +169,7 @@ class CodeSnippetQueryMixin:
         return qs
 
 
-class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
+class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
 
     pass
@@ -208,7 +208,7 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(CodeSnippetQueryMixin, APIRViewSet):
+class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
 
     pass
@@ -247,7 +247,7 @@ class HashQueryMixin:
         return qs
 
 
-class HashAPIViewSet(HashQueryMixin, APIRViewSet):
+class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Hash model."""
 
     pass
@@ -286,7 +286,7 @@ class IpAddQueryMixin:
         return qs
 
 
-class IpAddAPIViewSet(IpAddQueryMixin, APIRViewSet):
+class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the IpAdd model."""
 
     pass
@@ -325,7 +325,7 @@ class VulnQueryMixin:
         return qs
 
 
-class VulnAPIViewSet(VulnQueryMixin, APIRViewSet):
+class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Vuln model."""
 
     pass

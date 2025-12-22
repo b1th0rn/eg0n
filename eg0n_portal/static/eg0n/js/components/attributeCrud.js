@@ -57,7 +57,7 @@ export function attributeCrud() {
             const url = `/${this.attribute_type}/`
             const payload = this.attribute_data[this.attribute_type]
             const event_pk = this.$root.dataset.event_pk
-            payload.event_id = parseInt(event_pk, 10)
+            payload.event = parseInt(event_pk, 10)
             const response = await api.post(url, payload)
             // TODO: must handle response and add a toast
             this.loading = false
