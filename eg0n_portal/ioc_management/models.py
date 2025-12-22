@@ -96,7 +96,6 @@ class Vuln(models.Model):
     exploitation_details = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event,
-        editable=False,
         on_delete=models.CASCADE,
         related_name="vulns",
     )
@@ -150,7 +149,6 @@ class IpAdd(models.Model):
     description = models.TextField()
     event = models.ForeignKey(
         Event,
-        editable=False,
         on_delete=models.CASCADE,
         related_name="ipadds",
     )
@@ -209,7 +207,6 @@ class CodeSnippet(models.Model):
     description = models.TextField()
     event = models.ForeignKey(
         Event,
-        editable=False,
         on_delete=models.CASCADE,
         related_name="codesnippets",
     )
@@ -383,7 +380,7 @@ class Review(models.Model):
         related_name="contributed_reviews",
     )
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, default=None, related_name="reviews", null=True
+        Event, on_delete=models.CASCADE, related_name="reviews"
     )
     name = models.CharField(max_length=64, default="none", unique=True)
     review = models.TextField(null=True, blank=True)
@@ -430,7 +427,6 @@ class Exploit(models.Model):
     event = models.ForeignKey(
         "Event",
         on_delete=models.CASCADE,
-        editable=False,
         related_name="exploits",
     )
     # associate exploit to VULN
