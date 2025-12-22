@@ -418,7 +418,7 @@ class Exploit(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=MAX_LENGTH, unique=False)
+    name = models.CharField(max_length=MAX_LENGTH)
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -429,18 +429,16 @@ class Exploit(models.Model):
     # associate exploit to EVENT
     event = models.ForeignKey(
         "Event",
-        on_delete=models.SET_NULL,
-        editable=True,
+        on_delete=models.CASCADE,
+        editable=False,
         related_name="exploits",
-        null=True,
     )
     # associate exploit to VULN
     vuln = models.ForeignKey(
         "Vuln",
-        on_delete=models.SET_NULL,
-        editable=True,
+        on_delete=models.CASCADE,
+        editable=False,
         related_name="exploits",
-        null=True,
     )
     description = models.TextField()
     payload = models.TextField()
