@@ -107,7 +107,6 @@ class FQDNTable(ObjectTable):
         exclude = ("id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
         sequence = (
             "fqdn",
-            "ip_address",   
             "created_at",
             "updated_at",
         )
@@ -133,7 +132,6 @@ class FQDNEmbeddedTable(ObjectTable):
         exclude = ("select", "id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
         sequence = (
             "fqdn",
-            "ip_address",   
             "created_at",
             "updated_at",
         )
@@ -165,7 +163,7 @@ class HashTable(ObjectTable):
         sequence = (
             "filename",
             "platform",
-            "website",
+            "url",
             "created_at",
             "updated_at",
         )
@@ -196,8 +194,6 @@ class IpAddTable(ObjectTable):
         exclude = ("id", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
         sequence = (
             "ip_address",
-            "fqdn",
-            "url",
             "created_at",
             "updated_at",
         )
@@ -223,8 +219,6 @@ class IpAddEmbeddedTable(ObjectTable):
         exclude = ("id", "select", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
         sequence = (
             "ip_address",
-            "fqdn",
-            "url",
             "created_at",
             "updated_at",
         )

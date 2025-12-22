@@ -950,7 +950,7 @@ for user_obj in user_list:
         event_list.append(event_obj)
 
         # Add Code Snippet
-        for _ in range(0, random.randint(0, 5)):
+        for _ in list(range(0, random.randint(0, 5))):
             codesnippet_id = random.randint(0, len(CODESNIPPETS) - 1)
             payload = {
                 "author_id": user_obj.id,
@@ -966,7 +966,7 @@ for user_obj in user_list:
             attribute_obj.full_clean()
 
         # Add FQDN
-        for _ in range(0, random.randint(0, 5)):
+        for _ in list(range(0, random.randint(0, 5))):
             fqdn_id = random.randint(0, len(FQDNS) - 1)
             payload = {
                 "author_id": user_obj.id,
@@ -974,14 +974,13 @@ for user_obj in user_list:
                 "description": lorem.paragraphs(2).replace("\n", "\n\n"),
                 "event_id": str(event_obj.id),
                 "fqdn": FQDNS.pop(fqdn_id),
-                "ip_address": f"{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}",
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
             attribute_obj = FQDN.objects.create(**payload)
             attribute_obj.full_clean()
 
         # Add Hash
-        for _ in range(0, random.randint(0, 5)):
+        for _ in list(range(0, random.randint(0, 5))):
             filename_id = random.randint(0, len(FILENAMES) - 1)
             filename = FILENAMES.pop(filename_id)
             data = filename.encode("utf-8")
@@ -998,21 +997,19 @@ for user_obj in user_list:
                 "md5": md5,
                 "sha1": sha1,
                 "sha256": sha256,
-                "website": "https://www.example.com/",
+                "url": "https://www.example.com/",
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
             attribute_obj = Hash.objects.create(**payload)
             attribute_obj.full_clean()
 
         # Add IpAdd
-        for _ in range(0, random.randint(0, 5)):
+        for _ in list(range(0, random.randint(0, 5))):
             payload = {
                 "author_id": user_obj.id,
                 "confidence": get_choice(CONFIDENCE_CHOICES),
                 "description": lorem.paragraphs(2).replace("\n", "\n\n"),
                 "event_id": str(event_obj.id),
-                "url": "https://www.example.com/",
-                "fqdn": "www.example.com",
                 "ip_address": f"{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}",
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
@@ -1020,7 +1017,7 @@ for user_obj in user_list:
             attribute_obj.full_clean()
 
         # Add Vuln
-        for _ in range(0, random.randint(0, 5)):
+        for _ in list(range(0, random.randint(0, 5))):
             vuln_id = random.randint(0, len(VULNS) - 1)
             cve = VULNS.pop(vuln_id)['cve']
             if 'metrics' in cve and cve['metrics'].values():
