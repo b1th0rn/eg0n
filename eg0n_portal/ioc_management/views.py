@@ -26,6 +26,7 @@ from ioc_management.tables import (
     EventTable,
     FQDNEmbeddedTable,
     FQDNTable,
+    HashEmbeddedTable,
     HashTable,
     IpAddEmbeddedTable,
     IpAddTable,
@@ -34,7 +35,6 @@ from ioc_management.tables import (
 )
 from ui.include.views import (
     APICRUDViewSet,
-    APIRViewSet,
     ObjectBulkDeleteView,
     ObjectChangeView,
     ObjectCreateView,
@@ -124,7 +124,7 @@ class EventDetailView(EventQueryMixin, ObjectDetailView):
 
         # Hash table
         hash_qs = event_obj.hashes.all().order_by("-updated_at")
-        hash_table = HashTable(hash_qs)
+        hash_table = HashEmbeddedTable(hash_qs)
         tables.RequestConfig(self.request, paginate=False).configure(hash_table)
         context["hash_table"] = hash_table
 

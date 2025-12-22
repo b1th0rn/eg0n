@@ -119,7 +119,7 @@ class FQDNTable(ObjectTable):
 
 
 class FQDNEmbeddedTable(ObjectTable):
-    """Table definition for the FQDN model."""
+    """Embedded table definition for the FQDN model."""
 
     fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
@@ -175,6 +175,33 @@ class HashTable(ObjectTable):
         }
 
 
+class HashEmbeddedTable(ObjectTable):
+    """Embedded table definition for the Hash model."""
+
+    filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Hash
+        exclude = ("select", "id", "author", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
+        sequence = (
+            "filename",
+            "platform",
+            "url",
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+
 #############################################################################
 # IpAdd
 #############################################################################
@@ -206,7 +233,7 @@ class IpAddTable(ObjectTable):
 
 
 class IpAddEmbeddedTable(ObjectTable):
-    """Table definition for the IpAdd model."""
+    """Embedded table definition for the IpAdd model."""
 
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
@@ -262,7 +289,7 @@ class VulnTable(ObjectTable):
         }
 
 class VulnEmbeddedTable(ObjectTable):
-    """Table definition for the Vuln model."""
+    """Embedded table definition for the Vuln model."""
 
     name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
