@@ -72,7 +72,6 @@ export const api = {
         }
 
         if (payload) {
-            console.log("adding payload")
             // A payload must be sent
             options.headers['Content-Type'] = 'application/json'
             if (!external_endpoint) options.headers['X-CSRFToken'] = getCsrfToken()
@@ -84,10 +83,6 @@ export const api = {
         }
 
         try {
-            console.log(endpoint)
-            console.log(options)
-            console.log(method)
-            console.log(payload)
             const response = await fetch(endpoint, options)
             const data = await parseJson(response)
             if (response.ok) {
