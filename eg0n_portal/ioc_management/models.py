@@ -93,6 +93,7 @@ class Vuln(models.Model):
     cve = models.CharField(max_length=MAX_LENGTH)
     cvss = models.FloatField()
     description = models.TextField()
+    exploitation_details = models.TextField(blank=True)
     event = models.ForeignKey(
         Event,
         editable=False,
@@ -404,3 +405,65 @@ class Review(models.Model):
     def get_absolute_url(self):
         """Return the absolute url."""
         return reverse("review-detail-view", args=[str(self.pk)])
+
+
+#############################################################################
+# Review
+#############################################################################
+
+
+class Exploit(models.Model):
+    """
+    Model for exploit and payload.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=32, unique=False)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        editable=False,
+        related_name="exploits",
+        null=True,
+    )
+    # associate exploit to EVENT
+    event = models.ForeignKey(
+        "Event",
+        on_delete=models.SET_NULL,
+        editable=True,
+        related_name="exploits",
+        null=True,
+    )
+    # associate exploit to VULN
+    vuln = models.ForeignKey(
+        "Vuln",
+        on_delete=models.SET_NULL,
+        editable=True,
+        related_name="exploits",
+        null=True,
+    )
+    description = models.TextField()
+    payload = models.TextField()
+    contributors_authors = models.ManyToManyField(
+        User,
+        editable=False,
+        related_name="exploits_author",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Database metadata."""
+
+        verbose_name = "07 :: Exploit"
+        verbose_name_plural = "07 :: Exploits"
+        db_table = "exploits"
+        ordering = ("-created_at",)
+
+    def __str__(self):
+        """Return a human readable name when the object is printed."""
+        return self.name
+
+    def get_absolute_url(self):
+        """Return the absolute url."""
+        return reverse("vuln-detail-view", args=[str(self.pk)])
