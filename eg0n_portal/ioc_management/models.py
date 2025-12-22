@@ -458,7 +458,7 @@ class Exploit(models.Model):
         verbose_name = "07 :: Exploit"
         verbose_name_plural = "07 :: Exploits"
         db_table = "exploits"
-        ordering = ("-updated_add",)
+        ordering = ("-updated_at",)
 
     def __str__(self):
         """Return a human readable name when the object is printed."""
