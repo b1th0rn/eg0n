@@ -45,7 +45,6 @@ class CodeSnippetSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
@@ -68,7 +67,6 @@ class FQDNSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
@@ -91,7 +89,6 @@ class HashSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
@@ -114,7 +111,6 @@ class IpAddSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
@@ -137,7 +133,6 @@ class VulnSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",

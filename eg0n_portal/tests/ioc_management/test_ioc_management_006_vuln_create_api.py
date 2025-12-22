@@ -1,45 +1,49 @@
-"""Test DRF (API) group creation."""
+"""Test DRF (API) vulnerability creation."""
 
 import pytest
-from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
+from ioc_management.models import Event, Vuln
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize("role", ["admin", "staff", "user"])
-def test_ui_group_create_api_user(api_client, user_set_group1, role):
-    """Test DRS (API) group creation."""
+def test_ioc_management_vuln_create_api_user(api_client, user_set_group1, role):
+    """Test DRS (API) vulnerability creation."""
     user = user_set_group1[role]
+    event = user.events.all().first()
     token, _ = Token.objects.get_or_create(user=user)
     headers = {"Authorization": f"Token {token}"}
-    url = reverse("group-list")
-    payload = {"name": "new_group"}
+    url = reverse("vuln-list")
+
+    payload = {
+        "cve": "CVE-AAAA-BBBB",
+        "cvss": 9.8,
+        "description": "Very critical vulnerability.",
+        "event": str(event.pk),
+        "name": "Critical Vulnerability",
+    }
+    
     response = api_client.post(url, payload, format="json", headers=headers)
-    if role == "admin":
-        # Admin users must be able to create new groups.
-        assert response.status_code == 201, f"Failed for user {user.username}"
-        assert (
-            response.data["name"] == payload["name"]
-        ), "Group not in the returning payload"
-        assert (
-            len(Group.objects.filter(name=payload["name"])) == 1
-        ), "Group has not been created"
-    else:
-        # Non admin users cannot create new groups.
-        assert response.status_code == 403, f"Expected 401 for {user.username}"
-        assert (
-            len(Group.objects.filter(name=payload["name"])) == 0
-        ), "Group has been created"
+    assert response.status_code == 201, f"Failed for user {user.username}"
+    assert response.data["name"] == payload["name"], "Vuln not in the returning payload"
+    assert (
+        len(Vuln.objects.filter(name=payload["name"])) == 1
+    ), "Event has not been created"
 
 
 @pytest.mark.django_db
-def test_ui_group_create_api_guest(api_client):
-    """Test DRS (API) get group creation by guest user."""
-    url = reverse("group-list")
-    payload = {"name": "new_group"}
+def test_ioc_management_vuln_create_api_guest(api_client, user_set_group1):
+    """Test DRS (API) vulnerabilityu creation by guest user."""
+    url = reverse("vuln-list")
+    event = Event.objects.all().first()
+    payload = {
+        "cve": "CVE-AAAA-BBBB",
+        "cvss": 9.8,
+        "description": "Very critical vulnerability.",
+        "event": str(event.pk),
+        "name": "Critical Vulnerability",
+    }
     response = api_client.post(url, payload, format="json")
     assert response.status_code == 401, "Expected 401 for guest user"
-    assert (
-        len(Group.objects.filter(name=payload["name"])) == 0
-    ), "Group has been created"
+    assert len(Vuln.objects.filter(name=payload["name"])) == 0, "Vuln has been created"
