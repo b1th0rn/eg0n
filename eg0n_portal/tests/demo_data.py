@@ -845,6 +845,21 @@ for user_obj in user_list:
             attribute_obj = FQDN.objects.create(**payload)
             attribute_obj.full_clean()
 
+        # Add IpAdd
+        for _ in range(0, random.randint(0, 5)):
+            payload = {
+                "author_id": user_obj.id,
+                "confidence": get_choice(CONFIDENCE_CHOICES),
+                "description": lorem.paragraphs(2).replace("\n", "\n\n"),
+                "event_id": str(event_obj.id),
+                "url": "https://www.example.com/",
+                "fqdn": "www.example.com",
+                "ip_address": f"{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}.{random.randint(1, 200)}",
+                "validation_status": get_choice(VALIDATION_CHOICES),
+            }
+            attribute_obj = IpAdd.objects.create(**payload)
+            attribute_obj.full_clean()
+
         # Add Vuln
         for _ in range(0, random.randint(0, 5)):
             vuln_id = random.randint(0, len(VULNS) - 1)

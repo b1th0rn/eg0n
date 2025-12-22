@@ -183,6 +183,7 @@ class HashTable(ObjectTable):
 class IpAddTable(ObjectTable):
     """Table definition for the IpAdd model."""
 
+    ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -190,13 +191,14 @@ class IpAddTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        # exclude = ("id", "description", "lastchange_author")
-        # sequence = (
-        #     "name",
-        #     "author",   
-        #     "created_at",
-        #     "updated_at",
-        # )
+        exclude = ("id", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
+        sequence = (
+            "ip_address",
+            "fqdn",
+            "url",
+            "created_at",
+            "updated_at",
+        )
         order_by = "-updated_at"
         attrs = {
             "search": False,

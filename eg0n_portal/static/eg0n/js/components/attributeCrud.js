@@ -38,7 +38,7 @@ export function attributeCrud() {
                 description: '',
                 fqdn: '', // ?
                 ip_address: '',
-                url: '', // ?
+                url: '', // ? -> aggiungere un type URL?
                 validation_status: '',
             },
             vuln: {

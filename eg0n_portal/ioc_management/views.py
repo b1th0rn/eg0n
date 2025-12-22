@@ -291,7 +291,7 @@ class IpAddAPIViewSet(IpAddQueryMixin, APIRViewSet):
     pass
 
 
-class IpAddDetailView(EventQueryMixin, ObjectDetailView):
+class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a IpAdd."""
 
     pass
