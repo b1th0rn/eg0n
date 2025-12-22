@@ -93,7 +93,7 @@ class Vuln(models.Model):
     cve = models.CharField(max_length=MAX_LENGTH)
     cvss = models.FloatField()
     description = models.TextField()
-    exploitation_details = models.TextField(blank=True)
+    exploitation_details = models.TextField(blank=True, null=True)
     event = models.ForeignKey(
         Event,
         editable=False,
@@ -414,11 +414,11 @@ class Review(models.Model):
 
 class Exploit(models.Model):
     """
-    Model for exploit and payload.
+    Model for exploits and payloads.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=32, unique=False)
+    name = models.CharField(max_length=MAX_LENGTH, unique=False)
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -447,7 +447,7 @@ class Exploit(models.Model):
     contributors_authors = models.ManyToManyField(
         User,
         editable=False,
-        related_name="exploits_author",
+        related_name="contributed_exploits",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -458,7 +458,7 @@ class Exploit(models.Model):
         verbose_name = "07 :: Exploit"
         verbose_name_plural = "07 :: Exploits"
         db_table = "exploits"
-        ordering = ("-created_at",)
+        ordering = ("-updated_add",)
 
     def __str__(self):
         """Return a human readable name when the object is printed."""
@@ -466,4 +466,4 @@ class Exploit(models.Model):
 
     def get_absolute_url(self):
         """Return the absolute url."""
-        return reverse("vuln-detail-view", args=[str(self.pk)])
+        return reverse("exploit-detail-view", args=[str(self.pk)])
