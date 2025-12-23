@@ -92,7 +92,7 @@ class VulnsAdmin(admin.ModelAdmin):
 
 # == IPADD ADMIN ==
 class IpAdmin(admin.ModelAdmin):
-    list_display = ["ip_address", "created_at", "expire_date"]
+    list_display = ["ip_address", "created_at", "expired_at"]
     list_filter = ["created_at"]
     search_fields = ["ip_address", ]
     readonly_fields = ("author",)
@@ -123,7 +123,7 @@ class CodeAdmin(admin.ModelAdmin):
 
 # == FQDN ADMIN ==
 class FQDNAdmin(admin.ModelAdmin):
-    list_display = ["fqdn", "created_at", "expire_date"]
+    list_display = ["fqdn", "created_at", "expired_at"]
     list_filter = ["created_at"]
     search_fields = ["fqdn"]
     readonly_fields = ("author",)
@@ -137,7 +137,7 @@ class FQDNAdmin(admin.ModelAdmin):
 
 # == HASH ADMIN ==
 class HashAdmin(admin.ModelAdmin):
-    list_display = ["filename", "platform", "sha256", "expire_date"]
+    list_display = ["filename", "platform", "sha256", "expired_at"]
     list_filter = ["created_at"]
     search_fields = ["sha256", "sha1", "md5"]
     readonly_fields = ("author",)
