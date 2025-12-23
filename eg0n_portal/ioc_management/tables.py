@@ -273,7 +273,7 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "description", "lastchange_author", "author", "event", "exploitation_details")
         sequence = (
             "name",
             "cve",
@@ -299,7 +299,7 @@ class VulnEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details")
         sequence = (
             "name",
             "cve",
