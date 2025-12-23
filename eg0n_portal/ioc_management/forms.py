@@ -39,7 +39,7 @@ class CodeSnippetForm(ObjectModelForm):
     class Meta:
         """Meta options."""
 
-        fields = ("name", "language", "code", "confidence", "validation_status", "description")
+        fields = ("name", "language", "code", "confidence", "validation_status", "description", "expired_at")
         model = CodeSnippet
 
 
@@ -54,7 +54,7 @@ class FQDNForm(ObjectModelForm):
     class Meta:
         """Meta options."""
 
-        fields = ("fqdn", "confidence", "validation_status", "description")
+        fields = ("fqdn", "confidence", "validation_status", "description", "expired_at")
         model = FQDN
 
 
@@ -69,7 +69,7 @@ class HashForm(ObjectModelForm):
     class Meta:
         """Meta options."""
 
-        fields = ("filename", "md5", "sha1", "sha256", "platform", "url", "confidence", "validation_status", "description")
+        fields = ("filename", "md5", "sha1", "sha256", "platform", "url", "confidence", "validation_status", "description", "expired_at")
         model = Hash
 
 
@@ -84,7 +84,7 @@ class IpAddForm(ObjectModelForm):
     class Meta:
         """Meta options."""
 
-        fields = ("ip_address", "confidence", "validation_status", "description")
+        fields = ("ip_address", "confidence", "validation_status", "description", "expired_at")
         model = IpAdd
 
 

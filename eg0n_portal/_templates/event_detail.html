@@ -152,6 +152,10 @@
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" x-model="attribute_data.codesnippet.expired_at">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label required">Description</label>
                             <textarea class="form-control" rows="10" x-model="attribute_data.codesnippet.description"></textarea>
                         </div>
@@ -182,6 +186,10 @@
                                 <option value="approved">Approved</option>
                                 <option value="suspended">Suspended</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" x-model="attribute_data.fqdn.expired_at">
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Description</label>
@@ -241,6 +249,10 @@
                             </select>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" x-model="attribute_data.hash.expired_at">
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label required">Description</label>
                             <textarea class="form-control" rows="10" x-model="attribute_data.hash.description"></textarea>
                         </div>
@@ -271,6 +283,10 @@
                                 <option value="approved">Approved</option>
                                 <option value="suspended">Suspended</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Expiration date</label>
+                            <input type="date" class="form-control" x-model="attribute_data.ipadd.expired_at">
                         </div>
                         <div class="mb-3">
                             <label class="form-label required">Description</label>
@@ -305,12 +321,6 @@
                         </div>
                     </div>
                 </template>
-
-                <!-- Expiration -->
-                <div class="mb-3">
-                    <label class="form-label">Expiration date</label>
-                    <input type="date" class="form-control">
-                </div>
 
             </div>
 

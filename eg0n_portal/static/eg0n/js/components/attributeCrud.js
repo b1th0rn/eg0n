@@ -13,12 +13,14 @@ export function attributeCrud() {
                 description: '',
                 language: '',
                 name: '',
+                expired_at: '',
             },
             fqdn: {
                 confidence: '',
                 description: '',
                 fqdn: '',
                 validation_status: '',
+                expired_at: '',
             },
             hash: {
                 confidence: '',
@@ -30,12 +32,14 @@ export function attributeCrud() {
                 sha256: '',
                 url: '',
                 validation_status: '',
+                expired_at: '',
             },
             ipadd: {
                 confidence: '',
                 description: '',
                 ip_address: '',
                 validation_status: '',
+                expired_at: '',
             },
             vuln: {
                 cve: '',
