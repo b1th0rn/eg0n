@@ -42,13 +42,17 @@ class CodeSnippetSerializer(serializers.ModelSerializer):
 
         model = CodeSnippet
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new code snippet."""
+        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -64,13 +68,17 @@ class FQDNSerializer(serializers.ModelSerializer):
 
         model = FQDN
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new FQDN."""
+        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -86,13 +94,17 @@ class HashSerializer(serializers.ModelSerializer):
 
         model = Hash
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new hash."""
+        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -108,13 +120,17 @@ class IpAddSerializer(serializers.ModelSerializer):
 
         model = IpAdd
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new IP address."""
+        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -130,10 +146,14 @@ class VulnSerializer(serializers.ModelSerializer):
 
         model = Vuln
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
+
+    def perform_create(self, serializer):
+        """Set user when creating a new vulnerability."""
+        serializer.save(author=self.request.user)

@@ -29,12 +29,12 @@ def test_ioc_management_vuln_create_api_user(api_client, user_set_group1, role):
     assert response.data["name"] == payload["name"], "Vuln not in the returning payload"
     assert (
         len(Vuln.objects.filter(name=payload["name"])) == 1
-    ), "Event has not been created"
+    ), "Vuln has not been created"
 
 
 @pytest.mark.django_db
 def test_ioc_management_vuln_create_api_guest(api_client, user_set_group1):
-    """Test DRS (API) vulnerabilityu creation by guest user."""
+    """Test DRS (API) vulnerability creation by guest user."""
     url = reverse("vuln-list")
     event = Event.objects.all().first()
     payload = {
