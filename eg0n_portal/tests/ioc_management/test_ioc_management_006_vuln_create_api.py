@@ -27,9 +27,9 @@ def test_ioc_management_vuln_create_api_user(api_client, user_set_group1, role):
     response = api_client.post(url, payload, format="json", headers=headers)
     assert response.status_code == 201, f"Failed for user {user.username}"
     assert response.data["name"] == payload["name"], "Vuln not in the returning payload"
-    assert (
-        len(Vuln.objects.filter(name=payload["name"])) == 1
-    ), "Vuln has not been created"
+    qs = Vuln.objects.filter(name=payload["name"])
+    assert (len(qs) == 1), "Vuln has not been created"
+    assert qs.first().author == user, "Author is not set"
 
 
 @pytest.mark.django_db

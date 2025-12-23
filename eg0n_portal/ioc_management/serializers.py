@@ -23,11 +23,6 @@ class EventSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
-    def perform_create(self, serializer):
-        """Set user when creating a new event."""
-        serializer.save(author=self.request.user)
-
-
 
 #############################################################################
 # CodeSnippet
@@ -49,10 +44,6 @@ class CodeSnippetSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-
-    def perform_create(self, serializer):
-        """Set user when creating a new code snippet."""
-        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -76,10 +67,6 @@ class FQDNSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
-    def perform_create(self, serializer):
-        """Set user when creating a new FQDN."""
-        serializer.save(author=self.request.user)
-
 
 #############################################################################
 # Hash
@@ -101,10 +88,6 @@ class HashSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-
-    def perform_create(self, serializer):
-        """Set user when creating a new hash."""
-        serializer.save(author=self.request.user)
 
 
 #############################################################################
@@ -128,10 +111,6 @@ class IpAddSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
-    def perform_create(self, serializer):
-        """Set user when creating a new IP address."""
-        serializer.save(author=self.request.user)
-
 
 #############################################################################
 # Vuln
@@ -153,7 +132,3 @@ class VulnSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
-
-    def perform_create(self, serializer):
-        """Set user when creating a new vulnerability."""
-        serializer.save(author=self.request.user)

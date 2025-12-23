@@ -68,7 +68,9 @@ class EventQueryMixin:
 class EventAPIViewSet(EventQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Event model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new Event."""
+        serializer.save(author=self.request.user)
 
 
 class EventBulkDeleteView(EventQueryMixin, ObjectBulkDeleteView):
@@ -172,7 +174,9 @@ class CodeSnippetQueryMixin:
 class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new CodeSnippet."""
+        serializer.save(author=self.request.user)
 
 
 class CodeSnippetChangeView(CodeSnippetQueryMixin, ObjectChangeView):
@@ -223,7 +227,9 @@ class FQDNQueryMixin:
 class FQDNAPIViewSet(FQDNQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new FQDN."""
+        serializer.save(author=self.request.user)
 
 
 class FQDNChangeView(FQDNQueryMixin, ObjectChangeView):
@@ -274,7 +280,9 @@ class HashQueryMixin:
 class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Hash model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new Hash."""
+        serializer.save(author=self.request.user)
 
 
 class HashChangeView(HashQueryMixin, ObjectChangeView):
@@ -325,7 +333,9 @@ class IpAddQueryMixin:
 class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the IpAdd model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new IpAdd."""
+        serializer.save(author=self.request.user)
 
 
 class IpAddChangeView(IpAddQueryMixin, ObjectChangeView):
@@ -376,7 +386,9 @@ class VulnQueryMixin:
 class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Vuln model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new Vuln."""
+        serializer.save(author=self.request.user)
 
 
 class VulnChangeView(VulnQueryMixin, ObjectChangeView):

@@ -27,9 +27,9 @@ def test_ioc_management_fqdn_create_api_user(api_client, user_set_group1, role):
     response = api_client.post(url, payload, format="json", headers=headers)
     assert response.status_code == 201, f"Failed for user {user.username}"
     assert response.data["fqdn"] == payload["fqdn"], "FQDN not in the returning payload"
-    assert (
-        len(FQDN.objects.filter(fqdn=payload["fqdn"])) == 1
-    ), "FQDN has not been created"
+    qs = FQDN.objects.filter(fqdn=payload["fqdn"])
+    assert (len(qs) == 1), "FQDN has not been created"
+    assert qs.first().author == user, "Author is not set"
 
 
 @pytest.mark.django_db
