@@ -5,21 +5,19 @@ export function attributeCrud() {
     return {
         // 🔹 STATE
         loading: false, // Track requests
-        attribute_type: 'vuln', // Default option
+        attribute_type: '', // Default option
         attribute_data: {
             codesnippet: {
                 code: '',
                 confidence: '',
                 description: '',
                 language: '',
-                name: '', // URL ?
-                // validation_status: '', // Missing?
+                name: '',
             },
             fqdn: {
                 confidence: '',
                 description: '',
                 fqdn: '',
-                ip_address: '', // ?
                 validation_status: '',
             },
             hash: {
@@ -30,22 +28,20 @@ export function attributeCrud() {
                 platform: '',
                 sha1: '',
                 sha256: '',
+                url: '',
                 validation_status: '',
-                website: '', // -> URL
             },
             ipadd: {
                 confidence: '',
                 description: '',
-                fqdn: '', // ?
                 ip_address: '',
-                url: '', // ? -> aggiungere un type URL?
                 validation_status: '',
             },
             vuln: {
                 cve: '',
                 cvss: '',
                 description: '',
-                name: '', // ?
+                name: '',
             },
         },
 
@@ -61,20 +57,6 @@ export function attributeCrud() {
             // TODO: must handle response and add a toast
             this.loading = false
         },
-        // async read() {
-        //     if (this.loading) return
-        //     this.loading = true
-        //     const pk = this.$el.closest('[data-pk]').dataset.pk
-        //     console.log('📖 Read attribute with pk =', pk)
-        //     this.loading = false
-        // },
-        // async update() {
-        //     if (this.loading) return
-        //     this.loading = true
-        //     const pk = this.$el.closest('[data-pk]').dataset.pk
-        //     console.log('📝 Update attribute with pk =', pk)
-        //     this.loading = false
-        // },
         // async delete() {
         //     if (this.loading) return
         //     this.loading = true

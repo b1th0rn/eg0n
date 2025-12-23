@@ -23,11 +23,6 @@ class EventSerializer(serializers.ModelSerializer):
             "updated_at",
         )
 
-    def perform_create(self, serializer):
-        """Set user when creating a new event."""
-        serializer.save(author=self.request.user)
-
-
 
 #############################################################################
 # CodeSnippet
@@ -42,14 +37,13 @@ class CodeSnippetSerializer(serializers.ModelSerializer):
 
         model = CodeSnippet
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
 
 
 #############################################################################
@@ -65,14 +59,13 @@ class FQDNSerializer(serializers.ModelSerializer):
 
         model = FQDN
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
 
 
 #############################################################################
@@ -88,14 +81,13 @@ class HashSerializer(serializers.ModelSerializer):
 
         model = Hash
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
 
 
 #############################################################################
@@ -111,14 +103,13 @@ class IpAddSerializer(serializers.ModelSerializer):
 
         model = IpAdd
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )
 
 
 #############################################################################
@@ -134,11 +125,10 @@ class VulnSerializer(serializers.ModelSerializer):
 
         model = Vuln
         fields = "__all__"
-        read_only_fields = [
+        read_only_fields = (
             "id",
             "author",
-            "event",
             "contributors_authors",
             "created_at",
             "updated_at",
-        ]  # Make some fields read-only
+        )

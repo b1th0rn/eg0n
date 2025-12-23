@@ -1,13 +1,16 @@
 """Define ORM models for IoC Management app."""
 
 import uuid
+from datetime import timedelta
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 
 
-MAX_LENGTH = 64
+DEFAULT_MAX_LENGTH = 64
+def DEFAULT_EXPIRE_DATE():
+    return timezone.now() + timedelta(days=30)
 CONFIDENCE_CHOICES = [("low", "low"), ("medium", "medium"), ("high", "high")]
 LANGUAGES = [
     ("bash", "Bash"),
@@ -51,7 +54,7 @@ class Event(models.Model):
         editable=False,
         related_name="contributed_events",
     )
-    name = models.CharField(max_length=MAX_LENGTH, unique=True)
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -90,7 +93,7 @@ class Vuln(models.Model):
         related_name="vulns",
         null=True,
     )
-    cve = models.CharField(max_length=MAX_LENGTH)
+    cve = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     cvss = models.FloatField()
     description = models.TextField()
     exploitation_details = models.TextField(blank=True, null=True)
@@ -104,7 +107,7 @@ class Vuln(models.Model):
         editable=False,
         related_name="contributed_vulns",
     )
-    name = models.CharField(max_length=MAX_LENGTH)
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -144,7 +147,7 @@ class IpAdd(models.Model):
         null=True,
     )
     confidence = models.CharField(
-        max_length=MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
+        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     description = models.TextField()
     event = models.ForeignKey(
@@ -152,7 +155,7 @@ class IpAdd(models.Model):
         on_delete=models.CASCADE,
         related_name="ipadds",
     )
-    expire_date = models.DateField(default=timezone.now) # TODO + 30 giorni
+    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
     ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
     contributors_authors = models.ManyToManyField(
         User,
@@ -202,7 +205,7 @@ class CodeSnippet(models.Model):
     )
     code = models.TextField()
     confidence = models.CharField(
-        max_length=MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
+        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     description = models.TextField()
     event = models.ForeignKey(
@@ -210,9 +213,9 @@ class CodeSnippet(models.Model):
         on_delete=models.CASCADE,
         related_name="codesnippets",
     )
-    expire_date = models.DateField(default=timezone.now) # TODO + 30 giorni
-    language = models.CharField(max_length=MAX_LENGTH, choices=LANGUAGES, default="python")
-    name = models.CharField(max_length=MAX_LENGTH)
+    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
+    language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES, default="python")
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     contributors_authors = models.ManyToManyField(
         User,
         editable=False,
@@ -260,21 +263,21 @@ class FQDN(models.Model):
         null=True,
     )
     confidence = models.CharField(
-        max_length=MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
+        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     description = models.TextField()
-    expire_date = models.DateField(default=timezone.now) # TODO + 30 giorni
+    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="fqdns"
+        Event, on_delete=models.CASCADE, related_name="fqdns",
     )
-    fqdn = models.CharField(max_length=MAX_LENGTH)
+    fqdn = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     contributors_authors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_fqdns",
     )
     validation_status = models.CharField(
-        max_length=MAX_LENGTH, choices=VALIDATION_CHOICES, default="new"
+        max_length=DEFAULT_MAX_LENGTH, choices=VALIDATION_CHOICES, default="new"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -315,24 +318,24 @@ class Hash(models.Model):
         null=True,
     )
     confidence = models.CharField(
-        max_length=MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
+        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="hashes"
+        Event, on_delete=models.CASCADE, related_name="hashes",
     )
-    filename = models.CharField(max_length=MAX_LENGTH, null=True, blank=True)
+    filename = models.CharField(max_length=DEFAULT_MAX_LENGTH, null=True, blank=True)
     contributors_authors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_hashes",
     )
-    md5 = models.CharField(max_length=MAX_LENGTH, blank=True, null=True)
-    platform = models.CharField(max_length=MAX_LENGTH, choices=PLATFORM, default="windows")
-    sha1 = models.CharField(max_length=MAX_LENGTH, blank=True, null=True)
-    sha256 = models.CharField(max_length=MAX_LENGTH, blank=True, null=True)
-    url = models.URLField(max_length=MAX_LENGTH, blank=True, null=True)
+    md5 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
+    platform = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=PLATFORM, default="windows")
+    sha1 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
+    sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
+    url = models.URLField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     description = models.TextField()
-    expire_date = models.DateField(default=timezone.now) # TODO + 30 giorni
+    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
     validation_status = models.CharField(
         max_length=32, choices=VALIDATION_CHOICES, default="new"
     )
@@ -380,7 +383,7 @@ class Review(models.Model):
         related_name="contributed_reviews",
     )
     event = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name="reviews"
+        Event, on_delete=models.CASCADE, related_name="reviews",
     )
     name = models.CharField(max_length=64, default="none", unique=True)
     review = models.TextField(null=True, blank=True)
@@ -405,7 +408,7 @@ class Review(models.Model):
 
 
 #############################################################################
-# Review
+# Exploit
 #############################################################################
 
 
@@ -415,7 +418,7 @@ class Exploit(models.Model):
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=MAX_LENGTH)
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

@@ -2,7 +2,7 @@
 
 import django_tables2 as tables
 from ioc_management.filters import EventFilter
-from ioc_management.forms import EventForm
+from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
 from ioc_management.models import CodeSnippet, Event, FQDN, Hash, IpAdd, Vuln
 from ioc_management.permissions import (
     CodeSnippetPermissionPolicy,
@@ -68,7 +68,9 @@ class EventQueryMixin:
 class EventAPIViewSet(EventQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Event model."""
 
-    pass
+    def perform_create(self, serializer):
+        """Set user when creating a new Event."""
+        serializer.save(author=self.request.user)
 
 
 class EventBulkDeleteView(EventQueryMixin, ObjectBulkDeleteView):
@@ -157,7 +159,7 @@ class CodeSnippetQueryMixin:
     """Mixin encapsulating common queryset and permission logic for CodeSnippet objects."""
 
     filterset_class = None
-    form_class = None
+    form_class = CodeSnippetForm
     model = CodeSnippet
     policy_class = CodeSnippetPermissionPolicy
     serializer_class = CodeSnippetSerializer
@@ -171,6 +173,20 @@ class CodeSnippetQueryMixin:
 
 class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
+
+    def perform_create(self, serializer):
+        """Set user when creating a new CodeSnippet."""
+        serializer.save(author=self.request.user)
+
+
+class CodeSnippetChangeView(CodeSnippetQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing CodeSnippet."""
+
+    pass
+
+
+class CodeSnippetDeleteView(CodeSnippetQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single CodeSnippet."""
 
     pass
 
@@ -196,7 +212,7 @@ class FQDNQueryMixin:
     """Mixin encapsulating common queryset and permission logic for FQDN objects."""
 
     filterset_class = None
-    form_class = None
+    form_class = FQDNForm
     model = FQDN
     policy_class = FQDNPermissionPolicy
     serializer_class = FQDNSerializer
@@ -208,8 +224,22 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class FQDNAPIViewSet(FQDNQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
+
+    def perform_create(self, serializer):
+        """Set user when creating a new FQDN."""
+        serializer.save(author=self.request.user)
+
+
+class FQDNChangeView(FQDNQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing FQDN."""
+
+    pass
+
+
+class FQDNDeleteView(FQDNQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single FQDN."""
 
     pass
 
@@ -235,7 +265,7 @@ class HashQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Hash objects."""
 
     filterset_class = None
-    form_class = None
+    form_class = HashForm
     model = Hash
     policy_class = HashPermissionPolicy
     serializer_class = HashSerializer
@@ -249,6 +279,20 @@ class HashQueryMixin:
 
 class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Hash model."""
+
+    def perform_create(self, serializer):
+        """Set user when creating a new Hash."""
+        serializer.save(author=self.request.user)
+
+
+class HashChangeView(HashQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing Hash."""
+
+    pass
+
+
+class HashDeleteView(HashQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single Hash."""
 
     pass
 
@@ -274,7 +318,7 @@ class IpAddQueryMixin:
     """Mixin encapsulating common queryset and permission logic for IpAdd objects."""
 
     filterset_class = None
-    form_class = None
+    form_class = IpAddForm
     model = IpAdd
     policy_class = IpAddPermissionPolicy
     serializer_class = IpAddSerializer
@@ -288,6 +332,20 @@ class IpAddQueryMixin:
 
 class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the IpAdd model."""
+
+    def perform_create(self, serializer):
+        """Set user when creating a new IpAdd."""
+        serializer.save(author=self.request.user)
+
+
+class IpAddChangeView(IpAddQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing IpAdd."""
+
+    pass
+
+
+class IpAddDeleteView(IpAddQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single IpAdd."""
 
     pass
 
@@ -313,7 +371,7 @@ class VulnQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Vuln objects."""
 
     filterset_class = None
-    form_class = None
+    form_class = VulnForm
     model = Vuln
     policy_class = VulnPermissionPolicy
     serializer_class = VulnSerializer
@@ -327,6 +385,20 @@ class VulnQueryMixin:
 
 class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Vuln model."""
+
+    def perform_create(self, serializer):
+        """Set user when creating a new Vuln."""
+        serializer.save(author=self.request.user)
+
+
+class VulnChangeView(VulnQueryMixin, ObjectChangeView):
+    """HTML view for updating an existing Vuln."""
+
+    pass
+
+
+class VulnDeleteView(VulnQueryMixin, ObjectDeleteView):
+    """HTML view for deleting a single Vuln."""
 
     pass
 

@@ -48,11 +48,11 @@ class CodeSnippetTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("id", "author", "description", "code", "confidence", "validation_status", "event", "expire_date")
+        exclude = ("id", "created_at", "description", "code", "confidence", "validation_status", "event", "expire_date")
         sequence = (
             "name",
             "language",
-            "created_at",
+            "author",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -104,10 +104,10 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
+        exclude = ("id", "created_at", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
         sequence = (
             "fqdn",
-            "created_at",
+            "author",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -159,12 +159,12 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("id", "author", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
+        exclude = ("id", "created_at", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
         sequence = (
             "filename",
             "platform",
             "url",
-            "created_at",
+            "author",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -218,10 +218,10 @@ class IpAddTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
+        exclude = ("id", "description", "lastchange_author", "created_at", "confidence", "event", "expire_date", "validation_status")
         sequence = (
             "ip_address",
-            "created_at",
+            "author",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -273,12 +273,12 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "description", "lastchange_author", "created_at", "event", "exploitation_details")
         sequence = (
             "name",
             "cve",
             "cvss",   
-            "created_at",
+            "author",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -299,7 +299,7 @@ class VulnEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details")
         sequence = (
             "name",
             "cve",
