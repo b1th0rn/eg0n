@@ -220,7 +220,7 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class FQDNAPIViewSet(FQDNQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
 
     pass
