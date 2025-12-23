@@ -9,8 +9,6 @@ from django.utils import timezone
 
 
 DEFAULT_MAX_LENGTH = 64
-def DEFAULT_EXPIRE_DATE():
-    return timezone.now() + timedelta(days=30)
 CONFIDENCE_CHOICES = [("low", "low"), ("medium", "medium"), ("high", "high")]
 LANGUAGES = [
     ("bash", "Bash"),
@@ -76,116 +74,6 @@ class Event(models.Model):
 
 
 #############################################################################
-# Vuln
-#############################################################################
-
-
-class Vuln(models.Model):
-    """
-    Model for vulnerabilities.
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        editable=False,
-        related_name="vulns",
-        null=True,
-    )
-    cve = models.CharField(max_length=DEFAULT_MAX_LENGTH)
-    cvss = models.FloatField()
-    description = models.TextField()
-    exploitation_details = models.TextField(blank=True, null=True)
-    event = models.ForeignKey(
-        Event,
-        on_delete=models.CASCADE,
-        related_name="vulns",
-    )
-    contributors_authors = models.ManyToManyField(
-        User,
-        editable=False,
-        related_name="contributed_vulns",
-    )
-    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        """Database metadata."""
-
-        verbose_name = "01 :: Vulnerability"
-        verbose_name_plural = "01 :: Vulnerabilities"
-        db_table = "vuln"
-        ordering = ("-created_at",)
-
-    def __str__(self):
-        """Return a human readable name when the object is printed."""
-        return self.name
-
-    def get_absolute_url(self):
-        """Return the absolute url."""
-        return reverse("vuln-detail-view", args=[str(self.pk)])
-
-
-#############################################################################
-# IpAdd
-#############################################################################
-
-
-class IpAdd(models.Model):
-    """
-    Model for IP addresses.
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        editable=False,
-        related_name="ipadds",
-        null=True,
-    )
-    confidence = models.CharField(
-        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
-    )
-    description = models.TextField()
-    event = models.ForeignKey(
-        Event,
-        on_delete=models.CASCADE,
-        related_name="ipadds",
-    )
-    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
-    ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
-    contributors_authors = models.ManyToManyField(
-        User,
-        editable=False,
-        related_name="contributed_ipadds",
-    )
-    validation_status = models.CharField(
-        max_length=32, choices=VALIDATION_CHOICES, default="new"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        """Database metadata."""
-
-        db_table = "ipadd"
-        ordering = ("-created_at",)
-        verbose_name = "02 :: IP Address"
-        verbose_name_plural = "02 :: IP Addresses"
-
-    def __str__(self):
-        """Return a human readable name when the object is printed."""
-        return self.ip_address
-
-    def get_absolute_url(self):
-        """Return the absolute url."""
-        return reverse("ipadd-detail-view", args=[str(self.pk)])
-
-
-#############################################################################
 # CodeSnippet
 #############################################################################
 
@@ -213,7 +101,7 @@ class CodeSnippet(models.Model):
         on_delete=models.CASCADE,
         related_name="codesnippets",
     )
-    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
+    expire_date = models.DateTimeField(auto_now_add=True)
     language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES, default="python")
     name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     contributors_authors = models.ManyToManyField(
@@ -245,6 +133,65 @@ class CodeSnippet(models.Model):
 
 
 #############################################################################
+# Exploit
+#############################################################################
+
+
+class Exploit(models.Model):
+    """
+    Model for exploits and payloads.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        editable=False,
+        related_name="exploits",
+        null=True,
+    )
+    # associate exploit to EVENT
+    event = models.ForeignKey(
+        "Event",
+        on_delete=models.CASCADE,
+        related_name="exploits",
+    )
+    # associate exploit to VULN
+    vuln = models.ForeignKey(
+        "Vuln",
+        on_delete=models.CASCADE,
+        editable=False,
+        related_name="exploits",
+    )
+    description = models.TextField()
+    payload = models.TextField()
+    contributors_authors = models.ManyToManyField(
+        User,
+        editable=False,
+        related_name="contributed_exploits",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Database metadata."""
+
+        verbose_name = "07 :: Exploit"
+        verbose_name_plural = "07 :: Exploits"
+        db_table = "exploits"
+        ordering = ("-updated_at",)
+
+    def __str__(self):
+        """Return a human readable name when the object is printed."""
+        return self.name
+
+    def get_absolute_url(self):
+        """Return the absolute url."""
+        return reverse("exploit-detail-view", args=[str(self.pk)])
+    
+
+#############################################################################
 # FQDN
 #############################################################################
 
@@ -266,7 +213,7 @@ class FQDN(models.Model):
         max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     description = models.TextField()
-    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
+    expire_date = models.DateTimeField(auto_now_add=True)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="fqdns",
     )
@@ -335,7 +282,7 @@ class Hash(models.Model):
     sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     url = models.URLField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     description = models.TextField()
-    expire_date = models.DateTimeField(default=DEFAULT_EXPIRE_DATE())
+    expire_date = models.DateTimeField(auto_now_add=True)
     validation_status = models.CharField(
         max_length=32, choices=VALIDATION_CHOICES, default="new"
     )
@@ -357,6 +304,63 @@ class Hash(models.Model):
     def get_absolute_url(self):
         """Return the absolute url."""
         return reverse("hash-detail-view", args=[str(self.pk)])
+
+
+#############################################################################
+# IpAdd
+#############################################################################
+
+
+class IpAdd(models.Model):
+    """
+    Model for IP addresses.
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        editable=False,
+        related_name="ipadds",
+        null=True,
+    )
+    confidence = models.CharField(
+        max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
+    )
+    description = models.TextField()
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name="ipadds",
+    )
+    expire_date = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
+    contributors_authors = models.ManyToManyField(
+        User,
+        editable=False,
+        related_name="contributed_ipadds",
+    )
+    validation_status = models.CharField(
+        max_length=32, choices=VALIDATION_CHOICES, default="new"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """Database metadata."""
+
+        db_table = "ipadd"
+        ordering = ("-created_at",)
+        verbose_name = "02 :: IP Address"
+        verbose_name_plural = "02 :: IP Addresses"
+
+    def __str__(self):
+        """Return a human readable name when the object is printed."""
+        return self.ip_address
+
+    def get_absolute_url(self):
+        """Return the absolute url."""
+        return reverse("ipadd-detail-view", args=[str(self.pk)])
 
 
 #############################################################################
@@ -408,54 +412,48 @@ class Review(models.Model):
 
 
 #############################################################################
-# Exploit
+# Vuln
 #############################################################################
 
 
-class Exploit(models.Model):
+class Vuln(models.Model):
     """
-    Model for exploits and payloads.
+    Model for vulnerabilities.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     author = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         editable=False,
-        related_name="exploits",
+        related_name="vulns",
         null=True,
     )
-    # associate exploit to EVENT
-    event = models.ForeignKey(
-        "Event",
-        on_delete=models.CASCADE,
-        related_name="exploits",
-    )
-    # associate exploit to VULN
-    vuln = models.ForeignKey(
-        "Vuln",
-        on_delete=models.CASCADE,
-        editable=False,
-        related_name="exploits",
-    )
+    cve = models.CharField(max_length=DEFAULT_MAX_LENGTH)
+    cvss = models.FloatField()
     description = models.TextField()
-    payload = models.TextField()
+    exploitation_details = models.TextField(blank=True, null=True)
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name="vulns",
+    )
     contributors_authors = models.ManyToManyField(
         User,
         editable=False,
-        related_name="contributed_exploits",
+        related_name="contributed_vulns",
     )
+    name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         """Database metadata."""
 
-        verbose_name = "07 :: Exploit"
-        verbose_name_plural = "07 :: Exploits"
-        db_table = "exploits"
-        ordering = ("-updated_at",)
+        verbose_name = "01 :: Vulnerability"
+        verbose_name_plural = "01 :: Vulnerabilities"
+        db_table = "vuln"
+        ordering = ("-created_at",)
 
     def __str__(self):
         """Return a human readable name when the object is printed."""
@@ -463,4 +461,4 @@ class Exploit(models.Model):
 
     def get_absolute_url(self):
         """Return the absolute url."""
-        return reverse("exploit-detail-view", args=[str(self.pk)])
+        return reverse("vuln-detail-view", args=[str(self.pk)])
