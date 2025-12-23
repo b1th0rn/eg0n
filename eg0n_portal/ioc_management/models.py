@@ -103,7 +103,7 @@ class CodeSnippet(models.Model):
         on_delete=models.CASCADE,
         related_name="codesnippets",
     )
-    expired_at = models.DateTimeField(default=DEFAULT_EXPIRED_AT)
+    expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES, default="python")
     name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     contributors_authors = models.ManyToManyField(
@@ -215,7 +215,7 @@ class FQDN(models.Model):
         max_length=DEFAULT_MAX_LENGTH, choices=CONFIDENCE_CHOICES, default="low"
     )
     description = models.TextField()
-    expired_at = models.DateTimeField(default=DEFAULT_EXPIRED_AT)
+    expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="fqdns",
     )
@@ -284,7 +284,7 @@ class Hash(models.Model):
     sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     url = models.URLField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     description = models.TextField()
-    expired_at = models.DateTimeField(default=DEFAULT_EXPIRED_AT)
+    expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     validation_status = models.CharField(
         max_length=32, choices=VALIDATION_CHOICES, default="new"
     )
@@ -335,7 +335,7 @@ class IpAdd(models.Model):
         on_delete=models.CASCADE,
         related_name="ipadds",
     )
-    expired_at = models.DateTimeField(default=DEFAULT_EXPIRED_AT)
+    expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
     contributors_authors = models.ManyToManyField(
         User,
