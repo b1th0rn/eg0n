@@ -13,6 +13,13 @@ class FormMixin:
         super().__init__(*args, **kwargs)
         for visible in self.visible_fields():
             widget_type = getattr(visible.field.widget, "input_type", None)
+            template_name = visible.field.widget.template_name
+
+            # Replace widget
+            if "field_class" == "DateField":
+                visible.field.widget = forms.DateInput(attrs={"type": "date"})
+
+            # Setting CSS class
             css_class = ""
             if widget_type == "password":
                 css_class = "form-control"
@@ -23,6 +30,9 @@ class FormMixin:
                 css_class = "form-check-input"
             elif widget_type in ["select", "selectmultiple"]:
                 css_class = "form-select"
+            elif "textarea" in template_name:
+                css_class = "form-select"
+
             if visible.errors:
                 css_class = f"is-invalid {css_class}"
             visible.field.widget.attrs["class"] = css_class
