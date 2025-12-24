@@ -23,7 +23,7 @@ class EventTable(ObjectTable):
         """Meta options."""
 
         model = Event
-        exclude = ("id", "description", "lastchange_author")
+        exclude = ("id", "description", "lastchange_author", "select")
         sequence = (
             "name",
             "author",   
@@ -55,7 +55,7 @@ class CodeSnippetTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("id", "created_at", "description", "code", "confidence", "validation_status")
+        exclude = ("id", "select", "created_at", "description", "code", "confidence", "validation_status")
         sequence = (
             "name",
             "language",
@@ -118,7 +118,7 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("id", "created_at", "confidence", "validation_status", "description", "lastchange_author")
+        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description", "lastchange_author")
         sequence = (
             "fqdn",
             "event",
@@ -180,7 +180,7 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("id", "created_at", "url", "confidence", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256")
+        exclude = ("id", "select", "created_at", "url", "confidence", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256")
         sequence = (
             "filename",
             "platform",
@@ -244,7 +244,7 @@ class IpAddTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "description", "lastchange_author", "created_at", "confidence", "validation_status")
+        exclude = ("id", "select", "description", "lastchange_author", "created_at", "confidence", "validation_status")
         sequence = (
             "ip_address",
             "event",
@@ -304,7 +304,7 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
+        exclude = ("id", "select", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
         sequence = (
             "cve",
             "cvss",   
