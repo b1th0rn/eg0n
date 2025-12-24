@@ -11,7 +11,7 @@ from django.utils import timezone
 DEFAULT_MAX_LENGTH = 64
 def DEFAULT_EXPIRED_AT():
     return timezone.now() + timedelta(days=30)
-CONFIDENCE_CHOICES = [("low", "low"), ("medium", "medium"), ("high", "high")]
+CONFIDENCE_CHOICES = [("low", "Low"), ("medium", "Medium"), ("high", "High")]
 LANGUAGES = [
     ("bash", "Bash"),
     ("cmd", "CMD"),
