@@ -175,9 +175,13 @@ class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
 
     def perform_create(self, serializer):
-        """Set user when creating a new CodeSnippet."""
-        serializer.save(author=self.request.user)
+        """Set user and update event when creating a new CodeSnippet."""
+        obj = serializer.save(author=self.request.user)
+        obj.event.save()
 
+    # def perform_update(self, serializer):
+    #     """Set contributed users and update event when creating a new CodeSnippet."""
+    #     serializer.save(last_editor=self.request.user)
 
 class CodeSnippetChangeView(CodeSnippetQueryMixin, ObjectChangeView):
     """HTML view for updating an existing CodeSnippet."""
