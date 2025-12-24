@@ -44,7 +44,7 @@ class EventFilter(SearchFilterSet):
         model = Event
         fields = (
             "author",
-            "contributors_authors",
+            "contributors",
             "created_at__gte",
             "created_at__lte",
             "updated_at__gte",

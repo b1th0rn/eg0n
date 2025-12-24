@@ -49,7 +49,7 @@ class Event(models.Model):
         related_name="events",
     )
     description = models.TextField()
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_events",
@@ -106,7 +106,7 @@ class CodeSnippet(models.Model):
     expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES, default="python")
     name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_codesnippets",
@@ -168,7 +168,7 @@ class Exploit(models.Model):
     )
     description = models.TextField()
     payload = models.TextField()
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_exploits",
@@ -220,7 +220,7 @@ class FQDN(models.Model):
         Event, on_delete=models.CASCADE, related_name="fqdns",
     )
     fqdn = models.CharField(max_length=DEFAULT_MAX_LENGTH)
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_fqdns",
@@ -273,7 +273,7 @@ class Hash(models.Model):
         Event, on_delete=models.CASCADE, related_name="hashes",
     )
     filename = models.CharField(max_length=DEFAULT_MAX_LENGTH, null=True, blank=True)
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_hashes",
@@ -337,7 +337,7 @@ class IpAdd(models.Model):
     )
     expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
     ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_ipadds",
@@ -383,7 +383,7 @@ class Review(models.Model):
         related_name="reviews",
         null=True,
     )
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_reviews",
@@ -440,7 +440,7 @@ class Vuln(models.Model):
         on_delete=models.CASCADE,
         related_name="vulns",
     )
-    contributors_authors = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_vulns",

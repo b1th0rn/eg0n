@@ -32,7 +32,6 @@ class EventTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "table_actions": [],
             "row_actions": [],
         }
 

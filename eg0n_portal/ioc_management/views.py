@@ -44,6 +44,24 @@ from ui.include.views import (
 )
 
 
+
+#############################################################################
+# Generic Attribute
+#############################################################################
+
+class AttributeQueryMixin:
+    """Standard actions for generic attributes."""
+
+    def perform_create(self, serializer):
+        """Set user and update event when creating a new attribute via REST API."""
+        obj = serializer.save(author=self.request.user)
+        obj.event.save()
+
+    def perform_update(self, serializer):
+        """Set contributed users and update event when creating a new CodeSnippet."""
+        print("UPDATE")
+        # serializer.save(last_editor=self.request.user)
+
 #############################################################################
 # Event
 #############################################################################
@@ -171,17 +189,10 @@ class CodeSnippetQueryMixin:
         return qs
 
 
-class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
 
-    def perform_create(self, serializer):
-        """Set user and update event when creating a new CodeSnippet."""
-        obj = serializer.save(author=self.request.user)
-        obj.event.save()
-
-    # def perform_update(self, serializer):
-    #     """Set contributed users and update event when creating a new CodeSnippet."""
-    #     serializer.save(last_editor=self.request.user)
+    pass
 
 class CodeSnippetChangeView(CodeSnippetQueryMixin, ObjectChangeView):
     """HTML view for updating an existing CodeSnippet."""
@@ -228,12 +239,10 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(FQDNQueryMixin, APICRUDViewSet):
+class FQDNAPIViewSet(FQDNQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new FQDN."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class FQDNChangeView(FQDNQueryMixin, ObjectChangeView):
@@ -281,13 +290,10 @@ class HashQueryMixin:
         return qs
 
 
-class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
+class HashAPIViewSet(HashQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Hash model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new Hash."""
-        serializer.save(author=self.request.user)
-
+    pass
 
 class HashChangeView(HashQueryMixin, ObjectChangeView):
     """HTML view for updating an existing Hash."""
@@ -334,12 +340,10 @@ class IpAddQueryMixin:
         return qs
 
 
-class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
+class IpAddAPIViewSet(IpAddQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the IpAdd model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new IpAdd."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class IpAddChangeView(IpAddQueryMixin, ObjectChangeView):
@@ -387,12 +391,10 @@ class VulnQueryMixin:
         return qs
 
 
-class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
+class VulnAPIViewSet(VulnQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Vuln model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new Vuln."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class VulnChangeView(VulnQueryMixin, ObjectChangeView):
