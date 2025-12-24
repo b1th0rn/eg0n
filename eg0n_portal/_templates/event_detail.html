@@ -33,7 +33,7 @@
                 </div>
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"author" }}</label>
-                    <div class="col">{{ object.record|get_object_value:"author" }}</div>
+                    <div class="col"><a href="{% url 'event_list' %}?user={{ object.record.author.id }}">{{ object.record|get_object_value:"author" }}</a></div>
                 </div>
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"contributors" }}</label>
@@ -47,7 +47,7 @@
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"updated_at" }}</label>
                     <div class="col">{{ object.record|get_object_value:"updated_at" }}</div>
                 </div>
-
+                
             <h2>{{ object.record|get_object_label:"description"|title }}</h2>
             {{ object.record|get_object_value:"description"|markdownify|safe }}
 
