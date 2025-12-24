@@ -1,8 +1,9 @@
 """Table definitions for IoC Management app."""
 
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from ioc_management.models import Event, CodeSnippet, FQDN, Hash, IpAdd, Vuln
-from ui.include.tables import ObjectTable
+from ui.include.tables import ObjectTable, GreenRedDateInTheFuture
 
 
 #############################################################################
@@ -210,17 +211,20 @@ class HashEmbeddedTable(ObjectTable):
 class IpAddTable(ObjectTable):
     """Table definition for the IpAdd model."""
 
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "description", "lastchange_author", "created_at", "confidence", "event", "expire_date", "validation_status")
+        exclude = ("id", "description", "lastchange_author", "created_at", "confidence", "expire_date", "validation_status")
         sequence = (
             "ip_address",
+            "event",
             "author",
             "updated_at",
         )
@@ -236,17 +240,15 @@ class IpAddEmbeddedTable(ObjectTable):
     """Embedded table definition for the IpAdd model."""
 
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
+        exclude = ("id", "select", "created_at", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
         sequence = (
             "ip_address",
-            "created_at",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -265,18 +267,19 @@ class IpAddEmbeddedTable(ObjectTable):
 class VulnTable(ObjectTable):
     """Table definition for the Vuln model."""
 
-    name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
+    cve = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "description", "lastchange_author", "created_at", "event", "exploitation_details")
+        exclude = ("id", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
         sequence = (
-            "name",
             "cve",
+            "event",
             "cvss",   
             "author",
             "updated_at",
@@ -285,26 +288,24 @@ class VulnTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": []
         }
 
 class VulnEmbeddedTable(ObjectTable):
     """Embedded table definition for the Vuln model."""
 
     name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details")
+        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details", "created_at")
         sequence = (
             "name",
             "cve",
             "cvss",   
-            "created_at",
             "updated_at",
         )
         order_by = "-updated_at"
