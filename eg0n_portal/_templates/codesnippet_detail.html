@@ -1,0 +1,75 @@
+{% extends "ui/base.html" %}
+{% load render_table from django_tables2 %}
+{% load ui_tags %}
+{% load i18n static %}
+{% block title %}{{ site_meta.title }} | {{ model_name|title }} > Detail{% endblock title %}
+{% block page_title %}{{ model_name|title }} > Detail{% endblock page_title %}
+{% block page_body %}
+<div class="col-lg-12" data-pk="{{ pk }}">
+    <div class="card card-lg">
+        <div class="card-body markdown">
+            <div class="row align-items-center">
+                <div class="col"></div>
+                <div class="col-auto">
+                    <a href="{% url model_name|add:'_delete' pk %}" class="btn">Delete</a>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url model_name|add:'_update' pk %}" class="btn btn-primary">Edit</a>
+                </div>
+            </div>
+
+            <h1>{{ object.record.name }}</h1>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"name" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"name" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">Event</label>
+                    <div class="col"><a href="{% url 'event_detail' object.record.event.pk %}">{{ object.record.event.name }}</a></div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"author" }}</label>
+                    <div class="col"><a href="{% url 'event_list' %}?user={{ object.record.author.id }}">{{ object.record|get_object_value:"author" }}</a></div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"contributors" }}</label>
+                    <div class="col">
+                        {% for user in object.record.contributors.all %}
+                        <a href="{% url 'event_list' %}?user={{ user.pk }}">{{ user.username }}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"language" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"language" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"confidence" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"confidence" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"validation_status" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"validation_status" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"expired_at" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"expired_at" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"created_at" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"created_at" }}</div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"updated_at" }}</label>
+                    <div class="col">{{ object.record|get_object_value:"updated_at" }}</div>
+                </div>
+                
+            <h2>{{ object.record|get_object_label:"description"|title }}</h2>
+            {{ object.record|get_object_value:"description"|markdownify|safe }}
+   
+            <h2>{{ object.record|get_object_label:"code"|title }}</h2>
+            <pre><code>{{ object.record|get_object_value:"code" }}</code></pre>
+        </div>
+    </div>
+</div>
+{% endblock page_body %}

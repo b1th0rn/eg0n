@@ -205,7 +205,8 @@ class CodeSnippetDeleteView(CodeSnippetQueryMixin, ObjectDeleteView):
 class CodeSnippetDetailView(CodeSnippetQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a CodeSnippet."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "codesnippet_detail.html"
 
 
 class CodeSnippetListView(CodeSnippetQueryMixin, ObjectListView):
@@ -357,7 +358,8 @@ class IpAddDeleteView(IpAddQueryMixin, ObjectDeleteView):
 class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a IpAdd."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "ipadd_detail.html"
 
 
 class IpAddListView(IpAddQueryMixin, ObjectListView):
@@ -408,7 +410,8 @@ class VulnDeleteView(VulnQueryMixin, ObjectDeleteView):
 class VulnDetailView(VulnQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Vuln."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "vuln_detail.html"
 
 
 class VulnListView(VulnQueryMixin, ObjectListView):
