@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from django import forms
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.contrib.auth.models import User
 from django.utils import timezone
 import django_filters
@@ -315,6 +315,10 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         method="filter_severity",
         label="Severity",
     )
+    duplicated_cve = django_filters.BooleanFilter(
+        method="filter_duplicated_cve",
+        label="Has duplicated CVE",
+    )
     updated_at__gte = django_filters.DateFilter(
         field_name="created_at",
         lookup_expr="gte",
@@ -333,6 +337,7 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         fields = (
             "user",
             "severity",
+            "duplicated_cve",
             "updated_at__gte",
             "updated_at__lte",
         )
@@ -349,3 +354,14 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         }
 
         return queryset.filter(ranges[value])
+
+    def filter_duplicated_cve(self, queryset, name, value):
+        if not value:
+            return queryset
+        duplicated_cves = (
+            queryset.values("cve")
+            .annotate(cve_count=Count("id"))
+            .filter(cve_count__gt=1)
+            .values_list("cve", flat=True)
+        )
+        return queryset.filter(cve__in=duplicated_cves)
