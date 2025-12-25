@@ -257,7 +257,8 @@ class FQDNDeleteView(FQDNQueryMixin, ObjectDeleteView):
 class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a FQDN."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "fqdn_detail.html"
 
 
 class FQDNListView(FQDNQueryMixin, ObjectListView):
@@ -307,7 +308,8 @@ class HashDeleteView(HashQueryMixin, ObjectDeleteView):
 class HashDetailView(HashQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Hash."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "hash_detail.html"
 
 
 class HashListView(HashQueryMixin, ObjectListView):
