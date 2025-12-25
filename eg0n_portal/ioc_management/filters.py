@@ -252,3 +252,42 @@ class IpAddFilter(SearchFilterSet):
 # Vuln
 #############################################################################
 
+
+class VulnFilter(SearchFilterSet):
+    """Filter class for the Vuln model."""
+
+    search_fields = ("name", "cve", "description", "exploitation_details")
+    user = django_filters.ModelChoiceFilter(
+        field_name="author",  # placeholder
+        queryset=User.objects.all(),
+        method="filter_user",
+        label="User",
+    )
+    updated_at__gte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="gte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated after",
+    )
+    updated_at__lte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="lte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated before",
+    )
+
+    class Meta:
+        model = Vuln
+        fields = (
+            "user",
+            "updated_at__gte",
+            "updated_at__lte",
+        )
+
+    def filter_user(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(author=value) | Q(contributors=value)
+        ).distinct()
+    
