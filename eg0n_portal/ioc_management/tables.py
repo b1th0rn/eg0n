@@ -126,7 +126,6 @@ class FQDNTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -189,7 +188,6 @@ class HashTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -252,7 +250,6 @@ class IpAddTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -312,7 +309,6 @@ class VulnTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": []
         }

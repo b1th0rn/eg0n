@@ -158,7 +158,7 @@ class FQDNFilter(SearchFilterSet):
 class HashFilter(SearchFilterSet):
     """Filter class for the Hash model."""
 
-    search_fields = ("filename", "description", "md5", "sha1", "sha256", "url")
+    search_fields = ("filename", "url", "description", "md5", "sha1", "sha256", "url")
     user = django_filters.ModelChoiceFilter(
         field_name="author",  # placeholder
         queryset=User.objects.all(),
@@ -204,6 +204,49 @@ class HashFilter(SearchFilterSet):
 # IpAdd
 #############################################################################
 
+
+class IpAddFilter(SearchFilterSet):
+    """Filter class for the IpAdd model."""
+
+    search_fields = ("ip_address", "description")
+    user = django_filters.ModelChoiceFilter(
+        field_name="author",  # placeholder
+        queryset=User.objects.all(),
+        method="filter_user",
+        label="User",
+    )
+    confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
+    validation_status = django_filters.ChoiceFilter(choices=VALIDATION_CHOICES)
+    updated_at__gte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="gte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated after",
+    )
+    updated_at__lte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="lte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated before",
+    )
+
+    class Meta:
+        model = IpAdd
+        fields = (
+            "user",
+            "confidence",
+            "validation_status",
+            "updated_at__gte",
+            "updated_at__lte",
+        )
+
+    def filter_user(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(author=value) | Q(contributors=value)
+        ).distinct()
+    
 
 #############################################################################
 # Vuln

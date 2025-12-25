@@ -1,7 +1,7 @@
 """Views for IoC Management app."""
 
 import django_tables2 as tables
-from ioc_management.filters import EventFilter, CodeSnippetFilter, FQDNFilter, HashFilter
+from ioc_management.filters import EventFilter, IpAddFilter, CodeSnippetFilter, FQDNFilter, HashFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
 from ioc_management.models import CodeSnippet, Event, FQDN, Hash, IpAdd, Vuln
 from ioc_management.permissions import (
@@ -323,7 +323,7 @@ class HashListView(HashQueryMixin, ObjectListView):
 class IpAddQueryMixin:
     """Mixin encapsulating common queryset and permission logic for IpAdd objects."""
 
-    filterset_class = None
+    filterset_class = IpAddFilter
     form_class = IpAddForm
     model = IpAdd
     policy_class = IpAddPermissionPolicy
