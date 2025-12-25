@@ -270,6 +270,10 @@ class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
     )
     confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
     validation_status = django_filters.ChoiceFilter(choices=VALIDATION_CHOICES)
+    duplicated_ip = django_filters.BooleanFilter(
+        method="filter_duplicate_ip",
+        label="Has duplicated IP",
+    )
     updated_at__gte = django_filters.DateFilter(
         field_name="created_at",
         lookup_expr="gte",
@@ -290,10 +294,21 @@ class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
             "confidence",
             "validation_status",
             "expiration",
+            "duplicated_ip",
             "updated_at__gte",
             "updated_at__lte",
         )
     
+    def filter_duplicate_ip(self, queryset, name, value):
+        if not value:
+            return queryset
+        duplicated_ips = (
+            queryset.values("ip_address")
+            .annotate(ip_count=Count("id"))
+            .filter(ip_count__gt=1)
+            .values_list("ip_address", flat=True)
+        )
+        return queryset.filter(ip_address__in=duplicated_ips)
 
 #############################################################################
 # Vuln
