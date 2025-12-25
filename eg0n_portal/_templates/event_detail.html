@@ -37,7 +37,11 @@
                 </div>
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"contributors" }}</label>
-                    <div class="col">{{ object.record|get_object_value:"contributors" }}</div>
+                    <div class="col">
+                        {% for user in object.record.contributors.all %}
+                        <a href="{% url 'event_list' %}?user={{ user.pk }}">{{ user.username }}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="mb-3 row">
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"created_at" }}</label>

@@ -33,7 +33,6 @@ from ioc_management.tables import (
     VulnEmbeddedTable,
     VulnTable,
 )
-from ui.include.tables import UserColumn
 from ui.include.views import (
     APICRUDViewSet,
     ObjectBulkDeleteView,
@@ -80,7 +79,7 @@ class EventQueryMixin:
 
     def get_queryset(self):
         """Return the queryset of Event objects accessible to the current user."""
-        qs = Event.objects.all()
+        qs = Event.objects.all().prefetch_related("contributors")
         return qs
 
 
@@ -119,12 +118,7 @@ class EventDeleteView(EventQueryMixin, ObjectDeleteView):
 class EventDetailView(EventQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Event."""
 
-    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
-    contributors = UserColumn()
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
-    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
-    exclude = ("id",)
-    sequence = ("name", "author", "contributors", "created_at", "updated_at")
+    # Fields rendered in the template
     template_name = "event_detail.html"
 
     def get_context_data(self, **kwargs):
