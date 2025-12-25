@@ -12,13 +12,13 @@ DEFAULT_MAX_LENGTH = 64
 def DEFAULT_EXPIRED_AT():
     return timezone.now() + timedelta(days=30)
 CONFIDENCE_CHOICES = [("low", "Low"), ("medium", "Medium"), ("high", "High")]
-LANGUAGES = [
+LANGUAGES_CHOICES = [
     ("bash", "Bash"),
     ("cmd", "CMD"),
     ("powershell", "PowerShell"),
     ("python", "Python"),
 ]
-PLATFORM = [
+PLATFORM_CHOICES = [
     ("linux", "Linux"),
     ("macos", "MacOS"),
     ("windows", "Windows"),
@@ -104,7 +104,7 @@ class CodeSnippet(models.Model):
         related_name="codesnippets",
     )
     expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
-    language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES, default="python")
+    language = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=LANGUAGES_CHOICES, default="python")
     name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     contributors = models.ManyToManyField(
         User,
@@ -279,7 +279,7 @@ class Hash(models.Model):
         related_name="contributed_hashes",
     )
     md5 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
-    platform = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=PLATFORM, default="windows")
+    platform = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=PLATFORM_CHOICES, default="windows")
     sha1 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     url = models.URLField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)

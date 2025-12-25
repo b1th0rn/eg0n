@@ -65,7 +65,6 @@ class CodeSnippetTable(ObjectTable):
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
