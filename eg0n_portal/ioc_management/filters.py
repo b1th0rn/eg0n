@@ -31,6 +31,26 @@ EXPIRATION_CHOICES = [
 #############################################################################
 
 
+class DuplicateFilterMixin:
+    """Generic mixin to filter duplicated records on one or more fields."""
+
+    def filter_duplicates(self, queryset, name, value):
+        """Filters queryset to only include objects with duplicates."""
+        if not value or not hasattr(self, "duplicated_fields"):
+            return queryset
+
+        combined_q = Q()
+        for field in self.duplicated_fields:
+            duplicated_values = (
+                queryset.values(field)
+                .annotate(count=Count("id"))
+                .filter(count__gt=1)
+                .values_list(field, flat=True)
+            )
+            combined_q |= Q(**{f"{field}__in": duplicated_values})
+
+        return queryset.filter(combined_q).distinct()
+    
 class UserFilterMixin:
     def filter_user(self, queryset, name, value):
         if not value:
@@ -157,7 +177,7 @@ class CodeSnippetFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet)
 #############################################################################
 
 
-class FQDNFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
+class FQDNFilter(DuplicateFilterMixin, ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
     """Filter class for the FQDN model."""
 
     search_fields = ("fqdn", "description")
@@ -171,6 +191,12 @@ class FQDNFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
         choices=EXPIRATION_CHOICES,
         method="filter_expiration",
         label="Expiration status",
+    )
+    duplicates = django_filters.ChoiceFilter(
+        method="filter_duplicates",
+        label="Has duplicates",
+        choices=[("1", "Yes")],
+        widget=forms.Select,
     )
     confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
     validation_status = django_filters.ChoiceFilter(choices=VALIDATION_CHOICES)
@@ -186,6 +212,7 @@ class FQDNFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Updated before",
     )
+    duplicated_fields = ["fqdn"]
 
     class Meta:
         model = FQDN
@@ -194,6 +221,7 @@ class FQDNFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
             "confidence",
             "validation_status",
             "expiration",
+            "duplicates",
             "updated_at__gte",
             "updated_at__lte",
         )
@@ -204,7 +232,7 @@ class FQDNFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
 #############################################################################
 
 
-class HashFilter(UserFilterMixin, ExpirationFilterMixin, SearchFilterSet):
+class HashFilter(DuplicateFilterMixin, UserFilterMixin, ExpirationFilterMixin, SearchFilterSet):
     """Filter class for the Hash model."""
 
     search_fields = ("filename", "url", "description", "md5", "sha1", "sha256", "url")
@@ -218,6 +246,12 @@ class HashFilter(UserFilterMixin, ExpirationFilterMixin, SearchFilterSet):
         choices=EXPIRATION_CHOICES,
         method="filter_expiration",
         label="Expiration status",
+    )
+    duplicates = django_filters.ChoiceFilter(
+        method="filter_duplicates",
+        label="Has duplicates",
+        choices=[("1", "Yes")],
+        widget=forms.Select,
     )
     platform = django_filters.ChoiceFilter(choices=PLATFORM_CHOICES)
     confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
@@ -234,6 +268,7 @@ class HashFilter(UserFilterMixin, ExpirationFilterMixin, SearchFilterSet):
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Updated before",
     )
+    duplicated_fields = ["md5", "sha1", "sha256", "filename"]
 
     class Meta:
         model = FQDN
@@ -243,17 +278,18 @@ class HashFilter(UserFilterMixin, ExpirationFilterMixin, SearchFilterSet):
             "confidence",
             "validation_status",
             "expiration",
+            "duplicates",
             "updated_at__gte",
             "updated_at__lte",
         )
-    
+
 
 #############################################################################
 # IpAdd
 #############################################################################
 
 
-class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
+class IpAddFilter(DuplicateFilterMixin, ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
     """Filter class for the IpAdd model."""
 
     search_fields = ("ip_address", "description")
@@ -270,9 +306,11 @@ class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
     )
     confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
     validation_status = django_filters.ChoiceFilter(choices=VALIDATION_CHOICES)
-    duplicated_ip = django_filters.BooleanFilter(
-        method="filter_duplicate_ip",
-        label="Has duplicated IP",
+    duplicates = django_filters.ChoiceFilter(
+        method="filter_duplicates",
+        label="Has duplicates",
+        choices=[("1", "Yes")],
+        widget=forms.Select,
     )
     updated_at__gte = django_filters.DateFilter(
         field_name="created_at",
@@ -286,6 +324,7 @@ class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Updated before",
     )
+    duplicated_fields = ["ip_address"]
 
     class Meta:
         model = IpAdd
@@ -294,28 +333,17 @@ class IpAddFilter(ExpirationFilterMixin, UserFilterMixin, SearchFilterSet):
             "confidence",
             "validation_status",
             "expiration",
-            "duplicated_ip",
+            "duplicates",
             "updated_at__gte",
             "updated_at__lte",
         )
     
-    def filter_duplicate_ip(self, queryset, name, value):
-        if not value:
-            return queryset
-        duplicated_ips = (
-            queryset.values("ip_address")
-            .annotate(ip_count=Count("id"))
-            .filter(ip_count__gt=1)
-            .values_list("ip_address", flat=True)
-        )
-        return queryset.filter(ip_address__in=duplicated_ips)
-
 #############################################################################
 # Vuln
 #############################################################################
 
 
-class VulnFilter(UserFilterMixin, SearchFilterSet):
+class VulnFilter(DuplicateFilterMixin, UserFilterMixin, SearchFilterSet):
     """Filter class for the Vuln model."""
 
     search_fields = ("name", "cve", "description", "exploitation_details")
@@ -330,9 +358,11 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         method="filter_severity",
         label="Severity",
     )
-    duplicated_cve = django_filters.BooleanFilter(
-        method="filter_duplicated_cve",
-        label="Has duplicated CVE",
+    duplicates = django_filters.ChoiceFilter(
+        method="filter_duplicates",
+        label="Has duplicates",
+        choices=[("1", "Yes")],
+        widget=forms.Select,
     )
     updated_at__gte = django_filters.DateFilter(
         field_name="created_at",
@@ -346,13 +376,14 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Updated before",
     )
+    duplicated_fields = ["cve"]
 
     class Meta:
         model = Vuln
         fields = (
             "user",
             "severity",
-            "duplicated_cve",
+            "duplicates",
             "updated_at__gte",
             "updated_at__lte",
         )
@@ -369,14 +400,3 @@ class VulnFilter(UserFilterMixin, SearchFilterSet):
         }
 
         return queryset.filter(ranges[value])
-
-    def filter_duplicated_cve(self, queryset, name, value):
-        if not value:
-            return queryset
-        duplicated_cves = (
-            queryset.values("cve")
-            .annotate(cve_count=Count("id"))
-            .filter(cve_count__gt=1)
-            .values_list("cve", flat=True)
-        )
-        return queryset.filter(cve__in=duplicated_cves)

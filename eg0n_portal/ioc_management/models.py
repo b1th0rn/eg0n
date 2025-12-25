@@ -219,7 +219,7 @@ class FQDN(models.Model):
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="fqdns",
     )
-    fqdn = models.CharField(max_length=DEFAULT_MAX_LENGTH)
+    fqdn = models.CharField(max_length=DEFAULT_MAX_LENGTH, db_index=True)
     contributors = models.ManyToManyField(
         User,
         editable=False,
@@ -272,16 +272,16 @@ class Hash(models.Model):
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name="hashes",
     )
-    filename = models.CharField(max_length=DEFAULT_MAX_LENGTH, null=True, blank=True)
+    filename = models.CharField(max_length=DEFAULT_MAX_LENGTH, null=True, blank=True, db_index=True)
     contributors = models.ManyToManyField(
         User,
         editable=False,
         related_name="contributed_hashes",
     )
-    md5 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
+    md5 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True, db_index=True)
     platform = models.CharField(max_length=DEFAULT_MAX_LENGTH, choices=PLATFORM_CHOICES, default="windows")
-    sha1 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
-    sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
+    sha1 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True, db_index=True)
+    sha256 = models.CharField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True, db_index=True)
     url = models.URLField(max_length=DEFAULT_MAX_LENGTH, blank=True, null=True)
     description = models.TextField()
     expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
@@ -336,7 +336,7 @@ class IpAdd(models.Model):
         related_name="ipadds",
     )
     expired_at = models.DateField(default=DEFAULT_EXPIRED_AT)
-    ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True)
+    ip_address = models.GenericIPAddressField(unique=False, unpack_ipv4=True, db_index=True)
     contributors = models.ManyToManyField(
         User,
         editable=False,
@@ -431,7 +431,7 @@ class Vuln(models.Model):
         related_name="vulns",
         null=True,
     )
-    cve = models.CharField(max_length=DEFAULT_MAX_LENGTH)
+    cve = models.CharField(max_length=DEFAULT_MAX_LENGTH, db_index=True)
     cvss = models.FloatField()
     description = models.TextField()
     exploitation_details = models.TextField(blank=True, null=True)
