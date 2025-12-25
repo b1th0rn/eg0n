@@ -1,7 +1,7 @@
 """Views for IoC Management app."""
 
 import django_tables2 as tables
-from ioc_management.filters import EventFilter, CodeSnippetFilter
+from ioc_management.filters import EventFilter, CodeSnippetFilter, FQDNFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
 from ioc_management.models import CodeSnippet, Event, FQDN, Hash, IpAdd, Vuln
 from ioc_management.permissions import (
@@ -222,7 +222,7 @@ class CodeSnippetListView(CodeSnippetQueryMixin, ObjectListView):
 class FQDNQueryMixin:
     """Mixin encapsulating common queryset and permission logic for FQDN objects."""
 
-    filterset_class = None
+    filterset_class = FQDNFilter
     form_class = FQDNForm
     model = FQDN
     policy_class = FQDNPermissionPolicy

@@ -107,6 +107,49 @@ class CodeSnippetFilter(SearchFilterSet):
 #############################################################################
 
 
+class FQDNFilter(SearchFilterSet):
+    """Filter class for the FQDNSnippet model."""
+
+    search_fields = ("fqdn", "description")
+    user = django_filters.ModelChoiceFilter(
+        field_name="author",  # placeholder
+        queryset=User.objects.all(),
+        method="filter_user",
+        label="User",
+    )
+    confidence = django_filters.ChoiceFilter(choices=CONFIDENCE_CHOICES)
+    validation_status = django_filters.ChoiceFilter(choices=VALIDATION_CHOICES)
+    updated_at__gte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="gte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated after",
+    )
+    updated_at__lte = django_filters.DateFilter(
+        field_name="created_at",
+        lookup_expr="lte",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Updated before",
+    )
+
+    class Meta:
+        model = FQDN
+        fields = (
+            "user",
+            "confidence",
+            "validation_status",
+            "updated_at__gte",
+            "updated_at__lte",
+        )
+
+    def filter_user(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            Q(author=value) | Q(contributors=value)
+        ).distinct()
+    
+
 #############################################################################
 # Hash
 #############################################################################
