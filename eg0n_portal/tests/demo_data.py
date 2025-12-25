@@ -21,8 +21,8 @@ from ioc_management.models import (
     IpAdd,
     Vuln,
     CONFIDENCE_CHOICES,
-    LANGUAGES,
-    PLATFORM,
+    LANGUAGES_CHOICES,
+    PLATFORM_CHOICES,
     VALIDATION_CHOICES,
 )
 
@@ -958,7 +958,7 @@ for user_obj in user_list:
                 "confidence": get_choice(CONFIDENCE_CHOICES),
                 "description": lorem.paragraphs(2).replace("\n", "\n\n"),
                 "event_id": str(event_obj.id),
-                "language": get_choice(LANGUAGES),
+                "language": get_choice(LANGUAGES_CHOICES),
                 "name": CODESNIPPETS.pop(codesnippet_id),
                 "validation_status": get_choice(VALIDATION_CHOICES),
             }
@@ -992,7 +992,7 @@ for user_obj in user_list:
                 "confidence": get_choice(CONFIDENCE_CHOICES),
                 "description": lorem.paragraphs(2).replace("\n", "\n\n"),
                 "event_id": str(event_obj.id),
-                "platform": get_choice(PLATFORM),
+                "platform": get_choice(PLATFORM_CHOICES),
                 "filename": filename,
                 "md5": md5,
                 "sha1": sha1,

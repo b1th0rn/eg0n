@@ -5,6 +5,32 @@ from ui.include.forms import ObjectModelForm
 
 
 #############################################################################
+# Generic Attribute Mixin
+#############################################################################
+
+
+class AttributeFormMixin:
+    """Standard actions for generic attributes."""
+
+    def save(self, commit=True):
+        """On form save."""
+        instance = super().save(commit=False)
+
+        if not self.instance.pk:
+            # New Attribute
+            instance.author = self.user
+
+        if not (instance.author != self.user and instance.contributors.filter(id=self.user.pk)):
+            # Add user as contributor
+            instance.contributors.add(self.user)
+
+        if commit:
+            instance.save()
+            instance.event.save()
+        return instance
+    
+
+#############################################################################
 # Event
 #############################################################################
 
@@ -22,7 +48,14 @@ class EventForm(ObjectModelForm):
         """On form save."""
         instance = super().save(commit=False)
 
-        instance.author = self.user
+        if not self.instance.pk:
+            # New Event
+            instance.author = self.user
+
+        if not (instance.author != self.user and instance.contributors.filter(id=self.user.pk)):
+            # Add user as contributor
+            instance.contributors.add(self.user)
+
         if commit:
             instance.save()
         return instance
@@ -33,7 +66,7 @@ class EventForm(ObjectModelForm):
 #############################################################################
 
 
-class CodeSnippetForm(ObjectModelForm):
+class CodeSnippetForm(AttributeFormMixin, ObjectModelForm):
     """Form for the CodeSnippet model."""
 
     class Meta:
@@ -48,7 +81,7 @@ class CodeSnippetForm(ObjectModelForm):
 #############################################################################
 
 
-class FQDNForm(ObjectModelForm):
+class FQDNForm(AttributeFormMixin, ObjectModelForm):
     """Form for the Vuln model."""
 
     class Meta:
@@ -63,7 +96,7 @@ class FQDNForm(ObjectModelForm):
 #############################################################################
 
 
-class HashForm(ObjectModelForm):
+class HashForm(AttributeFormMixin, ObjectModelForm):
     """Form for the Vuln model."""
 
     class Meta:
@@ -78,7 +111,7 @@ class HashForm(ObjectModelForm):
 #############################################################################
 
 
-class IpAddForm(ObjectModelForm):
+class IpAddForm(AttributeFormMixin, ObjectModelForm):
     """Form for the Vuln model."""
 
     class Meta:
@@ -93,7 +126,7 @@ class IpAddForm(ObjectModelForm):
 #############################################################################
 
 
-class VulnForm(ObjectModelForm):
+class VulnForm(AttributeFormMixin, ObjectModelForm):
     """Form for the Vuln model."""
 
     class Meta:

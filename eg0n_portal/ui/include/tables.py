@@ -4,6 +4,42 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 
+class GreenDateInThePast(tables.TemplateColumn):
+    """Represents a date in the past ✅ (True). False is not displayed."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the column and apply the default template."""
+        kwargs.setdefault("template_name", "ui/tables/column_date_in_the_past_green.html")
+        super().__init__(*args, **kwargs)
+
+
+class GreenRedDateInThePast(tables.TemplateColumn):
+    """Represents a date in the past ✅ (True) and ❌ (False)."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the column and apply the default template."""
+        kwargs.setdefault("template_name", "ui/tables/column_date_in_the_past_green_red.html")
+        super().__init__(*args, **kwargs)
+
+
+class GreenDateInTheFuture(tables.TemplateColumn):
+    """Represents a date in the future ✅ (True). False is not displayed."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the column and apply the default template."""
+        kwargs.setdefault("template_name", "ui/tables/column_date_in_the_future_green.html")
+        super().__init__(*args, **kwargs)
+
+
+class GreenRedDateInTheFuture(tables.TemplateColumn):
+    """Represents a date in the future ✅ (True) and ❌ (False)."""
+
+    def __init__(self, *args, **kwargs):
+        """Initialize the column and apply the default template."""
+        kwargs.setdefault("template_name", "ui/tables/column_date_in_the_future_green_red.html")
+        super().__init__(*args, **kwargs)
+
+    
 class BooleanColumn(tables.TemplateColumn):
     """Represents a boolean value in a table with ☑️ (True) and ❌ (False)."""
 

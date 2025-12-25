@@ -1,7 +1,7 @@
 """Views for IoC Management app."""
 
 import django_tables2 as tables
-from ioc_management.filters import EventFilter
+from ioc_management.filters import EventFilter, VulnFilter, IpAddFilter, CodeSnippetFilter, FQDNFilter, HashFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
 from ioc_management.models import CodeSnippet, Event, FQDN, Hash, IpAdd, Vuln
 from ioc_management.permissions import (
@@ -44,6 +44,24 @@ from ui.include.views import (
 )
 
 
+
+#############################################################################
+# Generic Attribute
+#############################################################################
+
+class AttributeQueryMixin:
+    """Standard actions for generic attributes."""
+
+    def perform_create(self, serializer):
+        """Set user and update event when creating a new attribute via REST API."""
+        obj = serializer.save(author=self.request.user)
+        obj.event.save()
+
+    def perform_update(self, serializer):
+        """Set contributed users and update event when creating a new CodeSnippet."""
+        print("UPDATE")
+        # serializer.save(last_editor=self.request.user)
+
 #############################################################################
 # Event
 #############################################################################
@@ -61,7 +79,7 @@ class EventQueryMixin:
 
     def get_queryset(self):
         """Return the queryset of Event objects accessible to the current user."""
-        qs = Event.objects.all()
+        qs = Event.objects.all().prefetch_related("contributors")
         return qs
 
 
@@ -100,11 +118,7 @@ class EventDeleteView(EventQueryMixin, ObjectDeleteView):
 class EventDetailView(EventQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Event."""
 
-    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
-    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
-    exclude = ("id",)
-    sequence = ("name", "created_at", "updated_at")
+    # Fields rendered in the template
     template_name = "event_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -158,7 +172,7 @@ class EventListView(EventQueryMixin, ObjectListView):
 class CodeSnippetQueryMixin:
     """Mixin encapsulating common queryset and permission logic for CodeSnippet objects."""
 
-    filterset_class = None
+    filterset_class = CodeSnippetFilter
     form_class = CodeSnippetForm
     model = CodeSnippet
     policy_class = CodeSnippetPermissionPolicy
@@ -171,13 +185,10 @@ class CodeSnippetQueryMixin:
         return qs
 
 
-class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, APICRUDViewSet):
+class CodeSnippetAPIViewSet(CodeSnippetQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the CodeSnippet model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new CodeSnippet."""
-        serializer.save(author=self.request.user)
-
+    pass
 
 class CodeSnippetChangeView(CodeSnippetQueryMixin, ObjectChangeView):
     """HTML view for updating an existing CodeSnippet."""
@@ -194,7 +205,8 @@ class CodeSnippetDeleteView(CodeSnippetQueryMixin, ObjectDeleteView):
 class CodeSnippetDetailView(CodeSnippetQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a CodeSnippet."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "codesnippet_detail.html"
 
 
 class CodeSnippetListView(CodeSnippetQueryMixin, ObjectListView):
@@ -211,7 +223,7 @@ class CodeSnippetListView(CodeSnippetQueryMixin, ObjectListView):
 class FQDNQueryMixin:
     """Mixin encapsulating common queryset and permission logic for FQDN objects."""
 
-    filterset_class = None
+    filterset_class = FQDNFilter
     form_class = FQDNForm
     model = FQDN
     policy_class = FQDNPermissionPolicy
@@ -224,12 +236,10 @@ class FQDNQueryMixin:
         return qs
 
 
-class FQDNAPIViewSet(FQDNQueryMixin, APICRUDViewSet):
+class FQDNAPIViewSet(FQDNQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the FQDN model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new FQDN."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class FQDNChangeView(FQDNQueryMixin, ObjectChangeView):
@@ -247,7 +257,8 @@ class FQDNDeleteView(FQDNQueryMixin, ObjectDeleteView):
 class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a FQDN."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "fqdn_detail.html"
 
 
 class FQDNListView(FQDNQueryMixin, ObjectListView):
@@ -264,7 +275,7 @@ class FQDNListView(FQDNQueryMixin, ObjectListView):
 class HashQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Hash objects."""
 
-    filterset_class = None
+    filterset_class = HashFilter
     form_class = HashForm
     model = Hash
     policy_class = HashPermissionPolicy
@@ -277,13 +288,10 @@ class HashQueryMixin:
         return qs
 
 
-class HashAPIViewSet(HashQueryMixin, APICRUDViewSet):
+class HashAPIViewSet(HashQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Hash model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new Hash."""
-        serializer.save(author=self.request.user)
-
+    pass
 
 class HashChangeView(HashQueryMixin, ObjectChangeView):
     """HTML view for updating an existing Hash."""
@@ -300,7 +308,8 @@ class HashDeleteView(HashQueryMixin, ObjectDeleteView):
 class HashDetailView(HashQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Hash."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "hash_detail.html"
 
 
 class HashListView(HashQueryMixin, ObjectListView):
@@ -317,7 +326,7 @@ class HashListView(HashQueryMixin, ObjectListView):
 class IpAddQueryMixin:
     """Mixin encapsulating common queryset and permission logic for IpAdd objects."""
 
-    filterset_class = None
+    filterset_class = IpAddFilter
     form_class = IpAddForm
     model = IpAdd
     policy_class = IpAddPermissionPolicy
@@ -330,12 +339,10 @@ class IpAddQueryMixin:
         return qs
 
 
-class IpAddAPIViewSet(IpAddQueryMixin, APICRUDViewSet):
+class IpAddAPIViewSet(IpAddQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the IpAdd model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new IpAdd."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class IpAddChangeView(IpAddQueryMixin, ObjectChangeView):
@@ -353,7 +360,8 @@ class IpAddDeleteView(IpAddQueryMixin, ObjectDeleteView):
 class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a IpAdd."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "ipadd_detail.html"
 
 
 class IpAddListView(IpAddQueryMixin, ObjectListView):
@@ -370,7 +378,7 @@ class IpAddListView(IpAddQueryMixin, ObjectListView):
 class VulnQueryMixin:
     """Mixin encapsulating common queryset and permission logic for Vuln objects."""
 
-    filterset_class = None
+    filterset_class = VulnFilter
     form_class = VulnForm
     model = Vuln
     policy_class = VulnPermissionPolicy
@@ -383,12 +391,10 @@ class VulnQueryMixin:
         return qs
 
 
-class VulnAPIViewSet(VulnQueryMixin, APICRUDViewSet):
+class VulnAPIViewSet(VulnQueryMixin, AttributeQueryMixin, APICRUDViewSet):
     """REST API ViewSet for the Vuln model."""
 
-    def perform_create(self, serializer):
-        """Set user when creating a new Vuln."""
-        serializer.save(author=self.request.user)
+    pass
 
 
 class VulnChangeView(VulnQueryMixin, ObjectChangeView):
@@ -406,7 +412,8 @@ class VulnDeleteView(VulnQueryMixin, ObjectDeleteView):
 class VulnDetailView(VulnQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Vuln."""
 
-    pass
+    # Fields rendered in the template
+    template_name = "vuln_detail.html"
 
 
 class VulnListView(VulnQueryMixin, ObjectListView):

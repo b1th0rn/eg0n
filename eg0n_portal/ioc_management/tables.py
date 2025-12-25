@@ -1,8 +1,9 @@
 """Table definitions for IoC Management app."""
 
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from ioc_management.models import Event, CodeSnippet, FQDN, Hash, IpAdd, Vuln
-from ui.include.tables import ObjectTable
+from ui.include.tables import ObjectTable, GreenRedDateInTheFuture
 
 
 #############################################################################
@@ -22,7 +23,7 @@ class EventTable(ObjectTable):
         """Meta options."""
 
         model = Event
-        exclude = ("id", "description", "lastchange_author")
+        exclude = ("id", "description", "lastchange_author", "select")
         sequence = (
             "name",
             "author",   
@@ -30,6 +31,9 @@ class EventTable(ObjectTable):
             "updated_at",
         )
         order_by = "-updated_at"
+        attrs = {
+            "row_actions": [],
+        }
 
 
 #############################################################################
@@ -40,24 +44,27 @@ class EventTable(ObjectTable):
 class CodeSnippetTable(ObjectTable):
     """Table definition for the CodeSnippet model."""
 
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
     name = tables.LinkColumn("codesnippet_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("id", "created_at", "description", "code", "confidence", "validation_status", "event", "expire_date")
+        exclude = ("id", "select", "created_at", "description", "code", "confidence", "validation_status")
         sequence = (
             "name",
             "language",
+            "event",
             "author",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -67,18 +74,20 @@ class CodeSnippetEmbeddedTable(ObjectTable):
     """Embedded table definition for the CodeSnippet model."""
 
     name = tables.LinkColumn("codesnippet_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("select", "id", "author", "description", "code", "confidence", "validation_status", "event", "expire_date")
+        exclude = ("select", "id", "author", "description", "code", "created_at", "event")
         sequence = (
             "name",
             "language",
-            "created_at",
+            "confidence",
+            "validation_status",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -96,7 +105,10 @@ class CodeSnippetEmbeddedTable(ObjectTable):
 class FQDNTable(ObjectTable):
     """Table definition for the FQDN model."""
 
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
     fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -104,15 +116,16 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("id", "created_at", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
+        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description", "lastchange_author")
         sequence = (
             "fqdn",
+            "event",
             "author",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -122,17 +135,19 @@ class FQDNEmbeddedTable(ObjectTable):
     """Embedded table definition for the FQDN model."""
 
     fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = FQDN
-        exclude = ("select", "id", "author", "confidence", "expire_date", "event", "validation_status", "description", "lastchange_author")
+        exclude = ("select", "id", "author", "event", "created_at", "description", "lastchange_author")
         sequence = (
             "fqdn",
-            "created_at",
+            "confidence",
+            "validation_status",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -151,7 +166,10 @@ class FQDNEmbeddedTable(ObjectTable):
 class HashTable(ObjectTable):
     """Table definition for the Hash model."""
 
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
     filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -159,17 +177,17 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("id", "created_at", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
+        exclude = ("id", "select", "created_at", "url", "confidence", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256")
         sequence = (
             "filename",
             "platform",
-            "url",
+            "event",
             "author",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -179,19 +197,21 @@ class HashEmbeddedTable(ObjectTable):
     """Embedded table definition for the Hash model."""
 
     filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = Hash
-        exclude = ("select", "id", "author", "confidence", "event", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256", "expire_date")
+        exclude = ("select", "id", "author", "created_at", "event", "description", "lastchange_author", "md5", "sha1", "sha256")
         sequence = (
             "filename",
             "platform",
             "url",
-            "created_at",
+            "confidence",
+            "validation_status",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -210,23 +230,26 @@ class HashEmbeddedTable(ObjectTable):
 class IpAddTable(ObjectTable):
     """Table definition for the IpAdd model."""
 
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "description", "lastchange_author", "created_at", "confidence", "event", "expire_date", "validation_status")
+        exclude = ("id", "select", "description", "lastchange_author", "created_at", "confidence", "validation_status")
         sequence = (
             "ip_address",
+            "event",
             "author",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
             "row_actions": [],
         }
@@ -236,17 +259,19 @@ class IpAddEmbeddedTable(ObjectTable):
     """Embedded table definition for the IpAdd model."""
 
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "description", "lastchange_author", "author", "confidence", "event", "expire_date", "validation_status")
+        exclude = ("id", "select", "created_at", "description", "lastchange_author", "author", "event")
         sequence = (
             "ip_address",
-            "created_at",
+            "confidence",
+            "validation_status",
+            "expired_at",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -265,46 +290,44 @@ class IpAddEmbeddedTable(ObjectTable):
 class VulnTable(ObjectTable):
     """Table definition for the Vuln model."""
 
-    name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    event = tables.LinkColumn("event_detail", args=[tables.A("event__pk")])
+    cve = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "description", "lastchange_author", "created_at", "event", "exploitation_details")
+        exclude = ("id", "select", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
         sequence = (
-            "name",
             "cve",
             "cvss",   
+            "event",
             "author",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
-            "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": []
         }
 
 class VulnEmbeddedTable(ObjectTable):
     """Embedded table definition for the Vuln model."""
 
     name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
-    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
     class Meta:
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details")
+        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details", "created_at")
         sequence = (
             "name",
             "cve",
             "cvss",   
-            "created_at",
             "updated_at",
         )
         order_by = "-updated_at"
