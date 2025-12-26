@@ -74,6 +74,9 @@ export function attributeCrud() {
             payload.event = this.$root.dataset.event_pk
             const response = await api.post(url, payload)
             // TODO: must handle response and add a toast
+            if (response.status === 'success') {
+                window.location.reload()
+            }
             this.loading = false
         },
         // async delete() {
