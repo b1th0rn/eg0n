@@ -79,7 +79,7 @@ export function attributeCrud() {
             }
             this.loading = false
         },
-        // async delete() {
+        // async delete() { // TODO
         //     if (this.loading) return
         //     this.loading = true
         //     const pk = this.$el.closest('[data-pk]').dataset.pk
