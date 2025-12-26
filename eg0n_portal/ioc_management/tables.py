@@ -23,7 +23,7 @@ class EventTable(ObjectTable):
         """Meta options."""
 
         model = Event
-        exclude = ("id", "description", "lastchange_author", "select")
+        exclude = ("id", "description", "select")
         sequence = (
             "name",
             "author",   
@@ -35,6 +35,30 @@ class EventTable(ObjectTable):
             "row_actions": [],
         }
 
+
+class EventHomeTable(ObjectTable):
+    """Dashboard Table definition for the Event model."""
+
+    name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
+    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Event
+        exclude = ("id", "description", "select")
+        sequence = (
+            "name",
+            "author",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "row_actions": [],
+        }
 
 #############################################################################
 # CodeSnippet
@@ -116,7 +140,7 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description", "lastchange_author")
+        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description")
         sequence = (
             "fqdn",
             "event",
@@ -142,7 +166,7 @@ class FQDNEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("select", "id", "author", "event", "created_at", "description", "lastchange_author")
+        exclude = ("select", "id", "author", "event", "created_at", "description")
         sequence = (
             "fqdn",
             "confidence",
@@ -177,7 +201,7 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("id", "select", "created_at", "url", "confidence", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256")
+        exclude = ("id", "select", "created_at", "url", "confidence", "description", "validation_status", "md5", "sha1", "sha256")
         sequence = (
             "filename",
             "platform",
@@ -204,7 +228,7 @@ class HashEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("select", "id", "author", "created_at", "event", "description", "lastchange_author", "md5", "sha1", "sha256")
+        exclude = ("select", "id", "author", "created_at", "event", "description", "md5", "sha1", "sha256")
         sequence = (
             "filename",
             "platform",
@@ -240,7 +264,7 @@ class IpAddTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "description", "lastchange_author", "created_at", "confidence", "validation_status")
+        exclude = ("id", "select", "description", "created_at", "confidence", "validation_status")
         sequence = (
             "ip_address",
             "event",
@@ -266,7 +290,7 @@ class IpAddEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "created_at", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "select", "created_at", "description", "author", "event")
         sequence = (
             "ip_address",
             "confidence",
@@ -299,7 +323,7 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
+        exclude = ("id", "select", "name", "description", "created_at", "exploitation_details", "created_at")
         sequence = (
             "cve",
             "cvss",   
@@ -323,7 +347,7 @@ class VulnEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details", "created_at")
+        exclude = ("id", "select", "description", "author", "event", "exploitation_details", "created_at")
         sequence = (
             "name",
             "cve",

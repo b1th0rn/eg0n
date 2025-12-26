@@ -39,7 +39,6 @@ router.register(r"user", UserAPIViewSet, basename="user")
 # URL patterns for class-based views and API endpoints
 urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url="/static/ui/favicon.ico")),
-    path("", HomeView.as_view(), name="home"),
     #########################################################################
     # Authentication URLs (standard users cannot use admin/login.html)
     #########################################################################

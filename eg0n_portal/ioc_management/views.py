@@ -1,5 +1,7 @@
 """Views for IoC Management app."""
 
+
+from django.views.generic import TemplateView
 import django_tables2 as tables
 from ioc_management.filters import EventFilter, VulnFilter, IpAddFilter, CodeSnippetFilter, FQDNFilter, HashFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
@@ -9,6 +11,7 @@ from ioc_management.permissions import (
     EventPermissionPolicy,
     FQDNPermissionPolicy,
     HashPermissionPolicy,
+    HomePermissionPolicy,
     IpAddPermissionPolicy,
     VulnPermissionPolicy,
 )
@@ -41,6 +44,7 @@ from ui.include.views import (
     ObjectDeleteView,
     ObjectDetailView,
     ObjectListView,
+    TemplateMixin,
 )
 
 
@@ -420,3 +424,15 @@ class VulnListView(VulnQueryMixin, ObjectListView):
     """HTML view for displaying a table of Vuln objects."""
 
     pass
+
+
+#############################################################################
+# Home
+#############################################################################
+
+
+class HomeView(TemplateMixin, TemplateView):
+    """Render the home page."""
+
+    policy_class = HomePermissionPolicy
+    template_name = "home.html"
