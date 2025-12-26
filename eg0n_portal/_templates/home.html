@@ -22,12 +22,11 @@
                 {% render_table owned_event_table %}
             </div>
             {% endif %}
-            {% render_table owned_event_table %}
-
-
-            <div class="col-sm-12 col-lg-12">
-                render_table log_table
+            {% if owned_event_table.rows %}
+            <div class="col-sm-12 col-lg-12 mt-5">
+                {% render_table contributed_event_table %}
             </div>
+            {% endif %}
         </div>
     </div>
 </div>

@@ -1034,3 +1034,14 @@ for user_obj in user_list:
             }
             attribute_obj = Vuln.objects.create(**payload)
             attribute_obj.full_clean()
+
+
+# Add contributors
+event_qs = Event.objects.all()
+for user_obj in user_list:
+    for _ in range(0, 5):
+        event_id = random.randint(0, len(event_qs) - 1)
+        event_obj = list(event_qs)[event_id]
+        if user_obj not in event_obj.contributors.all():
+            event_obj.contributors.add(user_obj)
+            event_obj.save()

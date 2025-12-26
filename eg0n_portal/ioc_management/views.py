@@ -24,7 +24,8 @@ from ioc_management.serializers import (
     VulnSerializer,
 )
 from ioc_management.tables import (
-    EventHomeTable,
+    OwnedEventHomeTable,
+    ContributedEventHomeTable,
     CodeSnippetEmbeddedTable,
     CodeSnippetTable,
     EventTable,
@@ -445,13 +446,13 @@ class HomeView(TemplateMixin, TemplateView):
 
         # Owned Event table
         owned_event_qs = Event.objects.filter(author=user_obj).order_by("-updated_at")
-        owned_event_table = EventHomeTable(owned_event_qs)
+        owned_event_table = OwnedEventHomeTable(owned_event_qs)
         tables.RequestConfig(self.request, paginate=False).configure(owned_event_table)
         context["owned_event_table"] = owned_event_table
 
         # Contributed Event table
         contributed_event_qs = Event.objects.filter(contributors=user_obj).order_by("-updated_at")
-        contributed_event_table = CodeSnippetEmbeddedTable(contributed_event_qs)
+        contributed_event_table = ContributedEventHomeTable(contributed_event_qs)
         tables.RequestConfig(self.request, paginate=False).configure(contributed_event_table)
         context["contributed_event_table"] = contributed_event_table
 

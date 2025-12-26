@@ -1,6 +1,8 @@
 """Table definitions for IoC Management app."""
 
 from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 import django_tables2 as tables
 from ioc_management.models import Event, CodeSnippet, FQDN, Hash, IpAdd, Vuln
 from ui.include.tables import ObjectTable, GreenRedDateInTheFuture
@@ -36,12 +38,14 @@ class EventTable(ObjectTable):
         }
 
 
-class EventHomeTable(ObjectTable):
-    """Dashboard Table definition for the Event model."""
+class OwnedEventHomeTable(ObjectTable):
+    """Dashboard owned Table definition for the Event model."""
 
-    # contributors
     name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
-    author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
+    contributors = tables.Column(
+        accessor="contributors.all",
+        orderable=False,
+    )
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
 
@@ -52,7 +56,7 @@ class EventHomeTable(ObjectTable):
         exclude = ("select", "id", "description", "select", "author")
         sequence = (
             "name",
-            # "contributors",   
+            "contributors",   
             "created_at",
             "updated_at",
         )
@@ -64,6 +68,51 @@ class EventHomeTable(ObjectTable):
             "row_actions": [],
         }
 
+    def render_contributors(self, value, record):
+        """Print each contributor with link."""
+        links = []
+        for user in value:
+            url = reverse("event_list") + f"?user={user.pk}"
+            links.append(f'<a href="{url}">{user.username}</a>')
+        return mark_safe(", ".join(links))
+    
+
+class ContributedEventHomeTable(ObjectTable):
+    """Dashboard contributed Table definition for the Event model."""
+
+    name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
+    author = tables.LinkColumn(
+        "event_list",
+        accessor="author",
+        attrs={
+            "a": {
+                "href": lambda record: reverse("event_list") + f"?user={record.author.pk}"
+            }
+        }
+    )
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Event
+        exclude = ("select", "id", "description", "select")
+        sequence = (
+            "name",
+            "author",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "title": "Contributed events",
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+    
 #############################################################################
 # CodeSnippet
 #############################################################################
