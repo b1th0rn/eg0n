@@ -24,6 +24,7 @@ from ioc_management.serializers import (
     VulnSerializer,
 )
 from ioc_management.tables import (
+    EventHomeTable,
     CodeSnippetEmbeddedTable,
     CodeSnippetTable,
     EventTable,
@@ -436,3 +437,22 @@ class HomeView(TemplateMixin, TemplateView):
 
     policy_class = HomePermissionPolicy
     template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        """Add attributes  to context."""
+        context = super().get_context_data(**kwargs)
+        user_obj = self.request.user
+
+        # Owned Event table
+        owned_event_qs = Event.objects.filter(author=user_obj).order_by("-updated_at")
+        owned_event_table = EventHomeTable(owned_event_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(owned_event_table)
+        context["owned_event_table"] = owned_event_table
+
+        # Contributed Event table
+        contributed_event_qs = Event.objects.filter(contributors=user_obj).order_by("-updated_at")
+        contributed_event_table = CodeSnippetEmbeddedTable(contributed_event_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(contributed_event_table)
+        context["contributed_event_table"] = contributed_event_table
+
+        return context
