@@ -126,11 +126,11 @@ class ObjectTable(tables.Table):
         """Initialize the table, setting defaults if not provided."""
         super().__init__(*args, **kwargs)
         model_name = self.Meta.model._meta.model_name.lower()
-        verbose_name = self.Meta.model._meta.verbose_name
+        verbose_name_plural = self.Meta.model._meta.verbose_name_plural
 
         # Set default title and description if not provided
         if "title" not in self.attrs:
-            self.attrs["title"] = verbose_name
+            self.attrs["title"] = verbose_name_plural
         if "description" not in self.attrs:
             self.attrs["description"] = ""
 
