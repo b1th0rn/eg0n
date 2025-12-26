@@ -3,6 +3,21 @@ import { api } from '../utils.js'
 
 export function attributeCrud() {
     return {
+        // 🔹 HELPERS
+        getDefaultExpire() {
+            // Today + 30 days
+            const d = new Date()
+            d.setDate(d.getDate() + 30)
+            return d.toISOString().split('T')[0]  // YYYY-MM-DD
+        },
+        initExpirationDefaults() {
+            // Init expire_at when attribute_type changes
+            const def = this.getDefaultExpire()
+            if (this.attribute_data[this.attribute_type] && "expired_at" in this.attribute_data[this.attribute_type]) {
+                this.attribute_data[this.attribute_type].expired_at = def
+            }
+        },
+
         // 🔹 STATE
         loading: false, // Track requests
         attribute_type: '', // Default option

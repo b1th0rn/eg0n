@@ -106,7 +106,7 @@
                 <!-- Type -->
                 <div class="mb-3">
                     <label class="form-label required">Type</label>
-                    <select class="form-select" x-model="attribute_type">
+                    <select class="form-select" x-model="attribute_type" @change="initExpirationDefaults()">
                         <option value="">---------</option>
                         <option value="codesnippet">Code Snippet</option>
                         <option value="fqdn">FQDN</option>
