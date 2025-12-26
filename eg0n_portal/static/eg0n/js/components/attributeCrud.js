@@ -88,20 +88,20 @@ export function attributeCrud() {
         async readCve() {
             if (this.loading) return
             this.loading = true
-            if (this.vuln.cve == "") {
+            if (this.attribute_data.vuln.cve == "") {
                 // CVE field is empty
                 console.error('❌ CVE field is empty')
                 this.loading = false
                 return
             }
-            console.log('📖 Read CVE with pk =', this.vuln.cve)
-            const response = await api.get(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${this.vuln.cve}`)
+            console.log('📖 Read CVE with pk =', this.attribute_data.vuln.cve)
+            const response = await api.get(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${this.attribute_data.vuln.cve}`)
             if (response.status === 'success') {
                 
                 if (response.data.vulnerabilities.length != 1) {
-                    console.error(`❌ CVE ${this.vuln.cve} returns zero or multiple hits`)
+                    console.error(`❌ CVE ${this.attribute_data.vuln.cve} returns zero or multiple hits`)
                 } else {
-                    console.info(`✅ CVE ${this.vuln.cve} found`)
+                    console.info(`✅ CVE ${this.attribute_data.vuln.cve} found`)
                     const cve_data = response.data.vulnerabilities[0].cve
 
                     // Parse language
@@ -132,9 +132,9 @@ export function attributeCrud() {
                     if (!cvss) console.log('⚠️ CVSS not found')
 
                     // Fill values
-                    if (!this.vuln.name || this.vuln.name === "") this.vuln.name = cve_data.id
-                    if (!this.vuln.description || this.vuln.description === "") this.vuln.description = cve_description
-                    this.vuln.cvss = cvss
+                    if (!this.attribute_data.vuln.name || this.attribute_data.vuln.name === "") this.attribute_data.vuln.name = cve_data.id
+                    if (!this.attribute_data.vuln.description || this.attribute_data.vuln.description === "") this.attribute_data.vuln.description = cve_description
+                    this.attribute_data.vuln.cvss = cvss
                 }
             } else {
                 console.error('❌ CVE error')
