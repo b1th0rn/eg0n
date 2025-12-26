@@ -2,6 +2,7 @@
 
 
 from django.views.generic import TemplateView
+from django.db.models import Count, Q
 import django_tables2 as tables
 from ioc_management.filters import EventFilter, VulnFilter, IpAddFilter, CodeSnippetFilter, FQDNFilter, HashFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
@@ -50,6 +51,36 @@ from ui.include.views import (
 )
 
 
+#############################################################################
+# Generic Attribute
+#############################################################################
+
+
+class DuplicateQueryMixin:
+    """Generic mixin to add a duplicated_exist context record."""
+
+    def get_context_data(self, **kwargs):
+        """Add attributes  to context."""
+        context = super().get_context_data(**kwargs)
+        model_class = self.model
+        duplicated = False
+
+        dup_q = Q()
+        for field in self.duplicated_fields:
+            dup_values = (
+                model_class.objects.values(field)
+                .annotate(c=Count("id"))
+                .filter(c__gt=1)
+                .values_list(field, flat=True)
+            )
+            if dup_values:
+                dup_q |= Q(**{f"{field}__in": dup_values})
+                duplicated = True
+                break
+
+        context["duplicated"] = duplicated
+        return context
+
 
 #############################################################################
 # Generic Attribute
@@ -66,6 +97,7 @@ class AttributeQueryMixin:
     def perform_update(self, serializer):
         """Set contributed users and update event when creating a new CodeSnippet."""
         print("UPDATE")
+        # TODO
         # serializer.save(last_editor=self.request.user)
 
 #############################################################################
@@ -260,11 +292,12 @@ class FQDNDeleteView(FQDNQueryMixin, ObjectDeleteView):
     pass
 
 
-class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
+class FQDNDetailView(DuplicateQueryMixin, FQDNQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a FQDN."""
 
     # Fields rendered in the template
     template_name = "fqdn_detail.html"
+    duplicated_fields = ["fqdn"]
 
 
 class FQDNListView(FQDNQueryMixin, ObjectListView):
@@ -311,11 +344,12 @@ class HashDeleteView(HashQueryMixin, ObjectDeleteView):
     pass
 
 
-class HashDetailView(HashQueryMixin, ObjectDetailView):
+class HashDetailView(DuplicateQueryMixin, HashQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Hash."""
 
     # Fields rendered in the template
     template_name = "hash_detail.html"
+    duplicated_fields = ["md5", "sha1", "sha256", "filename"]
 
 
 class HashListView(HashQueryMixin, ObjectListView):
@@ -363,11 +397,12 @@ class IpAddDeleteView(IpAddQueryMixin, ObjectDeleteView):
     pass
 
 
-class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
+class IpAddDetailView(DuplicateQueryMixin, IpAddQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a IpAdd."""
 
     # Fields rendered in the template
     template_name = "ipadd_detail.html"
+    duplicated_fields = ["ip_address"]
 
 
 class IpAddListView(IpAddQueryMixin, ObjectListView):
@@ -415,11 +450,12 @@ class VulnDeleteView(VulnQueryMixin, ObjectDeleteView):
     pass
 
 
-class VulnDetailView(VulnQueryMixin, ObjectDetailView):
+class VulnDetailView(DuplicateQueryMixin, VulnQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Vuln."""
 
     # Fields rendered in the template
     template_name = "vuln_detail.html"
+    duplicated_fields = ["cve"]
 
 
 class VulnListView(VulnQueryMixin, ObjectListView):
