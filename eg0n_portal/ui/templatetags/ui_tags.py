@@ -54,4 +54,9 @@ def get_object_label(obj, field):
 @register.filter
 def get_object_value(obj, field):
     """Return column value from a field name."""
+    try:
+        # Return 'display' value if exists
+        return getattr(obj, f"get_{field}_display")()
+    except AttributeError:
+        pass
     return getattr(obj, field)
