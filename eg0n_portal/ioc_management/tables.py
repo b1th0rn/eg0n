@@ -39,6 +39,7 @@ class EventTable(ObjectTable):
 class EventHomeTable(ObjectTable):
     """Dashboard Table definition for the Event model."""
 
+    # contributors
     name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
     author = tables.LinkColumn("user_detail", args=[tables.A("author__pk")])
     created_at = tables.DateColumn(orderable=True, format="Y-m-d")
@@ -48,15 +49,18 @@ class EventHomeTable(ObjectTable):
         """Meta options."""
 
         model = Event
-        exclude = ("id", "description", "select")
+        exclude = ("select", "id", "description", "select", "author")
         sequence = (
             "name",
-            "author",   
+            # "contributors",   
             "created_at",
             "updated_at",
         )
         order_by = "-updated_at"
         attrs = {
+            "title": "Owned events",
+            "search": False,
+            "table_actions": [],
             "row_actions": [],
         }
 
