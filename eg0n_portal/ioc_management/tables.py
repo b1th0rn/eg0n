@@ -1,11 +1,57 @@
 """Table definitions for IoC Management app."""
 
 from django.utils.translation import gettext_lazy as _
+from django.template import engines
+from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 import django_tables2 as tables
 from ioc_management.models import Event, CodeSnippet, FQDN, Hash, IpAdd, Vuln
 from ui.include.tables import ObjectTable, GreenRedDateInTheFuture
+
+
+#############################################################################
+# Generic Attribute
+#############################################################################
+
+
+class DuplicateColumnMixin:
+    """Utility to detect duplicated values on specific model fields."""
+
+    @staticmethod
+    def has_duplicates(record, fields):
+        model = record.__class__
+        q = Q()
+        for f in fields:
+            q |= Q(**{f"{f}": getattr(record, f)})
+        return model.objects.filter(q).count() > 1
+    
+
+class DuplicatedColumn(tables.TemplateColumn, DuplicateColumnMixin):
+    """Table column that shows if a record has duplicates on given fields."""    
+
+    def render(self, value, record, **kwargs):
+        """Analyze data and return True/False."""
+        fields = getattr(record.__class__, "duplicated_fields", [])
+        is_duplicated = False
+        for f in fields:
+            if record.__class__.objects.filter(**{f: getattr(record, f)}).count() > 1:
+                is_duplicated = True
+                break
+            
+        # Load template
+        template_engine = engines['django']
+        template = template_engine.get_template(self.template_name)
+
+        # Render
+        context = {
+            'record': record,
+            'value': value,
+            'value': is_duplicated,
+            **kwargs,
+        }
+
+        return template.render(context)
 
 
 #############################################################################
@@ -214,6 +260,7 @@ class FQDNEmbeddedTable(ObjectTable):
     fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
@@ -225,6 +272,7 @@ class FQDNEmbeddedTable(ObjectTable):
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -273,9 +321,12 @@ class HashTable(ObjectTable):
 class HashEmbeddedTable(ObjectTable):
     """Embedded table definition for the Hash model."""
 
+
     filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
+
 
     class Meta:
         """Meta options."""
@@ -289,6 +340,7 @@ class HashEmbeddedTable(ObjectTable):
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -338,6 +390,7 @@ class IpAddEmbeddedTable(ObjectTable):
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
@@ -349,6 +402,7 @@ class IpAddEmbeddedTable(ObjectTable):
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -395,6 +449,7 @@ class VulnEmbeddedTable(ObjectTable):
 
     name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
@@ -405,6 +460,7 @@ class VulnEmbeddedTable(ObjectTable):
             "name",
             "cve",
             "cvss",   
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"

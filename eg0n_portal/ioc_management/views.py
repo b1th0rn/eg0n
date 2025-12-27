@@ -56,36 +56,6 @@ from ui.include.views import (
 #############################################################################
 
 
-class DuplicateQueryMixin:
-    """Generic mixin to add a duplicated_exist context record."""
-
-    def get_context_data(self, **kwargs):
-        """Add attributes  to context."""
-        context = super().get_context_data(**kwargs)
-        model_class = self.model
-        duplicated = False
-
-        dup_q = Q()
-        for field in self.duplicated_fields:
-            dup_values = (
-                model_class.objects.values(field)
-                .annotate(c=Count("id"))
-                .filter(c__gt=1)
-                .values_list(field, flat=True)
-            )
-            if dup_values:
-                dup_q |= Q(**{f"{field}__in": dup_values})
-                duplicated = True
-                break
-
-        context["duplicated"] = duplicated
-        return context
-
-
-#############################################################################
-# Generic Attribute
-#############################################################################
-
 class AttributeQueryMixin:
     """Standard actions for generic attributes."""
 
@@ -99,6 +69,7 @@ class AttributeQueryMixin:
         print("UPDATE")
         # TODO
         # serializer.save(last_editor=self.request.user)
+
 
 #############################################################################
 # Event
@@ -292,7 +263,7 @@ class FQDNDeleteView(FQDNQueryMixin, ObjectDeleteView):
     pass
 
 
-class FQDNDetailView(DuplicateQueryMixin, FQDNQueryMixin, ObjectDetailView):
+class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a FQDN."""
 
     # Fields rendered in the template
@@ -344,7 +315,7 @@ class HashDeleteView(HashQueryMixin, ObjectDeleteView):
     pass
 
 
-class HashDetailView(DuplicateQueryMixin, HashQueryMixin, ObjectDetailView):
+class HashDetailView(HashQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Hash."""
 
     # Fields rendered in the template
@@ -397,7 +368,7 @@ class IpAddDeleteView(IpAddQueryMixin, ObjectDeleteView):
     pass
 
 
-class IpAddDetailView(DuplicateQueryMixin, IpAddQueryMixin, ObjectDetailView):
+class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a IpAdd."""
 
     # Fields rendered in the template
@@ -450,7 +421,7 @@ class VulnDeleteView(VulnQueryMixin, ObjectDeleteView):
     pass
 
 
-class VulnDetailView(DuplicateQueryMixin, VulnQueryMixin, ObjectDetailView):
+class VulnDetailView(VulnQueryMixin, ObjectDetailView):
     """HTML view for displaying the details of a Vuln."""
 
     # Fields rendered in the template
