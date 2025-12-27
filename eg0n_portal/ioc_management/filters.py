@@ -271,7 +271,7 @@ class HashFilter(DuplicateFilterMixin, UserFilterMixin, ExpirationFilterMixin, S
     duplicated_fields = ["md5", "sha1", "sha256", "filename"]
 
     class Meta:
-        model = FQDN
+        model = Hash
         fields = (
             "user",
             "platform",
