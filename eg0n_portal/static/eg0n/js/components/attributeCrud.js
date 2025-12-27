@@ -84,8 +84,10 @@ export function attributeCrud() {
             if (this.loading) return
             this.loading = true
             const pk = this.$el.closest('[data-pk]').dataset.pk
-            Alpine.store('message').createItem("Messaggio inviato con successo!")
-            Alpine.store('message').createItem("Attenzione!", "danger", 10000)
+            Alpine.store('message').createItem("Attenzione!", 40)
+            Alpine.store('message').createItem("Warnoing!", 30)
+            Alpine.store('message').createItem("Success!", 25)
+            Alpine.store('message').createItem("Info!", 20)
             this.loading = false
         },
 
@@ -129,20 +131,28 @@ export function attributeCrud() {
                                     cvss = firstMetric.cvssData.baseScore;
                                     cvss_version = key; // salva il tipo di metrica
                                     console.log(`✅ Found CVSS ${cvss_version}`)
+                                    Alpine.store('message').createItem(`Found CVSS ${cvss_version}`, 25)
                                     break
                                 }
                             }
                         }
                     }
-                    if (!cvss) console.log('⚠️ CVSS not found')
+                    if (!cvss) {
+                        console.log('❌ CVSS format error')
+                        Alpine.store('message').createItem("CVSS format error.", 40)
+                    }
 
                     // Fill values
                     if (!this.attribute_data.vuln.name || this.attribute_data.vuln.name === "") this.attribute_data.vuln.name = cve_data.id
                     if (!this.attribute_data.vuln.description || this.attribute_data.vuln.description === "") this.attribute_data.vuln.description = cve_description
                     this.attribute_data.vuln.cvss = cvss
                 }
+            } else if (response.http.code == 404) {
+                console.log('⚠️ CVSS not found')
+                Alpine.store('message').createItem("CVSS not found.", 30)
             } else {
-                console.error('❌ CVE error')
+                console.error('❌ CVE download error')
+                Alpine.store('message').createItem("CVE download error", 40)
             }            
             this.loading = false
         },
