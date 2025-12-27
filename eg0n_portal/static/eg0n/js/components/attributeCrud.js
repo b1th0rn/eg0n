@@ -1,3 +1,4 @@
+// components/attributeCrud.js
 import { api } from '../utils.js'
 
 
@@ -65,7 +66,7 @@ export function attributeCrud() {
         },
 
         // 🔹 Attribute CRUD
-        async create() {
+        async createItem() {
             if (this.loading) return
             this.loading = true
             console.log('➕ Create a new attribute')
@@ -79,13 +80,14 @@ export function attributeCrud() {
             }
             this.loading = false
         },
-        // async delete() { // TODO
-        //     if (this.loading) return
-        //     this.loading = true
-        //     const pk = this.$el.closest('[data-pk]').dataset.pk
-        //     console.log('🗑️ Delete attribute with pk =', pk)
-        //     this.loading = false
-        // },
+        async deleteItem() { // TODO
+            if (this.loading) return
+            this.loading = true
+            const pk = this.$el.closest('[data-pk]').dataset.pk
+            Alpine.store('message').createItem("Messaggio inviato con successo!")
+            Alpine.store('message').createItem("Attenzione!", "danger", 10000)
+            this.loading = false
+        },
 
         // 🔹 CVE CRUD
         async readCve() {

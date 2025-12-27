@@ -5,7 +5,7 @@
 {% block title %}{{ site_meta.title }} | {{ model_name|title }} > Detail{% endblock title %}
 {% block page_title %}{{ model_name|title }} > Detail{% endblock page_title %}
 {% block page_body %}
-<div class="col-lg-12" data-pk="{{ pk }}">
+<div class="col-lg-12" data-pk="{{ pk }}" x-data="attributeCrud()">
     <div class="card card-lg">
         <div class="card-body markdown">
             <div class="row align-items-center">
@@ -331,7 +331,7 @@
             <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="create()">Create</button>
+                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="createItem()">Create</button>
             </div>
         </div>
     </div>

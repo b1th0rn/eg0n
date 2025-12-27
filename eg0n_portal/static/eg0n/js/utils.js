@@ -1,4 +1,4 @@
-// utils/api.js
+// utils.js
 const API_BASE = '/api' // Modifica con la base della tua API
 
 function getCsrfToken() {
