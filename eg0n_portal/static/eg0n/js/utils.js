@@ -1,4 +1,6 @@
 // utils.js
+const API_BASE = '/api' // Django API prefix
+
 export function severityToClass(sev) {
     // Integer to string severity converter
     return {

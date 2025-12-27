@@ -76,7 +76,12 @@ export function attributeCrud() {
             const response = await api.post(url, payload)
             // TODO: must handle response and add a toast
             if (response.status === 'success') {
+                console.info(`✅ Attribute added to event ${payload.event}`)
+                Alpine.store('message').createItem("Attribute added.", 25)
                 window.location.reload()
+            } else {
+                console.info(`❌ Error while adding attribute to event ${payload.event}`)
+                Alpine.store('message').createItem("Error while adding attribute.", 40)
             }
             this.loading = false
         },
