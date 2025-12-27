@@ -25,6 +25,7 @@ from ioc_management.views import (
     HashDeleteView,
     HashDetailView,
     HashListView,
+    HomeView,
     IpAddAPIViewSet,
     IpAddChangeView,
     IpAddDeleteView,
@@ -48,6 +49,7 @@ router.register(r"vuln", VulnAPIViewSet, basename="vuln")
 
 # URL patterns for class-based views and API endpoints
 urlpatterns = [
+    path("", HomeView.as_view(), name="home"),
     #########################################################################
     # Event views (HTML)
     #########################################################################

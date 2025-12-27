@@ -23,7 +23,7 @@ class GroupTable(ObjectTable):
         "group_detail",
         args=[tables.A("pk")],
     )
-    users = tables.Column(empty_values=())
+    users = tables.Column(empty_values=(), orderable=False)
 
     class Meta:
         """Meta options."""

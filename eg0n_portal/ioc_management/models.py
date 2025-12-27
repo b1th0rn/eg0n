@@ -230,6 +230,7 @@ class FQDN(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    duplicated_fields = ["fqdn"]
 
     class Meta:
         """Database metadata."""
@@ -290,6 +291,7 @@ class Hash(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    duplicated_fields = ["md5", "sha1", "sha256", "filename"]
 
     class Meta:
         """Database metadata."""
@@ -347,6 +349,7 @@ class IpAdd(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    duplicated_fields = ["ip_address"]
 
     class Meta:
         """Database metadata."""
@@ -448,6 +451,7 @@ class Vuln(models.Model):
     name = models.CharField(max_length=DEFAULT_MAX_LENGTH)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    duplicated_fields = ["cve"]
 
     class Meta:
         """Database metadata."""

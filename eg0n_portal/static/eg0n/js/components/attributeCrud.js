@@ -3,6 +3,21 @@ import { api } from '../utils.js'
 
 export function attributeCrud() {
     return {
+        // 🔹 HELPERS
+        getDefaultExpire() {
+            // Today + 30 days
+            const d = new Date()
+            d.setDate(d.getDate() + 30)
+            return d.toISOString().split('T')[0]  // YYYY-MM-DD
+        },
+        initExpirationDefaults() {
+            // Init expire_at when attribute_type changes
+            const def = this.getDefaultExpire()
+            if (this.attribute_data[this.attribute_type] && "expired_at" in this.attribute_data[this.attribute_type]) {
+                this.attribute_data[this.attribute_type].expired_at = def
+            }
+        },
+
         // 🔹 STATE
         loading: false, // Track requests
         attribute_type: '', // Default option
@@ -59,9 +74,12 @@ export function attributeCrud() {
             payload.event = this.$root.dataset.event_pk
             const response = await api.post(url, payload)
             // TODO: must handle response and add a toast
+            if (response.status === 'success') {
+                window.location.reload()
+            }
             this.loading = false
         },
-        // async delete() {
+        // async delete() { // TODO
         //     if (this.loading) return
         //     this.loading = true
         //     const pk = this.$el.closest('[data-pk]').dataset.pk
@@ -73,20 +91,20 @@ export function attributeCrud() {
         async readCve() {
             if (this.loading) return
             this.loading = true
-            if (this.vuln.cve == "") {
+            if (this.attribute_data.vuln.cve == "") {
                 // CVE field is empty
                 console.error('❌ CVE field is empty')
                 this.loading = false
                 return
             }
-            console.log('📖 Read CVE with pk =', this.vuln.cve)
-            const response = await api.get(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${this.vuln.cve}`)
+            console.log('📖 Read CVE with pk =', this.attribute_data.vuln.cve)
+            const response = await api.get(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${this.attribute_data.vuln.cve}`)
             if (response.status === 'success') {
                 
                 if (response.data.vulnerabilities.length != 1) {
-                    console.error(`❌ CVE ${this.vuln.cve} returns zero or multiple hits`)
+                    console.error(`❌ CVE ${this.attribute_data.vuln.cve} returns zero or multiple hits`)
                 } else {
-                    console.info(`✅ CVE ${this.vuln.cve} found`)
+                    console.info(`✅ CVE ${this.attribute_data.vuln.cve} found`)
                     const cve_data = response.data.vulnerabilities[0].cve
 
                     // Parse language
@@ -117,9 +135,9 @@ export function attributeCrud() {
                     if (!cvss) console.log('⚠️ CVSS not found')
 
                     // Fill values
-                    if (!this.vuln.name || this.vuln.name === "") this.vuln.name = cve_data.id
-                    if (!this.vuln.description || this.vuln.description === "") this.vuln.description = cve_description
-                    this.vuln.cvss = cvss
+                    if (!this.attribute_data.vuln.name || this.attribute_data.vuln.name === "") this.attribute_data.vuln.name = cve_data.id
+                    if (!this.attribute_data.vuln.description || this.attribute_data.vuln.description === "") this.attribute_data.vuln.description = cve_description
+                    this.attribute_data.vuln.cvss = cvss
                 }
             } else {
                 console.error('❌ CVE error')

@@ -1,9 +1,57 @@
 """Table definitions for IoC Management app."""
 
 from django.utils.translation import gettext_lazy as _
+from django.template import engines
+from django.db.models import Count, Q
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 import django_tables2 as tables
 from ioc_management.models import Event, CodeSnippet, FQDN, Hash, IpAdd, Vuln
 from ui.include.tables import ObjectTable, GreenRedDateInTheFuture
+
+
+#############################################################################
+# Generic Attribute
+#############################################################################
+
+
+class DuplicateColumnMixin:
+    """Utility to detect duplicated values on specific model fields."""
+
+    @staticmethod
+    def has_duplicates(record, fields):
+        model = record.__class__
+        q = Q()
+        for f in fields:
+            q |= Q(**{f"{f}": getattr(record, f)})
+        return model.objects.filter(q).count() > 1
+    
+
+class DuplicatedColumn(tables.TemplateColumn, DuplicateColumnMixin):
+    """Table column that shows if a record has duplicates on given fields."""    
+
+    def render(self, value, record, **kwargs):
+        """Analyze data and return True/False."""
+        fields = getattr(record.__class__, "duplicated_fields", [])
+        is_duplicated = False
+        for f in fields:
+            if record.__class__.objects.filter(**{f: getattr(record, f)}).count() > 1:
+                is_duplicated = True
+                break
+            
+        # Load template
+        template_engine = engines['django']
+        template = template_engine.get_template(self.template_name)
+
+        # Render
+        context = {
+            'record': record,
+            'value': value,
+            'value': is_duplicated,
+            **kwargs,
+        }
+
+        return template.render(context)
 
 
 #############################################################################
@@ -23,7 +71,7 @@ class EventTable(ObjectTable):
         """Meta options."""
 
         model = Event
-        exclude = ("id", "description", "lastchange_author", "select")
+        exclude = ("id", "description", "select", "actions")
         sequence = (
             "name",
             "author",   
@@ -36,6 +84,81 @@ class EventTable(ObjectTable):
         }
 
 
+class OwnedEventHomeTable(ObjectTable):
+    """Dashboard owned Table definition for the Event model."""
+
+    name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
+    contributors = tables.Column(
+        accessor="contributors.all",
+        orderable=False,
+    )
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Event
+        exclude = ("select", "id", "description", "select", "author", "actions")
+        sequence = (
+            "name",
+            "contributors",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "title": "Owned events",
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+    def render_contributors(self, value, record):
+        """Print each contributor with link."""
+        links = []
+        for user in value:
+            url = reverse("event_list") + f"?user={user.pk}"
+            links.append(f'<a href="{url}">{user.username}</a>')
+        return mark_safe(", ".join(links))
+    
+
+class ContributedEventHomeTable(ObjectTable):
+    """Dashboard contributed Table definition for the Event model."""
+
+    name = tables.LinkColumn("event_detail", args=[tables.A("pk")])
+    author = tables.LinkColumn(
+        "event_list",
+        accessor="author",
+        attrs={
+            "a": {
+                "href": lambda record: reverse("event_list") + f"?user={record.author.pk}"
+            }
+        }
+    )
+    created_at = tables.DateColumn(orderable=True, format="Y-m-d")
+    updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+
+    class Meta:
+        """Meta options."""
+
+        model = Event
+        exclude = ("select", "id", "description", "select", "actions")
+        sequence = (
+            "name",
+            "author",   
+            "created_at",
+            "updated_at",
+        )
+        order_by = "-updated_at"
+        attrs = {
+            "title": "Contributed events",
+            "search": False,
+            "table_actions": [],
+            "row_actions": [],
+        }
+
+    
 #############################################################################
 # CodeSnippet
 #############################################################################
@@ -54,7 +177,7 @@ class CodeSnippetTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("id", "select", "created_at", "description", "code", "confidence", "validation_status")
+        exclude = ("id", "select", "created_at", "description", "code", "confidence", "validation_status", "actions")
         sequence = (
             "name",
             "language",
@@ -81,7 +204,7 @@ class CodeSnippetEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("select", "id", "author", "description", "code", "created_at", "event")
+        exclude = ("select", "id", "author", "description", "code", "created_at", "event", "actions")
         sequence = (
             "name",
             "language",
@@ -116,7 +239,7 @@ class FQDNTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description", "lastchange_author")
+        exclude = ("id", "select", "created_at", "confidence", "validation_status", "description", "actions")
         sequence = (
             "fqdn",
             "event",
@@ -137,17 +260,19 @@ class FQDNEmbeddedTable(ObjectTable):
     fqdn = tables.LinkColumn("fqdn_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
 
         model = FQDN
-        exclude = ("select", "id", "author", "event", "created_at", "description", "lastchange_author")
+        exclude = ("select", "id", "author", "event", "created_at", "description", "actions")
         sequence = (
             "fqdn",
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -177,7 +302,7 @@ class HashTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("id", "select", "created_at", "url", "confidence", "description", "lastchange_author", "validation_status", "md5", "sha1", "sha256")
+        exclude = ("id", "select", "created_at", "url", "confidence", "description", "validation_status", "md5", "sha1", "sha256", "actions")
         sequence = (
             "filename",
             "platform",
@@ -196,15 +321,18 @@ class HashTable(ObjectTable):
 class HashEmbeddedTable(ObjectTable):
     """Embedded table definition for the Hash model."""
 
+
     filename = tables.LinkColumn("hash_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
+
 
     class Meta:
         """Meta options."""
 
         model = Hash
-        exclude = ("select", "id", "author", "created_at", "event", "description", "lastchange_author", "md5", "sha1", "sha256")
+        exclude = ("select", "id", "author", "created_at", "event", "description", "md5", "sha1", "sha256", "actions")
         sequence = (
             "filename",
             "platform",
@@ -212,6 +340,7 @@ class HashEmbeddedTable(ObjectTable):
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -240,7 +369,7 @@ class IpAddTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "description", "lastchange_author", "created_at", "confidence", "validation_status")
+        exclude = ("id", "select", "description", "created_at", "confidence", "validation_status", "actions")
         sequence = (
             "ip_address",
             "event",
@@ -261,17 +390,19 @@ class IpAddEmbeddedTable(ObjectTable):
     ip_address = tables.LinkColumn("ipadd_detail", args=[tables.A("pk")])
     expired_at = GreenRedDateInTheFuture(verbose_name="Valid")
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "created_at", "description", "lastchange_author", "author", "event")
+        exclude = ("id", "select", "created_at", "description", "author", "event", "actions")
         sequence = (
             "ip_address",
             "confidence",
             "validation_status",
             "expired_at",
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"
@@ -299,7 +430,7 @@ class VulnTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "name", "description", "lastchange_author", "created_at", "exploitation_details", "created_at")
+        exclude = ("id", "select", "name", "description", "created_at", "exploitation_details", "created_at", "actions")
         sequence = (
             "cve",
             "cvss",   
@@ -318,16 +449,18 @@ class VulnEmbeddedTable(ObjectTable):
 
     name = tables.LinkColumn("vuln_detail", args=[tables.A("pk")])
     updated_at = tables.DateColumn(orderable=True, format="Y-m-d H:i")
+    duplicated = DuplicatedColumn(accessor="pk", verbose_name="Duplicated", orderable=False, template_name="ui/tables/column_boolean_green_red_reverse.html")
 
     class Meta:
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "lastchange_author", "author", "event", "exploitation_details", "created_at")
+        exclude = ("id", "select", "description", "author", "event", "exploitation_details", "created_at", "actions")
         sequence = (
             "name",
             "cve",
             "cvss",   
+            "duplicated",
             "updated_at",
         )
         order_by = "-updated_at"

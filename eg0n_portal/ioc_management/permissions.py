@@ -119,3 +119,22 @@ class VulnPermissionPolicy:
         # === COMMON RULES ===
         return True
     
+
+#############################################################################
+# Home
+#############################################################################
+
+
+class HomePermissionPolicy:
+    """UI permisson policy for Home."""
+
+    def can(self, user, method, target, payload):
+        """Defines what the requesting user can do based on target, role and HTTP method."""
+
+        # === GUEST RULES ===
+        if not user.is_authenticated:
+            # Guest access is denied
+            return None
+
+        # === COMMON RULES ===
+        return True

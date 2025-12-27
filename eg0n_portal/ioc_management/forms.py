@@ -48,11 +48,10 @@ class EventForm(ObjectModelForm):
         """On form save."""
         instance = super().save(commit=False)
 
-        if not self.instance.pk:
+        if self.instance._state.adding:
             # New Event
             instance.author = self.user
-
-        if not (instance.author != self.user and instance.contributors.filter(id=self.user.pk)):
+        elif instance.author != self.user and not instance.contributors.filter(id=self.user.pk):
             # Add user as contributor
             instance.contributors.add(self.user)
 

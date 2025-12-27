@@ -1,5 +1,8 @@
 """Views for IoC Management app."""
 
+
+from django.views.generic import TemplateView
+from django.db.models import Count, Q
 import django_tables2 as tables
 from ioc_management.filters import EventFilter, VulnFilter, IpAddFilter, CodeSnippetFilter, FQDNFilter, HashFilter
 from ioc_management.forms import EventForm, CodeSnippetForm, FQDNForm, IpAddForm, HashForm, VulnForm
@@ -9,6 +12,7 @@ from ioc_management.permissions import (
     EventPermissionPolicy,
     FQDNPermissionPolicy,
     HashPermissionPolicy,
+    HomePermissionPolicy,
     IpAddPermissionPolicy,
     VulnPermissionPolicy,
 )
@@ -21,6 +25,8 @@ from ioc_management.serializers import (
     VulnSerializer,
 )
 from ioc_management.tables import (
+    OwnedEventHomeTable,
+    ContributedEventHomeTable,
     CodeSnippetEmbeddedTable,
     CodeSnippetTable,
     EventTable,
@@ -41,13 +47,14 @@ from ui.include.views import (
     ObjectDeleteView,
     ObjectDetailView,
     ObjectListView,
+    TemplateMixin,
 )
-
 
 
 #############################################################################
 # Generic Attribute
 #############################################################################
+
 
 class AttributeQueryMixin:
     """Standard actions for generic attributes."""
@@ -60,7 +67,9 @@ class AttributeQueryMixin:
     def perform_update(self, serializer):
         """Set contributed users and update event when creating a new CodeSnippet."""
         print("UPDATE")
+        # TODO
         # serializer.save(last_editor=self.request.user)
+
 
 #############################################################################
 # Event
@@ -259,6 +268,7 @@ class FQDNDetailView(FQDNQueryMixin, ObjectDetailView):
 
     # Fields rendered in the template
     template_name = "fqdn_detail.html"
+    duplicated_fields = ["fqdn"]
 
 
 class FQDNListView(FQDNQueryMixin, ObjectListView):
@@ -310,6 +320,7 @@ class HashDetailView(HashQueryMixin, ObjectDetailView):
 
     # Fields rendered in the template
     template_name = "hash_detail.html"
+    duplicated_fields = ["md5", "sha1", "sha256", "filename"]
 
 
 class HashListView(HashQueryMixin, ObjectListView):
@@ -362,6 +373,7 @@ class IpAddDetailView(IpAddQueryMixin, ObjectDetailView):
 
     # Fields rendered in the template
     template_name = "ipadd_detail.html"
+    duplicated_fields = ["ip_address"]
 
 
 class IpAddListView(IpAddQueryMixin, ObjectListView):
@@ -414,9 +426,41 @@ class VulnDetailView(VulnQueryMixin, ObjectDetailView):
 
     # Fields rendered in the template
     template_name = "vuln_detail.html"
+    duplicated_fields = ["cve"]
 
 
 class VulnListView(VulnQueryMixin, ObjectListView):
     """HTML view for displaying a table of Vuln objects."""
 
     pass
+
+
+#############################################################################
+# Home
+#############################################################################
+
+
+class HomeView(TemplateMixin, TemplateView):
+    """Render the home page."""
+
+    policy_class = HomePermissionPolicy
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        """Add attributes  to context."""
+        context = super().get_context_data(**kwargs)
+        user_obj = self.request.user
+
+        # Owned Event table
+        owned_event_qs = Event.objects.filter(author=user_obj).order_by("-updated_at")
+        owned_event_table = OwnedEventHomeTable(owned_event_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(owned_event_table)
+        context["owned_event_table"] = owned_event_table
+
+        # Contributed Event table
+        contributed_event_qs = Event.objects.filter(contributors=user_obj).order_by("-updated_at")
+        contributed_event_table = ContributedEventHomeTable(contributed_event_qs)
+        tables.RequestConfig(self.request, paginate=False).configure(contributed_event_table)
+        context["contributed_event_table"] = contributed_event_table
+
+        return context

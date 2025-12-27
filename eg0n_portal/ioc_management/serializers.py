@@ -18,7 +18,6 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = (
             "id",
             "author",
-            "lastchange_author",
             "created_at",
             "updated_at",
         )
