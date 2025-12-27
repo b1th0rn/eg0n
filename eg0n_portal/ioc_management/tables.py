@@ -204,7 +204,7 @@ class CodeSnippetEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = CodeSnippet
-        exclude = ("select", "id", "author", "description", "code", "created_at", "event", "actions")
+        exclude = ("select", "id", "author", "description", "code", "created_at", "event")
         sequence = (
             "name",
             "language",
@@ -217,7 +217,10 @@ class CodeSnippetEmbeddedTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": [{
+                "button": mark_safe('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>'),
+                "click": "deleteItem()",
+            }],
         }
 
 #############################################################################
@@ -266,7 +269,7 @@ class FQDNEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = FQDN
-        exclude = ("select", "id", "author", "event", "created_at", "description", "actions")
+        exclude = ("select", "id", "author", "event", "created_at", "description")
         sequence = (
             "fqdn",
             "confidence",
@@ -279,7 +282,10 @@ class FQDNEmbeddedTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": [{
+                "button": mark_safe('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>'),
+                "click": "deleteItem()",
+            }],
         }
 
 
@@ -332,11 +338,10 @@ class HashEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Hash
-        exclude = ("select", "id", "author", "created_at", "event", "description", "md5", "sha1", "sha256", "actions")
+        exclude = ("select", "id", "author", "created_at", "event", "description", "md5", "sha1", "sha256", "url")
         sequence = (
             "filename",
             "platform",
-            "url",
             "confidence",
             "validation_status",
             "expired_at",
@@ -347,7 +352,10 @@ class HashEmbeddedTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": [{
+                "button": mark_safe('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>'),
+                "click": "deleteItem()",
+            }],
         }
 
 
@@ -396,7 +404,7 @@ class IpAddEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = IpAdd
-        exclude = ("id", "select", "created_at", "description", "author", "event", "actions")
+        exclude = ("id", "select", "created_at", "description", "author", "event")
         sequence = (
             "ip_address",
             "confidence",
@@ -409,7 +417,10 @@ class IpAddEmbeddedTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": [{
+                "button": mark_safe('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>'),
+                "click": "deleteItem()",
+            }],
         }
 
 
@@ -455,7 +466,7 @@ class VulnEmbeddedTable(ObjectTable):
         """Meta options."""
 
         model = Vuln
-        exclude = ("id", "select", "description", "author", "event", "exploitation_details", "created_at", "actions")
+        exclude = ("id", "select", "description", "author", "event", "exploitation_details", "created_at")
         sequence = (
             "name",
             "cve",
@@ -467,5 +478,8 @@ class VulnEmbeddedTable(ObjectTable):
         attrs = {
             "search": False,
             "table_actions": [],
-            "row_actions": [],
+            "row_actions": [{
+                "button": mark_safe('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>'),
+                "click": "deleteItem()",
+            }],
         }

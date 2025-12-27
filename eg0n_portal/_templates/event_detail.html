@@ -5,7 +5,7 @@
 {% block title %}{{ site_meta.title }} | {{ model_name|title }} > Detail{% endblock title %}
 {% block page_title %}{{ model_name|title }} > Detail{% endblock page_title %}
 {% block page_body %}
-<div class="col-lg-12" data-pk="{{ pk }}">
+<div class="col-lg-12" data-pk="{{ pk }}" x-data="attributeCrud()">
     <div class="card card-lg">
         <div class="card-body markdown">
             <div class="row align-items-center">
@@ -56,31 +56,31 @@
             {{ object.record|get_object_value:"description"|markdownify|safe }}
 
             {% if vuln_table.rows %}
-            <div class="col-lg-12 mt-5">
+            <div class="col-lg-12 mt-5" data-type="vuln">
                 {% render_table vuln_table %}
             </div>
             {% endif %}
 
             {% if ipadd_table.rows %}
-            <div class="col-lg-12 mt-5">
+            <div class="col-lg-12 mt-5" data-type="ipadd">
                 {% render_table ipadd_table %}
             </div>
             {% endif %}
             
             {% if codesnippet_table.rows %}
-            <div class="col-lg-12 mt-5">
+            <div class="col-lg-12 mt-5" data-type="codesnippet">
                 {% render_table codesnippet_table %}
             </div>
             {% endif %}
 
             {% if fqdn_table.rows %}
-            <div class="col-lg-12 mt-5">
+            <div class="col-lg-12 mt-5" data-type="fqdn">
                 {% render_table fqdn_table %}
             </div>
             {% endif %}
 
             {% if hash_table.rows %}
-            <div class="col-lg-12 mt-5">
+            <div class="col-lg-12 mt-5" data-type="hash">
                 {% render_table hash_table %}
             </div>
             {% endif %}
@@ -331,7 +331,7 @@
             <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="create()">Create</button>
+                <button type="button" class="btn btn-primary" :class="{ 'btn-loading': loading }" :disabled="loading" data-bs-dismiss="modal" @click="createItem()">Create</button>
             </div>
         </div>
     </div>

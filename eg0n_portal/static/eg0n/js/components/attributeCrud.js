@@ -1,3 +1,4 @@
+// components/attributeCrud.js
 import { api } from '../utils.js'
 
 
@@ -65,7 +66,7 @@ export function attributeCrud() {
         },
 
         // 🔹 Attribute CRUD
-        async create() {
+        async createItem() {
             if (this.loading) return
             this.loading = true
             console.log('➕ Create a new attribute')
@@ -73,19 +74,34 @@ export function attributeCrud() {
             const payload = this.attribute_data[this.attribute_type]
             payload.event = this.$root.dataset.event_pk
             const response = await api.post(url, payload)
-            // TODO: must handle response and add a toast
             if (response.status === 'success') {
+                console.info(`✅ Attribute added to event ${payload.event}`)
+                Alpine.store('message').createItem("Attribute added.", 25)
                 window.location.reload()
+            } else {
+                console.info(`❌ Error while adding attribute to event ${payload.event}`)
+                Alpine.store('message').createItem("Error while adding attribute.", 40)
             }
             this.loading = false
         },
-        // async delete() { // TODO
-        //     if (this.loading) return
-        //     this.loading = true
-        //     const pk = this.$el.closest('[data-pk]').dataset.pk
-        //     console.log('🗑️ Delete attribute with pk =', pk)
-        //     this.loading = false
-        // },
+        async deleteItem() { // TODO
+            if (this.loading) return
+            this.loading = true
+            console.log('🗑️ Delete an attribute')
+            const attribute_type = this.$el.closest('[data-type]').dataset.type
+            const pk = this.$el.closest('[data-pk]').dataset.pk
+            const url = `/${attribute_type}/${pk}/`
+            const response = await api.delete(url)
+            if (response.status === 'success') {
+                console.info(`✅ Attribute deleted from event`)
+                Alpine.store('message').createItem("Attribute deleted.", 25)
+                window.location.reload()
+            } else {
+                console.info(`❌ Error while deleting attribute from event`)
+                Alpine.store('message').createItem("Error while deleting attribute.", 40)
+            }
+            this.loading = false
+        },
 
         // 🔹 CVE CRUD
         async readCve() {
@@ -127,20 +143,28 @@ export function attributeCrud() {
                                     cvss = firstMetric.cvssData.baseScore;
                                     cvss_version = key; // salva il tipo di metrica
                                     console.log(`✅ Found CVSS ${cvss_version}`)
+                                    Alpine.store('message').createItem(`Found CVSS ${cvss_version}`, 25)
                                     break
                                 }
                             }
                         }
                     }
-                    if (!cvss) console.log('⚠️ CVSS not found')
+                    if (!cvss) {
+                        console.log('❌ CVSS format error')
+                        Alpine.store('message').createItem("CVSS format error.", 40)
+                    }
 
                     // Fill values
                     if (!this.attribute_data.vuln.name || this.attribute_data.vuln.name === "") this.attribute_data.vuln.name = cve_data.id
                     if (!this.attribute_data.vuln.description || this.attribute_data.vuln.description === "") this.attribute_data.vuln.description = cve_description
                     this.attribute_data.vuln.cvss = cvss
                 }
+            } else if (response.http.code == 404) {
+                console.log('⚠️ CVSS not found')
+                Alpine.store('message').createItem("CVSS not found.", 30)
             } else {
-                console.error('❌ CVE error')
+                console.error('❌ CVE download error')
+                Alpine.store('message').createItem("CVE download error", 40)
             }            
             this.loading = false
         },

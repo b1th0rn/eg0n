@@ -1,5 +1,40 @@
-// utils/api.js
-const API_BASE = '/api' // Modifica con la base della tua API
+// utils.js
+const API_BASE = '/api' // Django API prefix
+
+export function severityToClass(sev) {
+    // Integer to string severity converter
+    return {
+        40: 'alert-danger',
+        30: 'alert-warning',
+        25: 'alert-success',
+        20: 'alert-info',
+    }[sev] ?? ''
+}
+
+export function severityToIcon(sev) {
+    // Integer to SVG severity converter
+    return {
+        40: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon icon-2">
+                    <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                    <path d="M12 8v4"></path>
+                    <path d="M12 16h.01"></path>
+                </svg>`,
+        30: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon icon-2">
+                <path d="M12 9v4"></path>
+                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path>
+                <path d="M12 16h.01"></path>
+            </svg>`,
+        25: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon icon-2">
+                <path d="M5 12l5 5l10 -10"></path>
+            </svg>`,
+        20: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon alert-icon icon-2">
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+                <path d="M12 9h.01"></path>
+                <path d="M11 12h1v4h1"></path>
+            </svg>`,
+    }[sev] ?? ''
+}
+
 
 function getCsrfToken() {
     // Load and return CSRF token
@@ -76,6 +111,9 @@ export const api = {
             options.headers['Content-Type'] = 'application/json'
             if (!external_endpoint) options.headers['X-CSRFToken'] = getCsrfToken()
             options.body = JSON.stringify(payload)
+        } else if (method == "DELETE") {
+            // Add CSRF token with DELETE
+            options.headers['X-CSRFToken'] = getCsrfToken()
         }
 
         if (!external_endpoint) {
