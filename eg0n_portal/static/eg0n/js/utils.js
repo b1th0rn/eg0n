@@ -111,6 +111,9 @@ export const api = {
             options.headers['Content-Type'] = 'application/json'
             if (!external_endpoint) options.headers['X-CSRFToken'] = getCsrfToken()
             options.body = JSON.stringify(payload)
+        } else if (method == "DELETE") {
+            // Add CSRF token with DELETE
+            options.headers['X-CSRFToken'] = getCsrfToken()
         }
 
         if (!external_endpoint) {
