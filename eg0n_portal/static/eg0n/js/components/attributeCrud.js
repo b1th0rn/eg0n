@@ -74,7 +74,6 @@ export function attributeCrud() {
             const payload = this.attribute_data[this.attribute_type]
             payload.event = this.$root.dataset.event_pk
             const response = await api.post(url, payload)
-            // TODO: must handle response and add a toast
             if (response.status === 'success') {
                 console.info(`✅ Attribute added to event ${payload.event}`)
                 Alpine.store('message').createItem("Attribute added.", 25)
@@ -88,11 +87,19 @@ export function attributeCrud() {
         async deleteItem() { // TODO
             if (this.loading) return
             this.loading = true
+            console.log('🗑️ Delete an attribute')
+            const attribute_type = this.$el.closest('[data-type]').dataset.type
             const pk = this.$el.closest('[data-pk]').dataset.pk
-            Alpine.store('message').createItem("Attenzione!", 40)
-            Alpine.store('message').createItem("Warnoing!", 30)
-            Alpine.store('message').createItem("Success!", 25)
-            Alpine.store('message').createItem("Info!", 20)
+            const url = `/${attribute_type}/${pk}/`
+            const response = await api.delete(url)
+            if (response.status === 'success') {
+                console.info(`✅ Attribute deleted from event`)
+                Alpine.store('message').createItem("Attribute deleted.", 25)
+                window.location.reload()
+            } else {
+                console.info(`❌ Error while deleting attribute from event`)
+                Alpine.store('message').createItem("Error while deleting attribute.", 40)
+            }
             this.loading = false
         },
 
