@@ -877,7 +877,7 @@ FILENAMES = [
 ]
 
 
-with open('tests/ioc_management/nist-cves.json', 'r') as fh:
+with open('tests/ioc_management/nist-cves.large.json', 'r') as fh:
     vulns_data = fh.read()
     VULNS = json.loads(vulns_data)['vulnerabilities']
 
