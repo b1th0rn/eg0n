@@ -1,4 +1,4 @@
-exclude: __pycache__|.git|.venv|build|dist|env|migrations|venv|\*.large.\*|\*.vma|\*.qcow2
+exclude: __pycache__|\.git|\.venv|build|dist|env|migrations|venv|.*large.*|.*\.qcow2|.*\.vma
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
