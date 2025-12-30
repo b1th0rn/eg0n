@@ -80,7 +80,7 @@
                     <label class="col-3 col-form-label text-uppercase">{{ object.record|get_object_label:"updated_at" }}</label>
                     <div class="col">{{ object.record|get_object_value:"updated_at" }}</div>
                 </div>
-                
+
             <h2>{{ object.record|get_object_label:"description"|title }}</h2>
             {{ object.record|get_object_value:"description"|markdownify|safe }}
 

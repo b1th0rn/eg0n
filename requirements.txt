@@ -1,8 +1,8 @@
 asgiref==3.8.1
-sqlparse==0.5.3
 Django==5.2.7
+django-constance==4.3.2
 django-filter==25.2
 django-tables2==2.7.5
 djangorestframework==3.16.1
-django-constance==4.3.2
 Markdown==3.10
+sqlparse==0.5.3

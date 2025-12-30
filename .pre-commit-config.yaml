@@ -1,4 +1,4 @@
-exclude: __pycache__|.git|.venv|build|dist|env|migrations|venv
+exclude: __pycache__|.git|.venv|build|dist|env|migrations|venv|\*.large.\*|\*.vma|\*.qcow2
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -7,6 +7,7 @@ repos:
       - id: check-case-conflict
       - id: check-json
       - id: check-yaml
+      - id: detect-private-key
       - id: end-of-file-fixer
       - id: fix-byte-order-marker
       - id: requirements-txt-fixer
@@ -21,6 +22,9 @@ repos:
     hooks:
       - id: black
         args: ["--config=.black.toml"]
+  # - repo: https://github.com/ibm/detect-secrets
+  #   - id: detect-secrets
+  #     args: [ --argument1, --argument2 ]
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4
     hooks:
@@ -37,10 +41,6 @@ repos:
       - id: json-sort
         args:
           - --autofix
-          - --end-of-line=lf
-          - --indent-size="    "
-          - --indent-style=space
-          - --insert-final-newline=true
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.47.0
     hooks:

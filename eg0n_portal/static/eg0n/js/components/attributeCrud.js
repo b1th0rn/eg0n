@@ -116,7 +116,7 @@ export function attributeCrud() {
             console.log('📖 Read CVE with pk =', this.attribute_data.vuln.cve)
             const response = await api.get(`https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=${this.attribute_data.vuln.cve}`)
             if (response.status === 'success') {
-                
+
                 if (response.data.vulnerabilities.length != 1) {
                     console.error(`❌ CVE ${this.attribute_data.vuln.cve} returns zero or multiple hits`)
                 } else {
@@ -165,7 +165,7 @@ export function attributeCrud() {
             } else {
                 console.error('❌ CVE download error')
                 Alpine.store('message').createItem("CVE download error", 40)
-            }            
+            }
             this.loading = false
         },
     }
