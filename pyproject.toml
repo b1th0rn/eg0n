@@ -1,0 +1,84 @@
+[project]
+name = "eg0n_portal"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "asgiref (==3.8.1)",
+    "django (==5.2.7)",
+    "django-constance (==4.3.2)",
+    "django-filter (==25.2)",
+    "django-tables2 (==2.7.5)",
+    "djangorestframework (==3.16.1)",
+    "markdown (==3.10)",
+    "sqlparse (==0.5.3)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "eg0n_portal"
+version = "0.1.0"
+
+[tool.poetry.group.dev.dependencies]
+tomlkit = "^0.13.3"
+pyyaml = "^6.0.3"
+jinja2 = "^3.1.6"
+cyclonedx-bom = "^7.2.1"
+pre-commit = "^4.5.1"
+coverage = "7.9.2"
+lorem-text = "3.0"
+pytest = "8.4.1"
+pytest-django = "4.11.1"
+
+
+[tool.black]
+exclude = '''
+/(
+  __pycache__
+  | \.git
+  | \.venv
+  | .vscode
+  | build
+  | dist
+  | fonts
+  | migrations
+  | venv
+)/
+'''
+skip-string-normalization = true
+target-version = ["py310", "py311", "py312", "py313"]
+
+[tool.djlint]
+exclude="__pycache__,.git,.venv,.vscode,build,dist,env,fonts,migrations,tests,venv"
+ignore="H021"
+profile="django"
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    ".vscode",
+    "build",
+    "dist",
+    "env",
+    "fonts",
+    "migrations",
+    "venv",
+]
+target-version = "py310"
+
+[tool.ruff.format]
+indent-style = "space"            # Indent with spaces
+line-ending = "lf"                # Default line ending on Unix
+quote-style = "single"            # Use single quotes for strings.
+skip-magic-trailing-comma = false # Respect magic trailing commas

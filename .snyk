@@ -1,0 +1,13 @@
+# Snyk policy configuration
+exclude:
+  # Exclude the tests directory globally from Snyk scans
+  global:
+    - "__pycache__"
+    - ".git"
+    - ".venv"
+    - "build"
+    - "dist"
+    - "env"
+    - "migrations"
+    - "tests"
+    - "venv"

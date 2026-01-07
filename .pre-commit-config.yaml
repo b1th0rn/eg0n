@@ -1,4 +1,4 @@
-exclude: __pycache__|\.git|\.venv|build|dist|env|migrations|venv|.*large.*|.*\.qcow2|.*\.vma
+exclude: __pycache__|\.git|\.venv|\.vscode|build|dist|env|migrations|venv|\.secrets\.baseline$|sbom-cyclonedx.json|fonts|.*large.*|.*\.qcow2|.*\.vma
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -21,15 +21,14 @@ repos:
     rev: 25.12.0
     hooks:
       - id: black
-        args: ["--config=.black.toml"]
   # - repo: https://github.com/ibm/detect-secrets
-  #   - id: detect-secrets
-  #     args: [ --argument1, --argument2 ]
+  #   rev: 0.13.1+ibm.64.dss
+  #   hooks:
+  #     - id: detect-secrets
   - repo: https://github.com/Riverside-Healthcare/djLint
     rev: v1.36.4
     hooks:
-      - id: djlint-django
-        args: ["--configuration", ".djlintrc"]
+      - id: djlint-jinja
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
@@ -62,10 +61,6 @@ repos:
     rev: v3.21.2
     hooks:
       - id: pyupgrade
-  # - repo: https://github.com/RobertCraigie/pyright-python
-  #   rev: v1.1.407
-  #   hooks:
-  #     - id: pyright
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.10
     hooks:
@@ -82,3 +77,16 @@ repos:
     hooks:
       - id: yamllint
         args: [--format, parsable, --strict, -c, .yamllint.yaml]
+  - repo: local
+    hooks:
+      - id: cyclonedx-generate
+        name: Generate CycloneDX SBOM
+        entry: bash -c "cyclonedx-py poetry --with dev -o sbom-cyclonedx.json"
+        language: system
+  - repo: local
+    hooks:
+      - id: bomber-scan
+        name: Scan SBOM
+        entry: bash -c "bomber scan sbom-cyclonedx.json"
+        language: system
+        pass_filenames: false

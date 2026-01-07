@@ -1,0 +1,5 @@
+ansible: false
+djang_app: eg0n_portal
+pyright: false
+sbom: true
+terraform: false
